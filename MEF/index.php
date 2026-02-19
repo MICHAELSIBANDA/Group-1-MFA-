@@ -89,7 +89,7 @@
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 1.4rem;
+            gap: 1.6rem; /* slightly increased gap for larger logo */
         }
 
         /* logo is now clickable */
@@ -99,19 +99,20 @@
             cursor: pointer;
         }
 
+        /* ===== INCREASED LOGO SIZE ===== */
         .logo {
-            width: 58px;
-            height: 58px;
+            width: 80px;        /* increased from 58px */
+            height: 80px;       /* increased from 58px */
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid var(--accent-gold);
-            box-shadow: 0 0 25px rgba(255,215,0,0.35);
+            border: 4px solid var(--accent-gold);  /* slightly thicker border */
+            box-shadow: 0 0 30px rgba(255,215,0,0.45);
             transition: var(--transition);
         }
 
         .logo:hover {
             transform: scale(1.12) rotate(8deg);
-            box-shadow: 0 0 40px rgba(255,215,0,0.6);
+            box-shadow: 0 0 50px rgba(255,215,0,0.7);
         }
 
         .brand-text .brand {
@@ -248,16 +249,23 @@
             box-shadow: var(--shadow-md);
         }
 
+        /* ▼▼▼ LEARN MORE BUTTON (PRIMARY) NOW MATCHES SECONDARY STYLE & TURNS GOLD ON HOVER ▼▼▼ */
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
-            color: var(--primary-dark);
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(8px);
+            border: 2px solid var(--accent-gold);
+            color: var(--accent-gold-light);
         }
 
         .btn-primary:hover {
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            border-color: transparent;
             transform: translateY(-6px) scale(1.04);
-            box-shadow: 0 20px 40px rgba(255,215,0,0.4);
+            box-shadow: 0 20px 40px rgba(255,215,0,0.35);
         }
 
+        /* SECONDARY (GET IN TOUCH) KEEPS EXACTLY THE SAME STYLE (ALREADY GOLD ON HOVER) */
         .btn-secondary {
             background: rgba(255,255,255,0.08);
             backdrop-filter: blur(8px);
@@ -1066,10 +1074,10 @@
 </head>
 <body>
 
-    <!-- NAVBAR with clickable logo -->
+    <!-- NAVBAR with larger clickable logo -->
     <nav class="fixed-nav">
         <div class="nav-left">
-            <!-- Logo wrapped in clickable element -->
+            <!-- Logo wrapped in clickable element (now larger) -->
             <a href="#home" class="logo-link">
                 <img src="logo.jpeg" alt="MEF Logo" class="logo">
             </a>
@@ -1084,7 +1092,7 @@
             <a href="#home" class="active">Home</a>
             <a href="#about">About</a>
             <a href="#services">Services</a>
-            <a href="#testimonials">Testimonies</a>   <!-- renamed from Stories to Testimonies -->
+            <a href="#testimonials">Testimonies</a>
             <a href="#contact">Contact</a>
         </div>
     </nav>
@@ -1093,20 +1101,21 @@
 
         <!-- HOME with graduates.jpeg background -->
         <section id="home">
-            <img src="graduates.jpg" alt="MEF Background - Graduates" class="home-bg">   <!-- updated photo -->
+            <img src="graduates.jpg" alt="MEF Background - Graduates" class="home-bg">
             <div class="home-overlay"></div>
             
             <div class="home-content">
                 <h1>Make Education Fashionable</h1>
                 <p>Transforming education through inspiration, leadership, and real stories of triumph. Join the movement started by Prof. Mamokgethi Phakeng to celebrate learning and impact.</p>
                 <div class="home-buttons">
+                    <!-- LEARN MORE now has the same style as GET IN TOUCH (gold border + turns gold on hover) -->
                     <a href="#about" class="btn btn-primary">Learn More</a>
                     <a href="#contact" class="btn btn-secondary">Get in Touch</a>
                 </div>
             </div>
         </section>
 
-        <!-- ABOUT (unchanged) -->
+        <!-- ABOUT -->
         <section id="about" class="section">
             <div class="section-container">
                 <h2 class="section-title">About MEF</h2>
@@ -1140,7 +1149,7 @@
             </div>
         </section>
 
-        <!-- SERVICES with 6 boxes (added 6th - Convocation with ticket link) -->
+        <!-- SERVICES (6 boxes + ticket link) -->
         <section id="services" class="section">
             <div class="section-container">
                 <h2 class="section-title">Our Services & Awards</h2>
@@ -1182,7 +1191,7 @@
                     <p>Six impactful ways to engage with MEF</p>
                 </div>
 
-                <!-- 6 BOXES (original 5 + new 6th with ticket link) -->
+                <!-- 6 BOXES (with ticket link in 6th) -->
                 <div class="categories-grid">
                     <!-- 1. African Development Research Award -->
                     <div class="category-card">
@@ -1219,7 +1228,7 @@
                         <p>Honors young graduates transforming agriculture through innovation, sustainability, and modern farming practices.</p>
                         <span class="category-tag">Agriculture</span>
                     </div>
-                    <!-- 6. NEW: MEF Convocation 2025 with ticket link -->
+                    <!-- 6. MEF Convocation 2025 with ticket link -->
                     <div class="category-card">
                         <div class="category-icon-wrapper"><div class="category-icon"><i class="fas fa-ticket-alt"></i></div></div>
                         <h4>MEF Convocation 2025</h4>
@@ -1233,17 +1242,17 @@
                     <h3>Ready to Share Your Story?</h3>
                     <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
                     <a href="https://forms.gle/VhF17yFSkCF4RXAs7" class="cta-button" target="_blank">
-                        <span></span>
+                        <span>Share Your Story</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
             </div>
         </section>
 
-        <!-- TESTIMONIES (renamed from Stories) -->
+        <!-- TESTIMONIES -->
         <section id="testimonials" class="section">
             <div class="section-container">
-                <h2 class="section-title">Testimonies</h2>   <!-- title changed -->
+                <h2 class="section-title">Testimonies</h2>
                 
                 <div class="testimonials-grid">
                     <div class="testimonial-card">
@@ -1294,7 +1303,7 @@
             </div>
         </section>
 
-        <!-- CONTACT with popup on submit (white popup) -->
+        <!-- CONTACT (form clears after submit + popup) -->
         <section id="contact" class="section">
             <div class="section-container">
                 <h2 class="section-title">Get in Touch</h2>
@@ -1323,8 +1332,8 @@
                     </div>
                     
                     <div class="contact-form">
-                        <!-- prevent actual submit, show popup instead -->
-                        <form id="contactForm" onsubmit="showPopup(event)">
+                        <!-- Form now uses onsubmit: shows popup, clears fields, prevents actual submit -->
+                        <form id="contactForm" onsubmit="handleSubmit(event)">
                             <div class="form-group">
                                 <input type="text" id="name" name="name" placeholder="Your Name" required>
                             </div>
@@ -1346,7 +1355,7 @@
 
     </main>
 
-    <!-- FOOTER (unchanged) -->
+    <!-- FOOTER -->
     <footer>
         <div class="footer-container">
             <div class="footer-main">
@@ -1400,12 +1409,10 @@
         // Smooth scroll + active link (including clickable logo)
         document.querySelectorAll('.nav-links a, .logo-link').forEach(link => {
             link.addEventListener('click', e => {
-                // Only handle if it's an anchor link (has href starting with #)
                 const href = link.getAttribute('href');
                 if (href && href.startsWith('#')) {
                     e.preventDefault();
                     
-                    // Update active class on nav links (skip logo)
                     if (!link.classList.contains('logo-link')) {
                         document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
                         link.classList.add('active');
@@ -1424,11 +1431,10 @@
             });
         });
 
-        // Navbar scroll effect
+        // Navbar scroll effect + active link update
         window.addEventListener('scroll', () => {
             document.querySelector('.fixed-nav').classList.toggle('scrolled', window.scrollY > 100);
 
-            // Update active link on scroll
             const sections = document.querySelectorAll('section[id]');
             const scrollPos = window.scrollY + 100;
 
@@ -1445,18 +1451,21 @@
             });
         });
 
-        // Popup function for contact form (now white)
-        function showPopup(event) {
-            event.preventDefault();  // stop form submission / page reload
+        // Form submit handler: popup, then clear all fields
+        function handleSubmit(event) {
+            event.preventDefault();  // Stop actual submission / page reload
 
+            // Show white popup
             const popup = document.createElement('div');
             popup.className = 'popup-success';
-            popup.innerText = ' Message Sent Successfully!';
-
-            // Append to body
+            popup.innerText = '✓ Message Sent Successfully!';
             document.body.appendChild(popup);
 
-            // Remove after 3 seconds
+            // Clear the form fields
+            const form = document.getElementById('contactForm');
+            form.reset();  // This resets all inputs to their initial empty state
+
+            // Remove popup after 3 seconds
             setTimeout(() => {
                 popup.remove();
             }, 3000);
