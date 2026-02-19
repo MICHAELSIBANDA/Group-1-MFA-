@@ -1,9 +1,37 @@
+<?php
+// Initialize variables for form handling
+$success_message = '';
+$error_message = '';
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_message'])) {
+    $name = filter_var($_POST['name'] ?? '', FILTER_SANITIZE_STRING);
+    $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
+    $subject = filter_var($_POST['subject'] ?? '', FILTER_SANITIZE_STRING);
+    $message = filter_var($_POST['message'] ?? '', FILTER_SANITIZE_STRING);
+    
+    if ($name && $email && $subject && $message && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        // Here you would typically send an email or save to database
+        // For demonstration, we'll just set a success message
+        $success_message = "Thank you for your message! We'll get back to you soon.";
+        
+        // Clear form data after successful submission
+        $_POST = array();
+    } else {
+        $error_message = "Please fill all fields correctly with a valid email address.";
+    }
+}
+
+// Current year for copyright
+$current_year = date('Y');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>MEF · Make Education Fashionable</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Make Education Fashionable - A movement founded by Prof. Mamokgethi Phakeng to celebrate educational achievements and inspire the next generation of African leaders.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
@@ -89,23 +117,21 @@
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 1.6rem; /* slightly increased gap for larger logo */
+            gap: 1.6rem;
         }
 
-        /* logo is now clickable */
         .logo-link {
             display: flex;
             align-items: center;
             cursor: pointer;
         }
 
-        /* ===== INCREASED LOGO SIZE ===== */
         .logo {
-            width: 80px;        /* increased from 58px */
-            height: 80px;       /* increased from 58px */
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid var(--accent-gold);  /* slightly thicker border */
+            border: 4px solid var(--accent-gold);
             box-shadow: 0 0 30px rgba(255,215,0,0.45);
             transition: var(--transition);
         }
@@ -113,15 +139,6 @@
         .logo:hover {
             transform: scale(1.12) rotate(8deg);
             box-shadow: 0 0 50px rgba(255,215,0,0.7);
-        }
-
-        .brand-text .brand {
-            font-size: 1.9rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-teal));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .brand-sub {
@@ -247,9 +264,9 @@
             cursor: pointer;
             transition: var(--transition);
             box-shadow: var(--shadow-md);
+            display: inline-block;
         }
 
-        /* ▼▼▼ LEARN MORE BUTTON (PRIMARY) NOW MATCHES SECONDARY STYLE & TURNS GOLD ON HOVER ▼▼▼ */
         .btn-primary {
             background: rgba(255,255,255,0.08);
             backdrop-filter: blur(8px);
@@ -265,7 +282,6 @@
             box-shadow: 0 20px 40px rgba(255,215,0,0.35);
         }
 
-        /* SECONDARY (GET IN TOUCH) KEEPS EXACTLY THE SAME STYLE (ALREADY GOLD ON HOVER) */
         .btn-secondary {
             background: rgba(255,255,255,0.08);
             backdrop-filter: blur(8px);
@@ -291,6 +307,7 @@
             margin-bottom: 4rem;
             position: relative;
             display: inline-block;
+            width: 100%;
         }
 
         .section-title:after {
@@ -303,6 +320,26 @@
             height: 5px;
             background: linear-gradient(90deg, var(--accent-gold), var(--accent-teal), var(--accent-purple));
             border-radius: 3px;
+        }
+
+        /* ALERT MESSAGES */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: rgba(45,212,191,0.2);
+            border: 1px solid var(--accent-teal);
+            color: var(--accent-teal-light);
+        }
+
+        .alert-error {
+            background: rgba(251,113,133,0.2);
+            border: 1px solid var(--accent-coral);
+            color: var(--accent-coral-light);
         }
 
         /* ABOUT */
@@ -362,7 +399,7 @@
             font-style: italic;
         }
 
-        /* ===== REBRANDED SERVICES SECTION - WITH 6TH BOX + TICKET LINK ===== */
+        /* SERVICES */
         #services {
             background: linear-gradient(135deg, var(--primary-light), var(--primary-navy));
             position: relative;
@@ -410,7 +447,6 @@
             font-size: 1.2rem;
         }
 
-        /* Founder Showcase - Text on Right, Photo on Left */
         .founder-showcase {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -504,7 +540,6 @@
             border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
         }
 
-        /* Award Categories - Reimagined (now 6 items) */
         .categories-title {
             text-align: center;
             margin: 5rem 0 3rem;
@@ -636,7 +671,6 @@
             border-color: var(--accent-gold);
         }
 
-        /* nomination CTA unchanged */
         .nomination-cta {
             margin-top: 5rem;
             text-align: center;
@@ -686,7 +720,7 @@
             transform: translateX(5px) rotate(10deg);
         }
 
-        /* TESTIMONIALS (renamed to testimonies) */
+        /* TESTIMONIALS */
         #testimonials {
             background: linear-gradient(135deg, var(--primary-navy), var(--primary-dark));
         }
@@ -1047,29 +1081,6 @@
             .nomination-cta { padding: 2rem; }
             .footer-bottom-links { flex-wrap: wrap; justify-content: center; }
         }
-
-        /* Simple success popup styling - white background, dark text */
-        .popup-success {
-            position: fixed;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #ffffff;  /* clean white */
-            color: #0a192f;       /* primary dark for contrast */
-            padding: 1.5rem 3rem;
-            border-radius: var(--radius-lg);
-            font-weight: 700;
-            font-size: 1.5rem;
-            box-shadow: var(--shadow-xl);
-            z-index: 2000;
-            border: 3px solid var(--accent-gold);
-            text-align: center;
-            animation: fadePop 0.3s ease;
-        }
-        @keyframes fadePop {
-            0% { opacity: 0; transform: translate(-50%, -30%); }
-            100% { opacity: 1; transform: translate(-50%, -50%); }
-        }
     </style>
 </head>
 <body>
@@ -1077,7 +1088,6 @@
     <!-- NAVBAR with larger clickable logo -->
     <nav class="fixed-nav">
         <div class="nav-left">
-            <!-- Logo wrapped in clickable element (now larger) -->
             <a href="#home" class="logo-link">
                 <img src="logo.jpeg" alt="MEF Logo" class="logo">
             </a>
@@ -1108,7 +1118,6 @@
                 <h1>Make Education Fashionable</h1>
                 <p>Transforming education through inspiration, leadership, and real stories of triumph. Join the movement started by Prof. Mamokgethi Phakeng to celebrate learning and impact.</p>
                 <div class="home-buttons">
-                    <!-- LEARN MORE now has the same style as GET IN TOUCH (gold border + turns gold on hover) -->
                     <a href="#about" class="btn btn-primary">Learn More</a>
                     <a href="#contact" class="btn btn-secondary">Get in Touch</a>
                 </div>
@@ -1303,7 +1312,7 @@
             </div>
         </section>
 
-        <!-- CONTACT (form clears after submit + popup) -->
+        <!-- CONTACT with PHP form handling -->
         <section id="contact" class="section">
             <div class="section-container">
                 <h2 class="section-title">Get in Touch</h2>
@@ -1332,21 +1341,31 @@
                     </div>
                     
                     <div class="contact-form">
-                        <!-- Form now uses onsubmit: shows popup, clears fields, prevents actual submit -->
-                        <form id="contactForm" onsubmit="handleSubmit(event)">
+                        <?php if ($success_message): ?>
+                            <div class="alert alert-success"><?php echo htmlspecialchars($success_message); ?></div>
+                        <?php endif; ?>
+                        
+                        <?php if ($error_message): ?>
+                            <div class="alert alert-error"><?php echo htmlspecialchars($error_message); ?></div>
+                        <?php endif; ?>
+
+                        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>#contact">
                             <div class="form-group">
-                                <input type="text" id="name" name="name" placeholder="Your Name" required>
+                                <input type="text" id="name" name="name" placeholder="Your Name" 
+                                       value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name']) : ''; ?>" required>
                             </div>
                             <div class="form-group">
-                                <input type="email" id="email" name="email" placeholder="Your Email" required>
+                                <input type="email" id="email" name="email" placeholder="Your Email" 
+                                       value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required>
                             </div>
                             <div class="form-group">
-                                <input type="text" id="subject" name="subject" placeholder="Subject" required>
+                                <input type="text" id="subject" name="subject" placeholder="Subject" 
+                                       value="<?php echo isset($_POST['subject']) ? htmlspecialchars($_POST['subject']) : ''; ?>" required>
                             </div>
                             <div class="form-group">
-                                <textarea id="message" name="message" placeholder="Your Message" required></textarea>
+                                <textarea id="message" name="message" placeholder="Your Message" required><?php echo isset($_POST['message']) ? htmlspecialchars($_POST['message']) : ''; ?></textarea>
                             </div>
-                            <button type="submit" class="submit-btn">Send Message</button>
+                            <button type="submit" name="submit_message" class="submit-btn">Send Message</button>
                         </form>
                     </div>
                 </div>
@@ -1390,7 +1409,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <div>© 2026 MEF – Make Education Fashionable. All rights reserved.</div>
+                <div>© <?php echo $current_year; ?> MEF – Make Education Fashionable. All rights reserved.</div>
                 <div class="footer-bottom-links">
                     <a href="#">Privacy Policy</a>
                     <a href="#">Terms of Use</a>
@@ -1450,26 +1469,6 @@
                 }
             });
         });
-
-        // Form submit handler: popup, then clear all fields
-        function handleSubmit(event) {
-            event.preventDefault();  // Stop actual submission / page reload
-
-            // Show white popup
-            const popup = document.createElement('div');
-            popup.className = 'popup-success';
-            popup.innerText = '✓ Message Sent Successfully!';
-            document.body.appendChild(popup);
-
-            // Clear the form fields
-            const form = document.getElementById('contactForm');
-            form.reset();  // This resets all inputs to their initial empty state
-
-            // Remove popup after 3 seconds
-            setTimeout(() => {
-                popup.remove();
-            }, 3000);
-        }
     </script>
 
 </body>
