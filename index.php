@@ -1,3 +1,18 @@
+<?php
+require_once __DIR__ . '/setup_db.php';
+
+// Load .env and connect to the database
+$env = parse_ini_file(__DIR__ . '/.env');
+$conn = new mysqli(
+    $env['DB_HOST'],
+    $env['DB_USER'],
+    $env['DB_PASS'],
+    $env['DB_NAME'],
+    $env['DB_PORT']
+);
+if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1822,17 +1837,166 @@
                         <p>Join the flagship event celebrating educational achievements. Network with leaders, share stories, and be inspired.</p>
                         <span class="category-tag">Get Tickets</span>
                     </div>
-                    <!-- 7. Nomination Card - Share Your Story -->
-                    <div class="nomination-card" id="nominationCard">
-                        <div class="nomination-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <h3>Nominate yourself or someone</h3>
-                        <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
-                        <div class="nomination-btn" id="nominationCardBtn">
-                            <span>Nominate Now</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
+                </div>
+
+               <!-- NEW: Enhanced Nomination Form Section -->
+<div class="nomination-form-section" id="nominationForm">
+    <h3>Share Your Story</h3>
+    <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
+    
+    <!-- ✅ BUTTON TO TOGGLE FORM -->
+    <button class="btn-gold" onclick="toggleNominationForm()" id="toggleFormBtn">
+        Share Your Story
+    </button>
+    
+    <!-- ✅ FORM (HIDDEN BY DEFAULT) -->
+    <div class="nomination-form" id="nominationFormContainer" style="display: none;">
+        <form id="storyNominationForm" onsubmit="submitNomination(event)">
+            
+            <!-- Nomination Type -->
+            <div class="form-group">
+                <label>I am nominating: *</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="nominationType" value="self" checked> Myself
+                    </label>
+                    <label>
+                        <input type="radio" name="nominationType" value="other"> Someone else
+                    </label>
+                </div>
+            </div>
+
+            <!-- Nominee Information -->
+            <div id="nomineeInfo">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nomineeFirstName">First Name *</label>
+                        <input type="text" id="nomineeFirstName" name="nomineeFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nomineeLastName">Last Name *</label>
+                        <input type="text" id="nomineeLastName" name="nomineeLastName" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nomineeEmail">Email Address *</label>
+                    <input type="email" id="nomineeEmail" name="nomineeEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nomineePhone">Phone Number *</label>
+                    <input type="tel" id="nomineePhone" name="nomineePhone" required>
+                </div>
+            </div>
+
+            <!-- Nominator Information -->
+            <div id="nominatorInfo" style="display: none;">
+                <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nominatorFirstName">Your First Name *</label>
+                        <input type="text" id="nominatorFirstName" name="nominatorFirstName">
+                    </div>
+                    <div class="form-group">
+                        <label for="nominatorLastName">Your Last Name *</label>
+                        <input type="text" id="nominatorLastName" name="nominatorLastName">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nominatorEmail">Your Email Address *</label>
+                    <input type="email" id="nominatorEmail" name="nominatorEmail">
+                </div>
+                
+                <div class="form-group">
+                    <label for="nominatorPhone">Your Phone Number *</label>
+                    <input type="tel" id="nominatorPhone" name="nominatorPhone">
+                </div>
+                
+                <div class="form-group">
+                    <label for="relationship">Relationship to Nominee *</label>
+                    <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family member">
+                </div>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+                <label for="nominationCategory">Award Category *</label>
+                <select id="nominationCategory" name="nominationCategory" required>
+                    <option value="">Select a category</option>
+                    <option value="research">African Development Research Award</option>
+                    <option value="ai">AI Champion Award</option>
+                    <option value="women">Mamokgethi Phakeng Prize</option>
+                    <option value="entrepreneur">Young Entrepreneur Award</option>
+                    <option value="agriculture">Youth in Agriculture Award</option>
+                </select>
+            </div>
+
+            <!-- Story -->
+            <div class="form-group">
+                <label for="storyTitle">Story Title *</label>
+                <input type="text" id="storyTitle" name="storyTitle" placeholder="Give your story a title" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="inspirationStory">Share Your/Their Story of Victory *</label>
+                <textarea id="inspirationStory" name="inspirationStory" rows="6" required></textarea>
+            </div>
+
+            <!-- LinkedIn -->
+            <div class="form-group">
+                <label for="nomineeLinkedIn">LinkedIn Profile (Optional)</label>
+                <div class="linkedin-input">
+                    <span>linkedin.com/in/</span>
+                    <input type="text" id="nomineeLinkedin" name="nomineeLinkedin">
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div class="form-group">
+                <label for="keyAchievements">Key Achievements</label>
+                <textarea id="keyAchievements" name="keyAchievements" rows="3"></textarea>
+            </div>
+
+            <!-- Social -->
+            <div class="form-group">
+                <label for="socialLinks">Social Media Links</label>
+                <input type="text" id="socialLinks" name="socialLinks">
+            </div>
+
+            <!-- Consent -->
+            <div class="checkbox-group">
+                <input type="checkbox" id="nominationTerms" required>
+                <label for="nominationTerms">I confirm that the information provided is true *</label>
+            </div>
+            
+            <button type="submit" class="btn-gold">Submit Nomination</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleNominationForm() {
+    const form = document.getElementById("nominationFormContainer");
+    const button = document.getElementById("toggleFormBtn");
+
+    if (form.style.display === "none") {
+        form.style.display = "block";
+        button.textContent = "Hide Form";
+        form.scrollIntoView({ behavior: "smooth" });
+    } else {
+        form.style.display = "none";
+        button.textContent = "Share Your Story";
+    }
+}
+</script>
+
+                    <!-- Success Message (hidden by default) -->
+                    <div id="nominationSuccess" class="nomination-success" style="display: none;">
+                        <i class="fas fa-check-circle"></i>
+                        <h4>Nomination Submitted Successfully!</h4>
+                        <p>Thank you for sharing this story of victory. We will review the nomination and contact you soon.</p>
                     </div>
                 </div>
             </div>
