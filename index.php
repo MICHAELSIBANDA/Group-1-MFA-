@@ -66,7 +66,7 @@
 
         a { color: inherit; text-decoration: none; }
 
-        /* FIXED NAVBAR */
+        /* FIXED NAVBAR - with hide/show on scroll */
         .fixed-nav {
             position: fixed;
             top: 0; left: 0;
@@ -79,7 +79,12 @@
             align-items: center;
             justify-content: space-between;
             z-index: 1000;
-            transition: var(--transition);
+            transition: transform 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease;
+            transform: translateY(0);
+        }
+
+        .fixed-nav.hidden {
+            transform: translateY(-100%);
         }
 
         .fixed-nav.scrolled {
@@ -104,38 +109,33 @@
             height: 80px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid var(--accent-gold);
-            box-shadow: 0 0 30px rgba(255,215,0,0.45);
-            transition: var(--transition);
+            /* REMOVED: border and box-shadow */
+            border: none;
+            box-shadow: none;
+            transition: transform 0.4s ease;
         }
 
         .logo:hover {
-            transform: scale(1.12) rotate(8deg);
-            box-shadow: 0 0 50px rgba(255,215,0,0.7);
+            transform: scale(1.08) rotate(4deg);
+            /* REMOVED: box-shadow on hover */
         }
 
-        .brand-sub {
-            font-size: 0.88rem;
-            color: var(--text-muted);
-            letter-spacing: 1.2px;
-        }
-
-        /* UPDATED: Make Education Fashionable text - bold, white, no border */
         .brand-text {
             border: none;
             background: transparent;
         }
         
+        /* DECREASED font size */
         .brand-text .brand-main {
-            font-size: 1.9rem;
+            font-size: 1.5rem;
             font-weight: 800;
             color: #ffffff;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             line-height: 1.2;
         }
         
         .brand-text .brand-sub {
-            font-size: 0.88rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             letter-spacing: 1.2px;
             margin-top: 0.2rem;
@@ -564,7 +564,7 @@
             gap: 2.5rem;
         }
 
-        /* UPDATED: Make cards clickable */
+        /* Make cards clickable */
         .category-card {
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(12px);
@@ -1249,7 +1249,7 @@
                 <img src="logoII.jpeg" alt="MEF Logo" class="logo">
             </a>
             <div class="brand-text">
-                <!-- UPDATED: Bold white text with no border -->
+                <!-- DECREASED font size -->
                 <div class="brand-main">MAKE EDUCATION</div>
                 <div class="brand-main" style="margin-top: -0.3rem;">FASHIONABLE</div>
                 <div class="brand-sub">MEF · Since 2015</div>
@@ -1728,10 +1728,32 @@
             });
         });
 
-        // Navbar scroll effect + active link update
+        // Navbar hide/show on scroll
+        let lastScrollTop = 0;
+        const navbar = document.querySelector('.fixed-nav');
+        
         window.addEventListener('scroll', () => {
-            document.querySelector('.fixed-nav').classList.toggle('scrolled', window.scrollY > 100);
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Add/remove scrolled class for padding change
+            if (scrollTop > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            // Hide navbar when scrolling down, show when scrolling up
+            if (scrollTop > lastScrollTop && scrollTop > 200) {
+                // Scrolling down
+                navbar.classList.add('hidden');
+            } else {
+                // Scrolling up
+                navbar.classList.remove('hidden');
+            }
+            
+            lastScrollTop = scrollTop;
 
+            // Update active link on scroll
             const sections = document.querySelectorAll('section[id]');
             const scrollPos = window.scrollY + 100;
 
