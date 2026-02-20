@@ -109,7 +109,6 @@
             height: 80px;
             border-radius: 50%;
             object-fit: cover;
-            /* REMOVED: border and box-shadow */
             border: none;
             box-shadow: none;
             transition: transform 0.4s ease;
@@ -117,7 +116,6 @@
 
         .logo:hover {
             transform: scale(1.08) rotate(4deg);
-            /* REMOVED: box-shadow on hover */
         }
 
         .brand-text {
@@ -125,7 +123,6 @@
             background: transparent;
         }
         
-        /* DECREASED font size */
         .brand-text .brand-main {
             font-size: 1.5rem;
             font-weight: 800;
@@ -696,7 +693,7 @@
         
         .modal-content {
             background: var(--primary-light);
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
             border-radius: var(--radius-lg);
             padding: 2.5rem;
@@ -705,7 +702,7 @@
             position: relative;
             transform: scale(0.9);
             transition: transform 0.3s ease;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
         }
         
@@ -721,6 +718,7 @@
             color: var(--text-muted);
             cursor: pointer;
             transition: var(--transition);
+            z-index: 10;
         }
         
         .modal-close:hover {
@@ -736,7 +734,10 @@
         }
         
         .modal-requirements {
-            margin: 2rem 0;
+            margin: 1.5rem 0;
+            background: rgba(255,255,255,0.03);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
         }
         
         .modal-requirements h4 {
@@ -750,7 +751,7 @@
         }
         
         .modal-requirements li {
-            margin: 1rem 0;
+            margin: 0.8rem 0;
             padding-left: 2rem;
             position: relative;
             color: var(--text-muted);
@@ -764,7 +765,72 @@
             font-weight: bold;
             font-size: 1.2rem;
         }
-        
+
+        /* Modal Application Form */
+        .modal-application-form {
+            margin: 1.5rem 0;
+            background: rgba(255,255,255,0.03);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        .modal-application-form h4 {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-application-form h4 i {
+            color: var(--accent-teal);
+        }
+
+        .modal-form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .modal-form-group label {
+            display: block;
+            color: var(--accent-teal-light);
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .modal-form-group input,
+        .modal-form-group textarea,
+        .modal-form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            color: var(--text-light);
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .modal-form-group input:focus,
+        .modal-form-group textarea:focus,
+        .modal-form-group select:focus {
+            outline: none;
+            border-color: var(--accent-teal);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .modal-form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .modal-form-group select option {
+            background: var(--primary-dark);
+            color: var(--text-light);
+        }
+
         .modal-buttons {
             display: flex;
             gap: 1rem;
@@ -804,6 +870,17 @@
         .modal-btn-secondary:hover {
             background: rgba(255,215,0,0.1);
             transform: translateY(-3px);
+        }
+
+        .form-success-message {
+            background: rgba(45,212,191,0.2);
+            border: 1px solid var(--accent-teal);
+            color: var(--accent-teal-light);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 600;
         }
 
         .nomination-cta {
@@ -1227,17 +1304,95 @@
 </head>
 <body>
 
-    <!-- MODAL OVERLAY -->
+    <!-- MODAL OVERLAY with Application Form -->
     <div class="modal-overlay" id="categoryModal">
         <div class="modal-content">
             <span class="modal-close" id="modalClose">&times;</span>
             <h3 class="modal-title" id="modalTitle">Category Title</h3>
+            
+            <!-- Requirements Section -->
             <div class="modal-requirements" id="modalRequirements">
                 <!-- Requirements will be populated by JavaScript -->
             </div>
+
+            <!-- Application Form Section (initially hidden) -->
+            <div class="modal-application-form" id="applicationForm" style="display: none;">
+                <h4><i class="fas fa-file-signature"></i> Application Form</h4>
+                
+                <form id="applicationFormElement">
+                    <input type="hidden" id="applicationCategory" name="category" value="">
+                    
+                    <div class="modal-form-group">
+                        <label for="fullName">Full Name *</label>
+                        <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name">
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="+27 XX XXX XXXX">
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label for="qualification">Highest Qualification *</label>
+                        <input type="text" id="qualification" name="qualification" required placeholder="e.g., PhD in Education">
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label for="institution">Institution *</label>
+                        <input type="text" id="institution" name="institution" required placeholder="Name of university/college">
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label for="age">Age *</label>
+                        <input type="number" id="age" name="age" required min="18" max="100" placeholder="Your age">
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label for="citizenship">Citizenship *</label>
+                        <select id="citizenship" name="citizenship" required>
+                            <option value="">Select citizenship</option>
+                            <option value="South African">South African</option>
+                            <option value="Other African">Other African Country</option>
+                            <option value="International">International</option>
+                        </select>
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label for="experience">Relevant Experience (Years) *</label>
+                        <input type="number" id="experience" name="experience" required min="0" max="50" step="0.5" placeholder="Years of experience">
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label for="achievements">Key Achievements *</label>
+                        <textarea id="achievements" name="achievements" required placeholder="Briefly describe your key achievements relevant to this award" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label for="motivation">Motivation Statement *</label>
+                        <textarea id="motivation" name="motivation" required placeholder="Why should you receive this award? (max 300 words)" rows="4"></textarea>
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label for="linkedin">LinkedIn Profile (Optional)</label>
+                        <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/yourprofile">
+                    </div>
+                </form>
+                
+                <div id="formSuccessMessage" class="form-success-message" style="display: none;">
+                    <i class="fas fa-check-circle"></i> Application submitted successfully! We'll contact you soon.
+                </div>
+            </div>
+
             <div class="modal-buttons">
-                <button class="modal-btn modal-btn-primary" id="modalApplyBtn">Apply Now</button>
+                <button class="modal-btn modal-btn-primary" id="modalShowFormBtn">Apply Now</button>
                 <button class="modal-btn modal-btn-secondary" id="modalCancelBtn">Cancel</button>
+                <button class="modal-btn modal-btn-primary" id="modalSubmitFormBtn" style="display: none;">Submit Application</button>
+                <button class="modal-btn modal-btn-secondary" id="modalBackBtn" style="display: none;">Back</button>
             </div>
         </div>
     </div>
@@ -1249,7 +1404,6 @@
                 <img src="logoII.jpeg" alt="MEF Logo" class="logo">
             </a>
             <div class="brand-text">
-                <!-- DECREASED font size -->
                 <div class="brand-main">MAKE EDUCATION</div>
                 <div class="brand-main" style="margin-top: -0.3rem;">FASHIONABLE</div>
                 <div class="brand-sub">MEF · Since 2015</div>
@@ -1645,7 +1799,16 @@
         const modalRequirements = document.getElementById('modalRequirements');
         const modalClose = document.getElementById('modalClose');
         const modalCancel = document.getElementById('modalCancelBtn');
-        const modalApply = document.getElementById('modalApplyBtn');
+        const modalShowFormBtn = document.getElementById('modalShowFormBtn');
+        const modalSubmitFormBtn = document.getElementById('modalSubmitFormBtn');
+        const modalBackBtn = document.getElementById('modalBackBtn');
+        const applicationForm = document.getElementById('applicationForm');
+        const applicationCategory = document.getElementById('applicationCategory');
+        const applicationFormElement = document.getElementById('applicationFormElement');
+        const formSuccessMessage = document.getElementById('formSuccessMessage');
+
+        // Store current category
+        let currentCategory = '';
 
         // Get all category cards (except the 6th one which has its own onclick)
         const categoryCards = document.querySelectorAll('.category-card:not([onclick])');
@@ -1657,16 +1820,31 @@
                 const data = categoryData[category];
                 
                 if (data) {
+                    currentCategory = category;
                     modalTitle.textContent = data.title;
                     
                     // Build requirements list
-                    let requirementsHtml = '<h4>Requirements:</h4><ul>';
+                    let requirementsHtml = '<h4>Eligibility Requirements:</h4><ul>';
                     data.requirements.forEach(req => {
                         requirementsHtml += `<li>${req}</li>`;
                     });
                     requirementsHtml += '</ul>';
                     
                     modalRequirements.innerHTML = requirementsHtml;
+                    
+                    // Reset form state
+                    applicationForm.style.display = 'none';
+                    formSuccessMessage.style.display = 'none';
+                    modalShowFormBtn.style.display = 'block';
+                    modalSubmitFormBtn.style.display = 'none';
+                    modalBackBtn.style.display = 'none';
+                    modalCancel.style.display = 'block';
+                    
+                    // Clear form fields
+                    applicationFormElement.reset();
+                    
+                    // Set category in hidden field
+                    applicationCategory.value = data.title;
                     
                     // Show modal
                     modal.classList.add('active');
@@ -1675,10 +1853,94 @@
             });
         });
 
+        // Show form when Apply Now is clicked
+        modalShowFormBtn.addEventListener('click', function() {
+            modalRequirements.style.display = 'none';
+            applicationForm.style.display = 'block';
+            modalShowFormBtn.style.display = 'none';
+            modalSubmitFormBtn.style.display = 'block';
+            modalBackBtn.style.display = 'block';
+            modalCancel.style.display = 'none';
+        });
+
+        // Back button functionality
+        modalBackBtn.addEventListener('click', function() {
+            modalRequirements.style.display = 'block';
+            applicationForm.style.display = 'none';
+            formSuccessMessage.style.display = 'none';
+            modalShowFormBtn.style.display = 'block';
+            modalSubmitFormBtn.style.display = 'none';
+            modalBackBtn.style.display = 'none';
+            modalCancel.style.display = 'block';
+        });
+
+        // Submit form functionality
+        modalSubmitFormBtn.addEventListener('click', function() {
+            // Validate form
+            if (!applicationFormElement.checkValidity()) {
+                applicationFormElement.reportValidity();
+                return;
+            }
+
+            // Collect form data
+            const formData = new FormData(applicationFormElement);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Add category
+            data.category = currentCategory;
+            
+            // Here you would typically send the data to a server
+            console.log('Application submitted:', data);
+            
+            // Show success message
+            formSuccessMessage.style.display = 'block';
+            
+            // Disable form fields
+            const formInputs = applicationFormElement.querySelectorAll('input, textarea, select');
+            formInputs.forEach(input => {
+                input.disabled = true;
+            });
+            
+            // Update buttons
+            modalSubmitFormBtn.style.display = 'none';
+            modalBackBtn.style.display = 'none';
+            modalShowFormBtn.style.display = 'none';
+            
+            // Show close button only
+            modalCancel.textContent = 'Close';
+            
+            // You could also send this to a server endpoint
+            // fetch('submit-application.php', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(data)
+            // });
+        });
+
         // Close modal functions
         function closeModal() {
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
+            
+            // Reset modal state for next time
+            setTimeout(() => {
+                modalRequirements.style.display = 'block';
+                applicationForm.style.display = 'none';
+                formSuccessMessage.style.display = 'none';
+                modalShowFormBtn.style.display = 'block';
+                modalSubmitFormBtn.style.display = 'none';
+                modalBackBtn.style.display = 'none';
+                modalCancel.style.display = 'block';
+                modalCancel.textContent = 'Cancel';
+                
+                // Re-enable form fields
+                const formInputs = applicationFormElement.querySelectorAll('input, textarea, select');
+                formInputs.forEach(input => {
+                    input.disabled = false;
+                });
+                
+                applicationFormElement.reset();
+            }, 300);
         }
 
         modalClose.addEventListener('click', closeModal);
@@ -1689,13 +1951,6 @@
             if (e.target === modal) {
                 closeModal();
             }
-        });
-
-        // Apply button functionality
-        modalApply.addEventListener('click', function() {
-            // Redirect to application form (you can customize this URL)
-            window.open('https://forms.gle/VhF17yFSkCF4RXAs7', '_blank');
-            closeModal();
         });
 
         // Mobile menu toggle
