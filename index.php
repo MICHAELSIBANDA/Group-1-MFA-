@@ -663,6 +663,88 @@
             border-color: var(--accent-gold);
         }
 
+        /* NOMINATION CARD */
+        .nomination-card {
+            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(45,212,191,0.15));
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            border: 2px solid var(--accent-gold);
+            box-shadow: var(--shadow-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            grid-column: span 2;
+        }
+
+        .nomination-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--accent-teal);
+            box-shadow: 0 30px 50px rgba(255,215,0,0.3);
+        }
+
+        .nomination-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(255,215,0,0.2), transparent 70%);
+            pointer-events: none;
+        }
+
+        .nomination-icon {
+            font-size: 3.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .nomination-card h3 {
+            font-size: 2.2rem;
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+        }
+
+        .nomination-card p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .nomination-card .nomination-btn {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
+            color: var(--primary-dark);
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .nomination-card .nomination-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255,215,0,0.3);
+        }
+
+        .nomination-card .nomination-btn i {
+            transition: var(--transition);
+        }
+
+        .nomination-card .nomination-btn:hover i {
+            transform: translateX(5px);
+        }
+
         /* MODAL STYLES */
         .modal-overlay {
             position: fixed;
@@ -797,189 +879,6 @@
             transform: translateY(-3px);
         }
 
-        /* NOMINATION FORM SECTION */
-        .nomination-form-section {
-            margin-top: 3rem;
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(12px);
-            border-radius: var(--radius-xl);
-            padding: 3rem;
-            border: 1px solid rgba(255,215,0,0.14);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .nomination-form-section h3 {
-            color: var(--accent-gold);
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .nomination-form-section p {
-            color: var(--text-muted);
-            text-align: center;
-            margin-bottom: 2.5rem;
-            font-size: 1.1rem;
-        }
-
-        .nomination-form {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,215,0,0.3);
-            border-radius: var(--radius-md);
-            color: var(--text-light);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent-gold);
-            background: rgba(255,255,255,0.15);
-        }
-
-        .form-group select {
-            color: var(--accent-gold);
-        }
-
-        .form-group select option {
-            background: var(--primary-dark);
-            color: var(--accent-gold);
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-            margin-top: 0.5rem;
-        }
-
-        .radio-group label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: normal;
-            color: var(--text-muted);
-            cursor: pointer;
-        }
-
-        .radio-group input[type="radio"] {
-            width: auto;
-            margin: 0;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 1rem 0;
-        }
-
-        .checkbox-group input {
-            width: auto;
-        }
-
-        .checkbox-group label {
-            margin-bottom: 0;
-            font-weight: normal;
-        }
-
-        .linkedin-input {
-            display: flex;
-            align-items: center;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,215,0,0.3);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-        }
-
-        .linkedin-input span {
-            padding: 0.8rem 1rem;
-            background: rgba(255,215,0,0.1);
-            color: var(--accent-gold);
-            border-right: 1px solid rgba(255,215,0,0.3);
-            font-size: 0.9rem;
-        }
-
-        .linkedin-input input {
-            border: none;
-            border-radius: 0;
-            background: transparent;
-            flex: 1;
-        }
-
-        .linkedin-input input:focus {
-            border: none;
-            box-shadow: none;
-        }
-
-        .btn-gold {
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
-            color: var(--primary-dark);
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: var(--radius-full);
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            width: 100%;
-            margin-top: 1rem;
-        }
-
-        .btn-gold:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255,215,0,0.3);
-        }
-
-        .nomination-success {
-            background: rgba(45,212,191,0.2);
-            border: 1px solid var(--accent-teal);
-            color: var(--accent-teal-light);
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            text-align: center;
-            margin-top: 2rem;
-        }
-
-        .nomination-success i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .nomination-success h4 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--accent-teal-light);
-        }
-
         /* APPLICATION FORM STYLES */
         .application-form {
             margin-top: 2rem;
@@ -1083,6 +982,94 @@
         .application-success p {
             color: var(--text-muted);
             margin-bottom: 2rem;
+        }
+
+        .linkedin-input {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .linkedin-input span {
+            padding: 0.8rem 1rem;
+            background: rgba(255,215,0,0.1);
+            color: var(--accent-gold);
+            border-right: 1px solid rgba(255,215,0,0.3);
+            font-size: 0.9rem;
+        }
+
+        .linkedin-input input {
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            flex: 1;
+        }
+
+        .linkedin-input input:focus {
+            border: none;
+            box-shadow: none;
+        }
+
+        /* TESTIMONIALS */
+        #testimonials {
+            background: linear-gradient(135deg, var(--primary-navy), var(--primary-dark));
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(12px);
+            padding: 2.4rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(251,113,133,0.25);
+            transition: var(--transition);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-coral);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .testimonial-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stars { color: var(--accent-gold); font-size: 1.4rem; }
+
+        .date { color: var(--text-muted); font-size: 0.9rem; }
+
+        .testimonial-message {
+            font-style: italic;
+            margin: 1.5rem 0;
+            line-height: 1.8;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-coral);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         /* CONTACT */
@@ -1423,7 +1410,7 @@
                 </div>
             </div>
             
-            <!-- Application Form Section (shown after clicking Apply) - UPDATED with LinkedIn field -->
+            <!-- Application Form Section (shown after clicking Apply) -->
             <div id="applicationSection" style="display: none;">
                 <div class="application-form">
                     <h4>Apply for <span id="applicationTitle"></span></h4>
@@ -1475,7 +1462,7 @@
                             <input type="text" id="institution" name="institution" required>
                         </div>
                         
-                        <!-- Removed Graduation Year field, added LinkedIn field -->
+                        <!-- LinkedIn field -->
                         <div class="form-group">
                             <label for="linkedin">LinkedIn Profile *</label>
                             <div class="linkedin-input">
@@ -1515,6 +1502,160 @@
                     <h3>Application Submitted Successfully!</h3>
                     <p>Thank you for applying. We will review your application and contact you soon.</p>
                     <button class="modal-btn modal-btn-primary" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL OVERLAY for Story Nomination -->
+    <div class="modal-overlay" id="nominationModal">
+        <div class="modal-content">
+            <span class="modal-close" id="nominationModalClose">&times;</span>
+            <h3 class="modal-title">Share Your Story</h3>
+            
+            <!-- Nomination Form Section -->
+            <div id="nominationFormSection">
+                <div class="application-form">
+                    <form id="storyNominationForm" onsubmit="submitNomination(event)">
+                        <!-- Nomination Type -->
+                        <div class="form-group">
+                            <label>I am nominating: *</label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="nominationType" value="self" checked> Myself
+                                </label>
+                                <label>
+                                    <input type="radio" name="nominationType" value="other"> Someone else
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Nominee Information -->
+                        <div id="nomineeInfo">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="nomineeFirstName">First Name *</label>
+                                    <input type="text" id="nomineeFirstName" name="nomineeFirstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nomineeLastName">Last Name *</label>
+                                    <input type="text" id="nomineeLastName" name="nomineeLastName" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="nomineeEmail">Email Address *</label>
+                                <input type="email" id="nomineeEmail" name="nomineeEmail" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="nomineePhone">Phone Number *</label>
+                                <input type="tel" id="nomineePhone" name="nomineePhone" required>
+                            </div>
+                        </div>
+
+                        <!-- Nominator Information (shown only when nominating someone else) -->
+                        <div id="nominatorInfo" style="display: none;">
+                            <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="nominatorFirstName">Your First Name *</label>
+                                    <input type="text" id="nominatorFirstName" name="nominatorFirstName">
+                                </div>
+                                <div class="form-group">
+                                    <label for="nominatorLastName">Your Last Name *</label>
+                                    <input type="text" id="nominatorLastName" name="nominatorLastName">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="nominatorEmail">Your Email Address *</label>
+                                <input type="email" id="nominatorEmail" name="nominatorEmail">
+                                </div>
+                            
+                            <div class="form-group">
+                                <label for="nominatorPhone">Your Phone Number *</label>
+                                <input type="tel" id="nominatorPhone" name="nominatorPhone">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="relationship">Relationship to Nominee *</label>
+                                <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family member">
+                            </div>
+                        </div>
+
+                        <!-- Award Category Selection -->
+                        <div class="form-group">
+                            <label for="nominationCategory">Award Category *</label>
+                            <select id="nominationCategory" name="nominationCategory" required>
+                                <option value="">Select a category</option>
+                                <option value="research">African Development Research Award</option>
+                                <option value="ai">AI Champion Award</option>
+                                <option value="women">Mamokgethi Phakeng Prize</option>
+                                <option value="entrepreneur">Young Entrepreneur Award</option>
+                                <option value="agriculture">Youth in Agriculture Award</option>
+                            </select>
+                        </div>
+
+                        <!-- Story/Inspiration -->
+                        <div class="form-group">
+                            <label for="storyTitle">Story Title *</label>
+                            <input type="text" id="storyTitle" name="storyTitle" placeholder="Give your story a title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="inspirationStory">Share Your/Their Story of Victory *</label>
+                            <textarea id="inspirationStory" name="inspirationStory" rows="6" placeholder="Tell us about the journey, challenges overcome, and the impact of education..." required></textarea>
+                        </div>
+
+                        <!-- LinkedIn Profile (optional but recommended) -->
+                        <div class="form-group">
+                            <label for="nomineeLinkedIn">LinkedIn Profile (Optional but recommended)</label>
+                            <div class="linkedin-input">
+                                <span>linkedin.com/in/</span>
+                                <input type="text" id="nomineeLinkedin" name="nomineeLinkedin" placeholder="username">
+                            </div>
+                            <small style="color: var(--text-muted);">Share the LinkedIn profile to help us verify the story</small>
+                        </div>
+
+                        <!-- Key Achievements -->
+                        <div class="form-group">
+                            <label for="keyAchievements">Key Achievements (Optional)</label>
+                            <textarea id="keyAchievements" name="keyAchievements" rows="3" placeholder="List any relevant achievements, awards, or recognition..."></textarea>
+                        </div>
+
+                        <!-- Social Media Links -->
+                        <div class="form-group">
+                            <label for="socialLinks">Social Media Links (Optional)</label>
+                            <input type="text" id="socialLinks" name="socialLinks" placeholder="Twitter, Instagram, etc.">
+                        </div>
+
+                        <!-- Consent -->
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="nominationTerms" name="nominationTerms" required>
+                            <label for="nominationTerms">I confirm that the information provided is true and accurate, and I have permission to share this story *</label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="nominationUpdates" name="nominationUpdates">
+                            <label for="nominationUpdates">I'd like to receive updates about the nomination status and MEF events</label>
+                        </div>
+
+                        <div class="modal-buttons">
+                            <button type="submit" class="modal-btn modal-btn-primary">Submit Nomination</button>
+                            <button type="button" class="modal-btn modal-btn-secondary" id="nominationModalCancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Success Section -->
+            <div id="nominationSuccess" style="display: none;">
+                <div class="application-success">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Nomination Submitted Successfully!</h3>
+                    <p>Thank you for sharing this story of victory. We will review the nomination and contact you soon.</p>
+                    <button class="modal-btn modal-btn-primary" onclick="closeNominationModal()">Close</button>
                 </div>
             </div>
         </div>
@@ -1637,7 +1778,7 @@
                     <p>Click on any category to view requirements and apply</p>
                 </div>
 
-                <!-- 6 BOXES (all clickable) -->
+                <!-- 7 BOXES (6 award categories + 1 nomination card) -->
                 <div class="categories-grid">
                     <!-- 1. African Development Research Award -->
                     <div class="category-card" data-category="research">
@@ -1681,148 +1822,17 @@
                         <p>Join the flagship event celebrating educational achievements. Network with leaders, share stories, and be inspired.</p>
                         <span class="category-tag">Get Tickets</span>
                     </div>
-                </div>
-
-                <!-- NEW: Enhanced Nomination Form Section -->
-                <div class="nomination-form-section" id="nominationForm">
-                    <h3>Share Your Story</h3>
-                    <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
-                    
-                    <div class="nomination-form" id="nominationFormContainer">
-                        <form id="storyNominationForm" onsubmit="submitNomination(event)">
-                            <!-- Nomination Type -->
-                            <div class="form-group">
-                                <label>I am nominating: *</label>
-                                <div class="radio-group">
-                                    <label>
-                                        <input type="radio" name="nominationType" value="self" checked> Myself
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="nominationType" value="other"> Someone else
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Nominee Information -->
-                            <div id="nomineeInfo">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="nomineeFirstName">First Name *</label>
-                                        <input type="text" id="nomineeFirstName" name="nomineeFirstName" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="nomineeLastName">Last Name *</label>
-                                        <input type="text" id="nomineeLastName" name="nomineeLastName" required>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nomineeEmail">Email Address *</label>
-                                    <input type="email" id="nomineeEmail" name="nomineeEmail" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nomineePhone">Phone Number *</label>
-                                    <input type="tel" id="nomineePhone" name="nomineePhone" required>
-                                </div>
-                            </div>
-
-                            <!-- Nominator Information (shown only when nominating someone else) -->
-                            <div id="nominatorInfo" style="display: none;">
-                                <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="nominatorFirstName">Your First Name *</label>
-                                        <input type="text" id="nominatorFirstName" name="nominatorFirstName">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="nominatorLastName">Your Last Name *</label>
-                                        <input type="text" id="nominatorLastName" name="nominatorLastName">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nominatorEmail">Your Email Address *</label>
-                                    <input type="email" id="nominatorEmail" name="nominatorEmail">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nominatorPhone">Your Phone Number *</label>
-                                    <input type="tel" id="nominatorPhone" name="nominatorPhone">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="relationship">Relationship to Nominee *</label>
-                                    <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family member">
-                                </div>
-                            </div>
-
-                            <!-- Award Category Selection -->
-                            <div class="form-group">
-                                <label for="nominationCategory">Award Category *</label>
-                                <select id="nominationCategory" name="nominationCategory" required>
-                                    <option value="">Select a category</option>
-                                    <option value="research">African Development Research Award</option>
-                                    <option value="ai">AI Champion Award</option>
-                                    <option value="women">Mamokgethi Phakeng Prize</option>
-                                    <option value="entrepreneur">Young Entrepreneur Award</option>
-                                    <option value="agriculture">Youth in Agriculture Award</option>
-                                </select>
-                            </div>
-
-                            <!-- Story/Inspiration -->
-                            <div class="form-group">
-                                <label for="storyTitle">Story Title *</label>
-                                <input type="text" id="storyTitle" name="storyTitle" placeholder="Give your story a title" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="inspirationStory">Share Your/Their Story of Victory *</label>
-                                <textarea id="inspirationStory" name="inspirationStory" rows="6" placeholder="Tell us about the journey, challenges overcome, and the impact of education..." required></textarea>
-                            </div>
-
-                            <!-- LinkedIn Profile (optional but recommended) -->
-                            <div class="form-group">
-                                <label for="nomineeLinkedIn">LinkedIn Profile (Optional but recommended)</label>
-                                <div class="linkedin-input">
-                                    <span>linkedin.com/in/</span>
-                                    <input type="text" id="nomineeLinkedin" name="nomineeLinkedin" placeholder="username">
-                                </div>
-                                <small style="color: var(--text-muted);">Share the LinkedIn profile to help us verify the story</small>
-                            </div>
-
-                            <!-- Key Achievements -->
-                            <div class="form-group">
-                                <label for="keyAchievements">Key Achievements (Optional)</label>
-                                <textarea id="keyAchievements" name="keyAchievements" rows="3" placeholder="List any relevant achievements, awards, or recognition..."></textarea>
-                            </div>
-
-                            <!-- Social Media Links -->
-                            <div class="form-group">
-                                <label for="socialLinks">Social Media Links (Optional)</label>
-                                <input type="text" id="socialLinks" name="socialLinks" placeholder="Twitter, Instagram, etc.">
-                            </div>
-
-                            <!-- Consent -->
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="nominationTerms" name="nominationTerms" required>
-                                <label for="nominationTerms">I confirm that the information provided is true and accurate, and I have permission to share this story *</label>
-                            </div>
-                            
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="nominationUpdates" name="nominationUpdates">
-                                <label for="nominationUpdates">I'd like to receive updates about the nomination status and MEF events</label>
-                            </div>
-
-                            <button type="submit" class="btn-gold">Submit Nomination</button>
-                        </form>
-                    </div>
-
-                    <!-- Success Message (hidden by default) -->
-                    <div id="nominationSuccess" class="nomination-success" style="display: none;">
-                        <i class="fas fa-check-circle"></i>
-                        <h4>Nomination Submitted Successfully!</h4>
-                        <p>Thank you for sharing this story of victory. We will review the nomination and contact you soon.</p>
+                    <!-- 7. Nomination Card - Share Your Story -->
+                    <div class="nomination-card" id="nominationCard">
+                        <div class="nomination-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3>Nominate yourself or someone</h3>
+                        <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
+                        <div class="nomination-btn" id="nominationCardBtn">
+                            <span>Nominate Now</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1882,7 +1892,7 @@
             </div>
         </section>
 
-        <!-- CONTACT - Updated to show only success message, no error message -->
+        <!-- CONTACT - Updated to show only success message -->
         <section id="contact" class="section">
             <div class="section-container">
                 <h2 class="section-title">Get in Touch</h2>
@@ -1911,7 +1921,7 @@
                     </div>
                     
                     <div class="contact-form">
-                        <!-- Only success message (error message removed) -->
+                        <!-- Only success message -->
                         <div id="contactSuccess" class="alert alert-success" style="display: none;">
                             <i class="fas fa-check-circle"></i> Your message has been sent successfully! We'll get back to you soon.
                         </div>
@@ -2043,7 +2053,7 @@
             }
         };
 
-        // Modal elements
+        // Modal elements for award applications
         const modal = document.getElementById('categoryModal');
         const modalTitle = document.getElementById('modalTitle');
         const requirementsList = document.getElementById('requirementsList');
@@ -2057,6 +2067,15 @@
         const modalCancel = document.getElementById('modalCancelBtn');
         const showApplicationBtn = document.getElementById('showApplicationBtn');
         const backToRequirementsBtn = document.getElementById('backToRequirementsBtn');
+
+        // Modal elements for nomination
+        const nominationModal = document.getElementById('nominationModal');
+        const nominationModalClose = document.getElementById('nominationModalClose');
+        const nominationModalCancel = document.getElementById('nominationModalCancel');
+        const nominationCard = document.getElementById('nominationCard');
+        const nominationCardBtn = document.getElementById('nominationCardBtn');
+        const nominationFormSection = document.getElementById('nominationFormSection');
+        const nominationSuccess = document.getElementById('nominationSuccess');
 
         // Get all category cards (except the 6th one which has its own onclick)
         const categoryCards = document.querySelectorAll('.category-card:not([onclick])');
@@ -2106,7 +2125,7 @@
             successSection.style.display = 'none';
         });
 
-        // Close modal function
+        // Close modal function for award modal
         function closeModal() {
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
@@ -2129,9 +2148,6 @@
         function submitApplication(event) {
             event.preventDefault();
             
-            // Here you would typically send the form data to a server
-            // For now, we'll just show success message
-            
             // Hide form, show success
             requirementsSection.style.display = 'none';
             applicationSection.style.display = 'none';
@@ -2140,10 +2156,51 @@
             console.log('Application submitted for:', applicationCategory.value);
         }
 
+        // Nomination modal functions
+        function openNominationModal() {
+            // Reset modal to show form, hide success
+            nominationFormSection.style.display = 'block';
+            nominationSuccess.style.display = 'none';
+            
+            // Reset form
+            document.getElementById('storyNominationForm').reset();
+            
+            // Hide nominator info by default (since "Myself" is checked)
+            document.getElementById('nominatorInfo').style.display = 'none';
+            
+            // Show modal
+            nominationModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNominationModal() {
+            nominationModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Nomination card click handlers
+        nominationCard.addEventListener('click', openNominationModal);
+        nominationCardBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openNominationModal();
+        });
+
+        // Close nomination modal with X button
+        nominationModalClose.addEventListener('click', closeNominationModal);
+        
+        // Close nomination modal with Cancel button
+        nominationModalCancel.addEventListener('click', closeNominationModal);
+        
+        // Close nomination modal when clicking outside
+        nominationModal.addEventListener('click', function(e) {
+            if (e.target === nominationModal) {
+                closeNominationModal();
+            }
+        });
+
         // Nomination form handling
         const nominationTypeRadios = document.querySelectorAll('input[name="nominationType"]');
         const nominatorInfo = document.getElementById('nominatorInfo');
-        const nomineeInfo = document.getElementById('nomineeInfo');
         
         nominationTypeRadios.forEach(radio => {
             radio.addEventListener('change', function() {
@@ -2171,11 +2228,8 @@
             event.preventDefault();
             
             // Hide form, show success
-            document.getElementById('nominationFormContainer').style.display = 'none';
-            document.getElementById('nominationSuccess').style.display = 'block';
-            
-            // Scroll to success message
-            document.getElementById('nominationSuccess').scrollIntoView({ behavior: 'smooth' });
+            nominationFormSection.style.display = 'none';
+            nominationSuccess.style.display = 'block';
         }
 
         // Mobile menu toggle
@@ -2250,7 +2304,7 @@
             });
         });
 
-        // CONTACT FORM HANDLING - Only shows success message, no error
+        // CONTACT FORM HANDLING - Only shows success message
         function submitContactForm(event) {
             event.preventDefault();
             
@@ -2272,10 +2326,6 @@
                 setTimeout(() => {
                     successDiv.style.display = 'none';
                 }, 5000);
-            } else {
-                // Instead of error message, just do nothing or could show a subtle hint
-                // For now, we'll just not show any message
-                console.log('Please fill all fields');
             }
         }
     </script>
