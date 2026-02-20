@@ -1242,6 +1242,114 @@
         </div>
     </div>
 
+    <!-- AGRICULTURE APPLICATION MODAL -->
+<div class="modal-overlay" id="agricultureFormModal">
+    <div class="modal-content" style="max-width:700px; max-height:90vh; overflow-y:auto;">
+        <span class="modal-close" id="agriModalClose">&times;</span>
+        <h3 class="modal-title">Youth in Agriculture Award Application</h3>
+
+        <form id="agricultureForm">
+
+            <h4>Personal Information</h4>
+
+            <div class="form-group">
+                <input type="text" name="full_name" placeholder="Full Name" required>
+            </div>
+
+            <div class="form-group">
+                <input type="email" name="email" placeholder="Email Address" required>
+            </div>
+
+            <div class="form-group">
+                <input type="tel" name="phone" placeholder="Phone Number" required>
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="age" min="18" max="35" placeholder="Age (18-35)" required>
+            </div>
+
+            
+            <div class="form-group">
+                <input type="text" name="citizenship" 
+                       placeholder="Citizenship Status (South African Citizen / Permanent Resident)" 
+                       required>
+            </div>
+
+            <h4>Education & Experience</h4>
+
+            <div class="form-group">
+                <input type="text" name="qualification" placeholder="Degree/Diploma in Agriculture or related field" required>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="institution" placeholder="Institution Name" required>
+            </div>
+
+            <div class="form-group">
+                <input type="number" name="experience" min="2" placeholder="Years of Experience (Minimum 2)" required>
+            </div>
+
+            <h4>Innovation & Sustainability</h4>
+
+            <div class="form-group">
+                <textarea name="innovation" placeholder="Describe your farming innovation" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <textarea name="sustainability" placeholder="Describe your sustainable farming practices" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <textarea name="community_impact" placeholder="Community impact of your work" required></textarea>
+            </div>
+            <!-- File Uploads -->
+            <h4>Supporting Documents</h4>
+
+            <div class="form-group">
+                <label style="color:white;">Upload CV (PDF only)</label>
+                <input type="file" name="cv" accept=".pdf" required>
+            </div>
+
+            <div class="form-group">
+                <label style="color:white;">Upload Proof of Qualification (PDF/JPG/PNG)</label>
+                <input type="file" name="qualification_proof" accept=".pdf,.jpg,.jpeg,.png" required>
+            </div>
+
+            <!-- Updated Confirmation Checkbox -->
+            <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" id="confirmInfo" required>
+                <label for="confirmInfo" style="font-size:0.9rem; cursor:pointer;">
+                    I confirm that the information provided is accurate.
+                </label>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="submit" class="modal-btn modal-btn-primary">Submit Application</button>
+                <button type="button" class="modal-btn modal-btn-secondary" id="agriCancelBtn">Cancel</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+    <!-- SUCCESS MESSAGE -->
+    <div id="successMessage" style="
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%) scale(0.8);
+    background:#111;
+    color:#fff;
+    padding:30px 40px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+    opacity:0;
+    transition:all 0.4s ease;
+    z-index:9999;">
+    <h3 style="color:#00d084;">Application Submitted 🎉</h3>
+    <p>Thank you for applying. Our team will review your submission.</p>
+    </div>
+
     <!-- NAVBAR with larger clickable logo -->
     <nav class="fixed-nav">
         <div class="nav-left">
@@ -1531,6 +1639,7 @@
                 </div>
             </div>
         </section>
+        
 
     </main>
 
@@ -1692,11 +1801,40 @@
         });
 
         // Apply button functionality
-        modalApply.addEventListener('click', function() {
-            // Redirect to application form (you can customize this URL)
-            window.open('https://forms.gle/VhF17yFSkCF4RXAs7', '_blank');
-            closeModal();
-        });
+      modalApply.addEventListener('click', function() {
+
+    const title = modalTitle.textContent;
+
+    if (title === "Youth in Agriculture Award") {
+
+        closeModal();
+
+        document.getElementById('agricultureFormModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+    } else {
+        window.open('https://forms.gle/VhF17yFSkCF4RXAs7', '_blank');
+        closeModal();
+    }
+});
+//Close Functionality for Agriculture Modal
+const agriModal = document.getElementById('agricultureFormModal');
+const agriClose = document.getElementById('agriModalClose');
+const agriCancel = document.getElementById('agriCancelBtn');
+
+function closeAgriModal() {
+    agriModal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+agriClose.addEventListener('click', closeAgriModal);
+agriCancel.addEventListener('click', closeAgriModal);
+
+agriModal.addEventListener('click', function(e) {
+    if (e.target === agriModal) {
+        closeAgriModal();
+    }
+});
 
         // Mobile menu toggle
         document.querySelector('.menu-toggle').addEventListener('click', () => {
@@ -1747,7 +1885,20 @@
                 }
             });
         });
-    </script>
+        document.getElementById('agricultureForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
+    alert("Application submitted successfully! We will contact you soon.");
+
+    this.reset();
+    closeAgriModal();
+});
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+(function(){
+    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS public key
+})();
+</script>
 </body>
 </html>
