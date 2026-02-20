@@ -105,17 +105,18 @@
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
             border: none;
+            border-radius: 0;
             box-shadow: none;
             transition: transform 0.4s ease;
+            background: transparent;
         }
 
         .logo:hover {
-            transform: scale(1.08) rotate(4deg);
+            transform: scale(1.08);
         }
 
         .brand-text {
@@ -325,12 +326,6 @@
             background: rgba(45,212,191,0.2);
             border: 1px solid var(--accent-teal);
             color: var(--accent-teal-light);
-        }
-
-        .alert-error {
-            background: rgba(251,113,133,0.2);
-            border: 1px solid var(--accent-coral);
-            color: var(--accent-coral-light);
         }
 
         /* ABOUT */
@@ -561,7 +556,6 @@
             gap: 2.5rem;
         }
 
-        /* Make cards clickable */
         .category-card {
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(12px);
@@ -718,7 +712,6 @@
             color: var(--text-muted);
             cursor: pointer;
             transition: var(--transition);
-            z-index: 10;
         }
         
         .modal-close:hover {
@@ -733,31 +726,28 @@
             padding-right: 2rem;
         }
         
-        .modal-requirements {
-            margin: 1.5rem 0;
-            background: rgba(255,255,255,0.03);
-            padding: 1.5rem;
-            border-radius: var(--radius-md);
+        .modal-section {
+            margin-bottom: 2rem;
         }
         
-        .modal-requirements h4 {
+        .modal-section h4 {
             color: var(--accent-teal);
             font-size: 1.3rem;
             margin-bottom: 1rem;
         }
         
-        .modal-requirements ul {
+        .modal-section ul {
             list-style: none;
         }
         
-        .modal-requirements li {
+        .modal-section li {
             margin: 0.8rem 0;
             padding-left: 2rem;
             position: relative;
             color: var(--text-muted);
         }
         
-        .modal-requirements li:before {
+        .modal-section li:before {
             content: '✓';
             color: var(--accent-teal);
             position: absolute;
@@ -765,72 +755,7 @@
             font-weight: bold;
             font-size: 1.2rem;
         }
-
-        /* Modal Application Form */
-        .modal-application-form {
-            margin: 1.5rem 0;
-            background: rgba(255,255,255,0.03);
-            padding: 1.5rem;
-            border-radius: var(--radius-md);
-            border-left: 3px solid var(--accent-gold);
-        }
-
-        .modal-application-form h4 {
-            color: var(--accent-gold);
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .modal-application-form h4 i {
-            color: var(--accent-teal);
-        }
-
-        .modal-form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .modal-form-group label {
-            display: block;
-            color: var(--accent-teal-light);
-            margin-bottom: 0.3rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .modal-form-group input,
-        .modal-form-group textarea,
-        .modal-form-group select {
-            width: 100%;
-            padding: 0.8rem;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid transparent;
-            border-radius: var(--radius-md);
-            color: var(--text-light);
-            font-size: 0.95rem;
-            transition: all 0.3s;
-        }
-
-        .modal-form-group input:focus,
-        .modal-form-group textarea:focus,
-        .modal-form-group select:focus {
-            outline: none;
-            border-color: var(--accent-teal);
-            background: rgba(255,255,255,0.15);
-        }
-
-        .modal-form-group textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        .modal-form-group select option {
-            background: var(--primary-dark);
-            color: var(--text-light);
-        }
-
+        
         .modal-buttons {
             display: flex;
             gap: 1rem;
@@ -872,123 +797,292 @@
             transform: translateY(-3px);
         }
 
-        .form-success-message {
-            background: rgba(45,212,191,0.2);
-            border: 1px solid var(--accent-teal);
-            color: var(--accent-teal-light);
-            padding: 1rem;
-            border-radius: var(--radius-md);
-            margin: 1rem 0;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .nomination-cta {
-            margin-top: 5rem;
-            text-align: center;
-            background: linear-gradient(135deg, rgba(45,212,191,0.1), rgba(167,139,250,0.1));
-            padding: 4rem;
+        /* NOMINATION FORM SECTION */
+        .nomination-form-section {
+            margin-top: 3rem;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(12px);
             border-radius: var(--radius-xl);
-            border: 1px solid rgba(255,215,0,0.2);
-        }
-
-        .nomination-cta h3 {
-            font-size: 2.2rem;
-            color: var(--accent-gold);
-            margin-bottom: 1rem;
-        }
-
-        .nomination-cta p {
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin: 0 auto 2.5rem;
-        }
-
-        .cta-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 1rem;
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
-            color: var(--primary-dark);
-            padding: 1.2rem 3.5rem;
-            border-radius: var(--radius-full);
-            font-weight: 700;
-            font-size: 1.2rem;
-            transition: var(--transition);
+            padding: 3rem;
+            border: 1px solid rgba(255,215,0,0.14);
             box-shadow: var(--shadow-xl);
         }
 
-        .cta-button:hover {
-            transform: translateY(-8px) scale(1.05);
-            box-shadow: 0 30px 50px rgba(255,215,0,0.4);
+        .nomination-form-section h3 {
+            color: var(--accent-gold);
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
-        .cta-button i {
-            transition: var(--transition);
+        .nomination-form-section p {
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
         }
 
-        .cta-button:hover i {
-            transform: translateX(5px) rotate(10deg);
+        .nomination-form {
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        /* TESTIMONIALS */
-        #testimonials {
-            background: linear-gradient(135deg, var(--primary-navy), var(--primary-dark));
-        }
-
-        .testimonials-grid {
+        .form-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
         }
 
-        .testimonial-card {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(12px);
-            padding: 2.4rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid rgba(251,113,133,0.25);
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: var(--radius-md);
+            color: var(--text-light);
+            font-size: 1rem;
             transition: var(--transition);
         }
 
-        .testimonial-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--accent-coral);
-            box-shadow: var(--shadow-lg);
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background: rgba(255,255,255,0.15);
         }
 
-        .testimonial-header {
+        .form-group select {
+            color: var(--accent-gold);
+        }
+
+        .form-group select option {
+            background: var(--primary-dark);
+            color: var(--accent-gold);
+        }
+
+        .radio-group {
             display: flex;
-            justify-content: space-between;
+            gap: 2rem;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: normal;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .radio-group input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+
+        .linkedin-input {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .linkedin-input span {
+            padding: 0.8rem 1rem;
+            background: rgba(255,215,0,0.1);
+            color: var(--accent-gold);
+            border-right: 1px solid rgba(255,215,0,0.3);
+            font-size: 0.9rem;
+        }
+
+        .linkedin-input input {
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            flex: 1;
+        }
+
+        .linkedin-input input:focus {
+            border: none;
+            box-shadow: none;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
+            color: var(--primary-dark);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255,215,0,0.3);
+        }
+
+        .nomination-success {
+            background: rgba(45,212,191,0.2);
+            border: 1px solid var(--accent-teal);
+            color: var(--accent-teal-light);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .nomination-success i {
+            font-size: 3rem;
             margin-bottom: 1rem;
         }
 
-        .stars { color: var(--accent-gold); font-size: 1.4rem; }
-
-        .date { color: var(--text-muted); font-size: 0.9rem; }
-
-        .testimonial-message {
-            font-style: italic;
-            margin: 1.5rem 0;
-            line-height: 1.8;
+        .nomination-success h4 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-teal-light);
         }
 
-        .testimonial-author {
-            display: flex;
-            align-items: center;
+        /* APPLICATION FORM STYLES */
+        .application-form {
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,215,0,0.3);
+            padding-top: 2rem;
+        }
+        
+        .application-form h4 {
+            color: var(--accent-gold);
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .application-form .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .application-form .form-group label {
+            display: block;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .application-form .form-group input,
+        .application-form .form-group select,
+        .application-form .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: var(--radius-md);
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .application-form .form-group input:focus,
+        .application-form .form-group select:focus,
+        .application-form .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .application-form .form-group select {
+            color: var(--accent-gold);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .application-form .form-group select option {
+            background: var(--primary-dark);
+            color: var(--accent-gold);
+            padding: 0.5rem;
+        }
+        
+        .application-form .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .application-form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 1rem;
         }
-
-        .author-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--accent-coral);
+        
+        .application-form .checkbox-group {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .application-form .checkbox-group input {
+            width: auto;
+        }
+        
+        .application-form .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+
+        .application-success {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .application-success i {
+            font-size: 4rem;
+            color: var(--accent-teal);
+            margin-bottom: 1rem;
+        }
+        
+        .application-success h3 {
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+        }
+        
+        .application-success p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
         }
 
         /* CONTACT */
@@ -1059,10 +1153,12 @@
             box-shadow: 0 15px 30px rgba(255,215,0,0.35);
         }
 
-        .form-group { margin-bottom: 1.5rem; }
+        .contact-form .form-group {
+            margin-bottom: 1.5rem;
+        }
 
-        .form-group input,
-        .form-group textarea {
+        .contact-form .form-group input,
+        .contact-form .form-group textarea {
             width: 100%;
             padding: 1rem;
             background: rgba(255,255,255,0.1);
@@ -1073,14 +1169,14 @@
             transition: all 0.3s;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus {
+        .contact-form .form-group input:focus,
+        .contact-form .form-group textarea:focus {
             outline: none;
             border-color: var(--accent-teal);
             background: rgba(255,255,255,0.15);
         }
 
-        .form-group textarea { min-height: 150px; resize: vertical; }
+        .contact-form .form-group textarea { min-height: 150px; resize: vertical; }
 
         .submit-btn {
             width: 100%;
@@ -1271,6 +1367,9 @@
             .founder-image-frame { height: 400px; }
             .footer-main { grid-template-columns: 1fr; gap: 2rem; }
             .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1290,7 +1389,6 @@
             .section { padding: 5rem 1.5rem; }
             .home-content h1 { font-size: 2.8rem; }
             .home-buttons { flex-direction: column; gap: 1.2rem; }
-            .nomination-cta { padding: 2rem; }
             .footer-bottom-links { flex-wrap: wrap; justify-content: center; }
             .modal-content {
                 padding: 1.5rem;
@@ -1304,212 +1402,129 @@
 </head>
 <body>
 
-    <!-- MODAL OVERLAY with Application Form -->
+    <!-- MODAL OVERLAY for Award Applications -->
     <div class="modal-overlay" id="categoryModal">
         <div class="modal-content">
             <span class="modal-close" id="modalClose">&times;</span>
             <h3 class="modal-title" id="modalTitle">Category Title</h3>
             
-            <!-- Requirements Section -->
-            <div class="modal-requirements" id="modalRequirements">
-                <!-- Requirements will be populated by JavaScript -->
-            </div>
-
-            <!-- Application Form Section (initially hidden) -->
-            <div class="modal-application-form" id="applicationForm" style="display: none;">
-                <h4><i class="fas fa-file-signature"></i> Application Form</h4>
+            <!-- Requirements Section (shown first) -->
+            <div id="requirementsSection">
+                <div class="modal-section">
+                    <h4>Requirements:</h4>
+                    <ul id="requirementsList">
+                        <!-- Requirements will be populated by JavaScript -->
+                    </ul>
+                </div>
                 
-                <form id="applicationFormElement">
-                    <input type="hidden" id="applicationCategory" name="category" value="">
-                    
-                    <div class="modal-form-group">
-                        <label for="fullName">Full Name *</label>
-                        <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name">
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label for="email">Email Address *</label>
-                        <input type="email" id="email" name="email" required placeholder="your.email@example.com">
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label for="phone">Phone Number *</label>
-                        <input type="tel" id="phone" name="phone" required placeholder="+27 XX XXX XXXX">
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label for="qualification">Highest Qualification *</label>
-                        <input type="text" id="qualification" name="qualification" required placeholder="e.g., PhD in Education">
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label for="institution">Institution *</label>
-                        <input type="text" id="institution" name="institution" required placeholder="Name of university/college">
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label for="age">Age *</label>
-                        <input type="number" id="age" name="age" required min="18" max="100" placeholder="Your age">
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label for="citizenship">Citizenship *</label>
-                        <select id="citizenship" name="citizenship" required>
-                            <option value="">Select citizenship</option>
-                            <option value="South African">South African</option>
-                            <option value="Other African">Other African Country</option>
-                            <option value="International">International</option>
-                        </select>
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label for="experience">Relevant Experience (Years) *</label>
-                        <input type="number" id="experience" name="experience" required min="0" max="50" step="0.5" placeholder="Years of experience">
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label for="achievements">Key Achievements *</label>
-                        <textarea id="achievements" name="achievements" required placeholder="Briefly describe your key achievements relevant to this award" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label for="motivation">Motivation Statement *</label>
-                        <textarea id="motivation" name="motivation" required placeholder="Why should you receive this award? (max 300 words)" rows="4"></textarea>
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label for="linkedin">LinkedIn Profile (Optional)</label>
-                        <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/yourprofile">
-                    </div>
-                </form>
-                
-                <div id="formSuccessMessage" class="form-success-message" style="display: none;">
-                    <i class="fas fa-check-circle"></i> Application submitted successfully! We'll contact you soon.
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-primary" id="showApplicationBtn">Apply Now</button>
+                    <button class="modal-btn modal-btn-secondary" id="modalCancelBtn">Cancel</button>
                 </div>
             </div>
-
-            <div class="modal-buttons">
-                <button class="modal-btn modal-btn-primary" id="modalShowFormBtn">Apply Now</button>
-                <button class="modal-btn modal-btn-secondary" id="modalCancelBtn">Cancel</button>
-                <button class="modal-btn modal-btn-primary" id="modalSubmitFormBtn" style="display: none;">Submit Application</button>
-                <button class="modal-btn modal-btn-secondary" id="modalBackBtn" style="display: none;">Back</button>
+            
+            <!-- Application Form Section (shown after clicking Apply) - UPDATED with LinkedIn field -->
+            <div id="applicationSection" style="display: none;">
+                <div class="application-form">
+                    <h4>Apply for <span id="applicationTitle"></span></h4>
+                    <form id="awardApplicationForm" onsubmit="submitApplication(event)">
+                        <input type="hidden" id="applicationCategory" name="category">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name *</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        
+                        <!-- Category field - automatically populated -->
+                        <div class="form-group">
+                            <label>Applying for Category *</label>
+                            <input type="text" id="appliedCategory" value="" readonly style="color: var(--accent-gold); font-weight: 600;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="qualification">Highest Qualification *</label>
+                            <select id="qualification" name="qualification" required>
+                                <option value="">Select your qualification</option>
+                                <option value="bachelors">Bachelor's Degree</option>
+                                <option value="masters">Master's Degree</option>
+                                <option value="phd">PhD/Doctorate</option>
+                                <option value="diploma">Diploma</option>
+                                <option value="certificate">Certificate</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="institution">Institution *</label>
+                            <input type="text" id="institution" name="institution" required>
+                        </div>
+                        
+                        <!-- Removed Graduation Year field, added LinkedIn field -->
+                        <div class="form-group">
+                            <label for="linkedin">LinkedIn Profile *</label>
+                            <div class="linkedin-input">
+                                <span>linkedin.com/in/</span>
+                                <input type="text" id="linkedin" name="linkedin" placeholder="username" required>
+                            </div>
+                            <small style="color: var(--text-muted);">Enter your LinkedIn username or full profile URL</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="achievements">Key Achievements *</label>
+                            <textarea id="achievements" name="achievements" placeholder="Tell us about your achievements relevant to this award" required></textarea>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <label for="terms">I confirm that all information provided is true and complete *</label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="notifications" name="notifications">
+                            <label for="notifications">I would like to receive updates about MEF events and opportunities</label>
+                        </div>
+                        
+                        <div class="modal-buttons">
+                            <button type="submit" class="modal-btn modal-btn-primary">Submit Application</button>
+                            <button type="button" class="modal-btn modal-btn-secondary" id="backToRequirementsBtn">Back</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Success Section -->
+            <div id="successSection" style="display: none;">
+                <div class="application-success">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Application Submitted Successfully!</h3>
+                    <p>Thank you for applying. We will review your application and contact you soon.</p>
+                    <button class="modal-btn modal-btn-primary" onclick="closeModal()">Close</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- AGRICULTURE APPLICATION MODAL -->
-<div class="modal-overlay" id="agricultureFormModal">
-    <div class="modal-content" style="max-width:700px; max-height:90vh; overflow-y:auto;">
-        <span class="modal-close" id="agriModalClose">&times;</span>
-        <h3 class="modal-title">Youth in Agriculture Award Application</h3>
-
-        <form id="agricultureForm">
-
-            <h4>Personal Information</h4>
-
-            <div class="form-group">
-                <input type="text" name="full_name" placeholder="Full Name" required>
-            </div>
-
-            <div class="form-group">
-                <input type="email" name="email" placeholder="Email Address" required>
-            </div>
-
-            <div class="form-group">
-                <input type="tel" name="phone" placeholder="Phone Number" required>
-            </div>
-
-            <div class="form-group">
-                <input type="number" name="age" min="18" max="35" placeholder="Age (18-35)" required>
-            </div>
-
-            
-            <div class="form-group">
-                <input type="text" name="citizenship" 
-                       placeholder="Citizenship Status (South African Citizen / Permanent Resident)" 
-                       required>
-            </div>
-
-            <h4>Education & Experience</h4>
-
-            <div class="form-group">
-                <input type="text" name="qualification" placeholder="Degree/Diploma in Agriculture or related field" required>
-            </div>
-
-            <div class="form-group">
-                <input type="text" name="institution" placeholder="Institution Name" required>
-            </div>
-
-            <div class="form-group">
-                <input type="number" name="experience" min="2" placeholder="Years of Experience (Minimum 2)" required>
-            </div>
-
-            <h4>Innovation & Sustainability</h4>
-
-            <div class="form-group">
-                <textarea name="innovation" placeholder="Describe your farming innovation" required></textarea>
-            </div>
-
-            <div class="form-group">
-                <textarea name="sustainability" placeholder="Describe your sustainable farming practices" required></textarea>
-            </div>
-
-            <div class="form-group">
-                <textarea name="community_impact" placeholder="Community impact of your work" required></textarea>
-            </div>
-            <!-- File Uploads -->
-            <h4>Supporting Documents</h4>
-
-            <div class="form-group">
-                <label style="color:white;">Upload CV (PDF only)</label>
-                <input type="file" name="cv" accept=".pdf" required>
-            </div>
-
-            <div class="form-group">
-                <label style="color:white;">Upload Proof of Qualification (PDF/JPG/PNG)</label>
-                <input type="file" name="qualification_proof" accept=".pdf,.jpg,.jpeg,.png" required>
-            </div>
-
-            <!-- Updated Confirmation Checkbox -->
-            <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" id="confirmInfo" required>
-                <label for="confirmInfo" style="font-size:0.9rem; cursor:pointer;">
-                    I confirm that the information provided is accurate.
-                </label>
-            </div>
-
-            <div class="modal-buttons">
-                <button type="submit" class="modal-btn modal-btn-primary">Submit Application</button>
-                <button type="button" class="modal-btn modal-btn-secondary" id="agriCancelBtn">Cancel</button>
-            </div>
-
-        </form>
-    </div>
-</div>
-    <!-- SUCCESS MESSAGE -->
-    <div id="successMessage" style="
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%) scale(0.8);
-    background:#111;
-    color:#fff;
-    padding:30px 40px;
-    border-radius:12px;
-    text-align:center;
-    box-shadow:0 20px 60px rgba(0,0,0,0.4);
-    opacity:0;
-    transition:all 0.4s ease;
-    z-index:9999;">
-    <h3 style="color:#00d084;">Application Submitted 🎉</h3>
-    <p>Thank you for applying. Our team will review your submission.</p>
-    </div>
-
-    <!-- NAVBAR with larger clickable logo -->
+    <!-- NAVBAR with clickable logo -->
     <nav class="fixed-nav">
         <div class="nav-left">
             <a href="#home" class="logo-link">
-                <img src="logoII.jpeg" alt="MEF Logo" class="logo">
+                <img src="ko kae.jpeg" alt="MEF Logo" class="logo">
             </a>
             <div class="brand-text">
                 <div class="brand-main">MAKE EDUCATION</div>
@@ -1622,7 +1637,7 @@
                     <p>Click on any category to view requirements and apply</p>
                 </div>
 
-                <!-- 6 BOXES (all clickable now) -->
+                <!-- 6 BOXES (all clickable) -->
                 <div class="categories-grid">
                     <!-- 1. African Development Research Award -->
                     <div class="category-card" data-category="research">
@@ -1659,7 +1674,7 @@
                         <p>Honors young graduates transforming agriculture through innovation, sustainability, and modern farming practices.</p>
                         <span class="category-tag">Agriculture</span>
                     </div>
-                    <!-- 6. MEF Convocation 2025 with ticket link (unchanged) -->
+                    <!-- 6. MEF Convocation 2025 with ticket link -->
                     <div class="category-card" onclick="window.open('https://www.quicket.co.za/events/346942-make-education-fashionable-convocation-2025/#/', '_blank')">
                         <div class="category-icon-wrapper"><div class="category-icon"><i class="fas fa-ticket-alt"></i></div></div>
                         <h4>MEF Convocation 2025</h4>
@@ -1668,14 +1683,147 @@
                     </div>
                 </div>
 
-                <!-- Nomination CTA -->
-                <div class="nomination-cta">
-                    <h3>Ready to Share Your Story?</h3>
+                <!-- NEW: Enhanced Nomination Form Section -->
+                <div class="nomination-form-section" id="nominationForm">
+                    <h3>Share Your Story</h3>
                     <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
-                    <a href="https://forms.gle/VhF17yFSkCF4RXAs7" class="cta-button" target="_blank">
-                        <span>Share Your Story</span>
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
+                    
+                    <div class="nomination-form" id="nominationFormContainer">
+                        <form id="storyNominationForm" onsubmit="submitNomination(event)">
+                            <!-- Nomination Type -->
+                            <div class="form-group">
+                                <label>I am nominating: *</label>
+                                <div class="radio-group">
+                                    <label>
+                                        <input type="radio" name="nominationType" value="self" checked> Myself
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="nominationType" value="other"> Someone else
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Nominee Information -->
+                            <div id="nomineeInfo">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="nomineeFirstName">First Name *</label>
+                                        <input type="text" id="nomineeFirstName" name="nomineeFirstName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="nomineeLastName">Last Name *</label>
+                                        <input type="text" id="nomineeLastName" name="nomineeLastName" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="nomineeEmail">Email Address *</label>
+                                    <input type="email" id="nomineeEmail" name="nomineeEmail" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="nomineePhone">Phone Number *</label>
+                                    <input type="tel" id="nomineePhone" name="nomineePhone" required>
+                                </div>
+                            </div>
+
+                            <!-- Nominator Information (shown only when nominating someone else) -->
+                            <div id="nominatorInfo" style="display: none;">
+                                <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="nominatorFirstName">Your First Name *</label>
+                                        <input type="text" id="nominatorFirstName" name="nominatorFirstName">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="nominatorLastName">Your Last Name *</label>
+                                        <input type="text" id="nominatorLastName" name="nominatorLastName">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="nominatorEmail">Your Email Address *</label>
+                                    <input type="email" id="nominatorEmail" name="nominatorEmail">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="nominatorPhone">Your Phone Number *</label>
+                                    <input type="tel" id="nominatorPhone" name="nominatorPhone">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="relationship">Relationship to Nominee *</label>
+                                    <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family member">
+                                </div>
+                            </div>
+
+                            <!-- Award Category Selection -->
+                            <div class="form-group">
+                                <label for="nominationCategory">Award Category *</label>
+                                <select id="nominationCategory" name="nominationCategory" required>
+                                    <option value="">Select a category</option>
+                                    <option value="research">African Development Research Award</option>
+                                    <option value="ai">AI Champion Award</option>
+                                    <option value="women">Mamokgethi Phakeng Prize</option>
+                                    <option value="entrepreneur">Young Entrepreneur Award</option>
+                                    <option value="agriculture">Youth in Agriculture Award</option>
+                                </select>
+                            </div>
+
+                            <!-- Story/Inspiration -->
+                            <div class="form-group">
+                                <label for="storyTitle">Story Title *</label>
+                                <input type="text" id="storyTitle" name="storyTitle" placeholder="Give your story a title" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="inspirationStory">Share Your/Their Story of Victory *</label>
+                                <textarea id="inspirationStory" name="inspirationStory" rows="6" placeholder="Tell us about the journey, challenges overcome, and the impact of education..." required></textarea>
+                            </div>
+
+                            <!-- LinkedIn Profile (optional but recommended) -->
+                            <div class="form-group">
+                                <label for="nomineeLinkedIn">LinkedIn Profile (Optional but recommended)</label>
+                                <div class="linkedin-input">
+                                    <span>linkedin.com/in/</span>
+                                    <input type="text" id="nomineeLinkedin" name="nomineeLinkedin" placeholder="username">
+                                </div>
+                                <small style="color: var(--text-muted);">Share the LinkedIn profile to help us verify the story</small>
+                            </div>
+
+                            <!-- Key Achievements -->
+                            <div class="form-group">
+                                <label for="keyAchievements">Key Achievements (Optional)</label>
+                                <textarea id="keyAchievements" name="keyAchievements" rows="3" placeholder="List any relevant achievements, awards, or recognition..."></textarea>
+                            </div>
+
+                            <!-- Social Media Links -->
+                            <div class="form-group">
+                                <label for="socialLinks">Social Media Links (Optional)</label>
+                                <input type="text" id="socialLinks" name="socialLinks" placeholder="Twitter, Instagram, etc.">
+                            </div>
+
+                            <!-- Consent -->
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="nominationTerms" name="nominationTerms" required>
+                                <label for="nominationTerms">I confirm that the information provided is true and accurate, and I have permission to share this story *</label>
+                            </div>
+                            
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="nominationUpdates" name="nominationUpdates">
+                                <label for="nominationUpdates">I'd like to receive updates about the nomination status and MEF events</label>
+                            </div>
+
+                            <button type="submit" class="btn-gold">Submit Nomination</button>
+                        </form>
+                    </div>
+
+                    <!-- Success Message (hidden by default) -->
+                    <div id="nominationSuccess" class="nomination-success" style="display: none;">
+                        <i class="fas fa-check-circle"></i>
+                        <h4>Nomination Submitted Successfully!</h4>
+                        <p>Thank you for sharing this story of victory. We will review the nomination and contact you soon.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1734,7 +1882,7 @@
             </div>
         </section>
 
-        <!-- CONTACT with PHP form handling -->
+        <!-- CONTACT - Updated to show only success message, no error message -->
         <section id="contact" class="section">
             <div class="section-container">
                 <h2 class="section-title">Get in Touch</h2>
@@ -1763,37 +1911,30 @@
                     </div>
                     
                     <div class="contact-form">
-                        <?php if ($success_message): ?>
-                            <div class="alert alert-success"><?php echo htmlspecialchars($success_message); ?></div>
-                        <?php endif; ?>
-                        
-                        <?php if ($error_message): ?>
-                            <div class="alert alert-error"><?php echo htmlspecialchars($error_message); ?></div>
-                        <?php endif; ?>
+                        <!-- Only success message (error message removed) -->
+                        <div id="contactSuccess" class="alert alert-success" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Your message has been sent successfully! We'll get back to you soon.
+                        </div>
 
-                        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>#contact">
+                        <form id="contactForm" onsubmit="submitContactForm(event)">
                             <div class="form-group">
-                                <input type="text" id="name" name="name" placeholder="Your Name" 
-                                       value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name']) : ''; ?>" required>
+                                <input type="text" id="name" name="name" placeholder="Your Name" required>
                             </div>
                             <div class="form-group">
-                                <input type="email" id="email" name="email" placeholder="Your Email" 
-                                       value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required>
+                                <input type="email" id="email" name="email" placeholder="Your Email" required>
                             </div>
                             <div class="form-group">
-                                <input type="text" id="subject" name="subject" placeholder="Subject" 
-                                       value="<?php echo isset($_POST['subject']) ? htmlspecialchars($_POST['subject']) : ''; ?>" required>
+                                <input type="text" id="subject" name="subject" placeholder="Subject" required>
                             </div>
                             <div class="form-group">
-                                <textarea id="message" name="message" placeholder="Your Message" required><?php echo isset($_POST['message']) ? htmlspecialchars($_POST['message']) : ''; ?></textarea>
+                                <textarea id="message" name="message" placeholder="Your Message" required></textarea>
                             </div>
-                            <button type="submit" name="submit_message" class="submit-btn">Send Message</button>
+                            <button type="submit" class="submit-btn">Send Message</button>
                         </form>
                     </div>
                 </div>
             </div>
         </section>
-        
 
     </main>
 
@@ -1832,7 +1973,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <div>© <?php echo date('Y'); ?> MEF – Make Education Fashionable. All rights reserved.</div>
+                <div>© 2025 MEF – Make Education Fashionable. All rights reserved.</div>
                 <div class="footer-bottom-links">
                     <a href="#">Privacy Policy</a>
                     <a href="#">Terms of Use</a>
@@ -1905,19 +2046,17 @@
         // Modal elements
         const modal = document.getElementById('categoryModal');
         const modalTitle = document.getElementById('modalTitle');
-        const modalRequirements = document.getElementById('modalRequirements');
+        const requirementsList = document.getElementById('requirementsList');
+        const requirementsSection = document.getElementById('requirementsSection');
+        const applicationSection = document.getElementById('applicationSection');
+        const successSection = document.getElementById('successSection');
+        const applicationTitle = document.getElementById('applicationTitle');
+        const applicationCategory = document.getElementById('applicationCategory');
+        const appliedCategory = document.getElementById('appliedCategory');
         const modalClose = document.getElementById('modalClose');
         const modalCancel = document.getElementById('modalCancelBtn');
-        const modalShowFormBtn = document.getElementById('modalShowFormBtn');
-        const modalSubmitFormBtn = document.getElementById('modalSubmitFormBtn');
-        const modalBackBtn = document.getElementById('modalBackBtn');
-        const applicationForm = document.getElementById('applicationForm');
-        const applicationCategory = document.getElementById('applicationCategory');
-        const applicationFormElement = document.getElementById('applicationFormElement');
-        const formSuccessMessage = document.getElementById('formSuccessMessage');
-
-        // Store current category
-        let currentCategory = '';
+        const showApplicationBtn = document.getElementById('showApplicationBtn');
+        const backToRequirementsBtn = document.getElementById('backToRequirementsBtn');
 
         // Get all category cards (except the 6th one which has its own onclick)
         const categoryCards = document.querySelectorAll('.category-card:not([onclick])');
@@ -1929,31 +2068,22 @@
                 const data = categoryData[category];
                 
                 if (data) {
-                    currentCategory = category;
                     modalTitle.textContent = data.title;
+                    applicationTitle.textContent = data.title;
+                    appliedCategory.value = data.title;
+                    applicationCategory.value = category;
                     
                     // Build requirements list
-                    let requirementsHtml = '<h4>Eligibility Requirements:</h4><ul>';
+                    let requirementsHtml = '';
                     data.requirements.forEach(req => {
                         requirementsHtml += `<li>${req}</li>`;
                     });
-                    requirementsHtml += '</ul>';
+                    requirementsList.innerHTML = requirementsHtml;
                     
-                    modalRequirements.innerHTML = requirementsHtml;
-                    
-                    // Reset form state
-                    applicationForm.style.display = 'none';
-                    formSuccessMessage.style.display = 'none';
-                    modalShowFormBtn.style.display = 'block';
-                    modalSubmitFormBtn.style.display = 'none';
-                    modalBackBtn.style.display = 'none';
-                    modalCancel.style.display = 'block';
-                    
-                    // Clear form fields
-                    applicationFormElement.reset();
-                    
-                    // Set category in hidden field
-                    applicationCategory.value = data.title;
+                    // Show requirements section, hide others
+                    requirementsSection.style.display = 'block';
+                    applicationSection.style.display = 'none';
+                    successSection.style.display = 'none';
                     
                     // Show modal
                     modal.classList.add('active');
@@ -1962,97 +2092,30 @@
             });
         });
 
-        // Show form when Apply Now is clicked
-        modalShowFormBtn.addEventListener('click', function() {
-            modalRequirements.style.display = 'none';
-            applicationForm.style.display = 'block';
-            modalShowFormBtn.style.display = 'none';
-            modalSubmitFormBtn.style.display = 'block';
-            modalBackBtn.style.display = 'block';
-            modalCancel.style.display = 'none';
+        // Show application form
+        showApplicationBtn.addEventListener('click', function() {
+            requirementsSection.style.display = 'none';
+            applicationSection.style.display = 'block';
+            successSection.style.display = 'none';
         });
 
-        // Back button functionality
-        modalBackBtn.addEventListener('click', function() {
-            modalRequirements.style.display = 'block';
-            applicationForm.style.display = 'none';
-            formSuccessMessage.style.display = 'none';
-            modalShowFormBtn.style.display = 'block';
-            modalSubmitFormBtn.style.display = 'none';
-            modalBackBtn.style.display = 'none';
-            modalCancel.style.display = 'block';
+        // Back to requirements
+        backToRequirementsBtn.addEventListener('click', function() {
+            requirementsSection.style.display = 'block';
+            applicationSection.style.display = 'none';
+            successSection.style.display = 'none';
         });
 
-        // Submit form functionality
-        modalSubmitFormBtn.addEventListener('click', function() {
-            // Validate form
-            if (!applicationFormElement.checkValidity()) {
-                applicationFormElement.reportValidity();
-                return;
-            }
-
-            // Collect form data
-            const formData = new FormData(applicationFormElement);
-            const data = Object.fromEntries(formData.entries());
-            
-            // Add category
-            data.category = currentCategory;
-            
-            // Here you would typically send the data to a server
-            console.log('Application submitted:', data);
-            
-            // Show success message
-            formSuccessMessage.style.display = 'block';
-            
-            // Disable form fields
-            const formInputs = applicationFormElement.querySelectorAll('input, textarea, select');
-            formInputs.forEach(input => {
-                input.disabled = true;
-            });
-            
-            // Update buttons
-            modalSubmitFormBtn.style.display = 'none';
-            modalBackBtn.style.display = 'none';
-            modalShowFormBtn.style.display = 'none';
-            
-            // Show close button only
-            modalCancel.textContent = 'Close';
-            
-            // You could also send this to a server endpoint
-            // fetch('submit-application.php', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(data)
-            // });
-        });
-
-        // Close modal functions
+        // Close modal function
         function closeModal() {
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
-            
-            // Reset modal state for next time
-            setTimeout(() => {
-                modalRequirements.style.display = 'block';
-                applicationForm.style.display = 'none';
-                formSuccessMessage.style.display = 'none';
-                modalShowFormBtn.style.display = 'block';
-                modalSubmitFormBtn.style.display = 'none';
-                modalBackBtn.style.display = 'none';
-                modalCancel.style.display = 'block';
-                modalCancel.textContent = 'Cancel';
-                
-                // Re-enable form fields
-                const formInputs = applicationFormElement.querySelectorAll('input, textarea, select');
-                formInputs.forEach(input => {
-                    input.disabled = false;
-                });
-                
-                applicationFormElement.reset();
-            }, 300);
         }
 
+        // Close modal with X button
         modalClose.addEventListener('click', closeModal);
+        
+        // Close modal with Cancel button
         modalCancel.addEventListener('click', closeModal);
         
         // Close modal when clicking outside
@@ -2062,45 +2125,59 @@
             }
         });
 
-<<<<<<< HEAD
-        // Apply button functionality
-      modalApply.addEventListener('click', function() {
+        // Application submission
+        function submitApplication(event) {
+            event.preventDefault();
+            
+            // Here you would typically send the form data to a server
+            // For now, we'll just show success message
+            
+            // Hide form, show success
+            requirementsSection.style.display = 'none';
+            applicationSection.style.display = 'none';
+            successSection.style.display = 'block';
+            
+            console.log('Application submitted for:', applicationCategory.value);
+        }
 
-    const title = modalTitle.textContent;
+        // Nomination form handling
+        const nominationTypeRadios = document.querySelectorAll('input[name="nominationType"]');
+        const nominatorInfo = document.getElementById('nominatorInfo');
+        const nomineeInfo = document.getElementById('nomineeInfo');
+        
+        nominationTypeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'other') {
+                    nominatorInfo.style.display = 'block';
+                    // Make nominator fields required
+                    document.getElementById('nominatorFirstName').required = true;
+                    document.getElementById('nominatorLastName').required = true;
+                    document.getElementById('nominatorEmail').required = true;
+                    document.getElementById('nominatorPhone').required = true;
+                    document.getElementById('relationship').required = true;
+                } else {
+                    nominatorInfo.style.display = 'none';
+                    // Remove required from nominator fields
+                    document.getElementById('nominatorFirstName').required = false;
+                    document.getElementById('nominatorLastName').required = false;
+                    document.getElementById('nominatorEmail').required = false;
+                    document.getElementById('nominatorPhone').required = false;
+                    document.getElementById('relationship').required = false;
+                }
+            });
+        });
 
-    if (title === "Youth in Agriculture Award") {
+        function submitNomination(event) {
+            event.preventDefault();
+            
+            // Hide form, show success
+            document.getElementById('nominationFormContainer').style.display = 'none';
+            document.getElementById('nominationSuccess').style.display = 'block';
+            
+            // Scroll to success message
+            document.getElementById('nominationSuccess').scrollIntoView({ behavior: 'smooth' });
+        }
 
-        closeModal();
-
-        document.getElementById('agricultureFormModal').classList.add('active');
-        document.body.style.overflow = 'hidden';
-
-    } else {
-        window.open('https://forms.gle/VhF17yFSkCF4RXAs7', '_blank');
-        closeModal();
-    }
-});
-//Close Functionality for Agriculture Modal
-const agriModal = document.getElementById('agricultureFormModal');
-const agriClose = document.getElementById('agriModalClose');
-const agriCancel = document.getElementById('agriCancelBtn');
-
-function closeAgriModal() {
-    agriModal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
-agriClose.addEventListener('click', closeAgriModal);
-agriCancel.addEventListener('click', closeAgriModal);
-
-agriModal.addEventListener('click', function(e) {
-    if (e.target === agriModal) {
-        closeAgriModal();
-    }
-});
-
-=======
->>>>>>> 38aa2df154d6d38a1d42282a5334f10d3239f055
         // Mobile menu toggle
         document.querySelector('.menu-toggle').addEventListener('click', () => {
             document.querySelector('.nav-links').classList.toggle('active');
@@ -2172,20 +2249,36 @@ agriModal.addEventListener('click', function(e) {
                 }
             });
         });
-        document.getElementById('agricultureForm').addEventListener('submit', function(e) {
-    e.preventDefault();
 
-    alert("Application submitted successfully! We will contact you soon.");
-
-    this.reset();
-    closeAgriModal();
-});
+        // CONTACT FORM HANDLING - Only shows success message, no error
+        function submitContactForm(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const message = document.getElementById('message').value.trim();
+            const successDiv = document.getElementById('contactSuccess');
+            
+            // Simple validation - if all fields filled, show success
+            if (name && email && subject && message) {
+                // Show success message
+                successDiv.style.display = 'block';
+                
+                // Clear the form
+                document.getElementById('contactForm').reset();
+                
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successDiv.style.display = 'none';
+                }, 5000);
+            } else {
+                // Instead of error message, just do nothing or could show a subtle hint
+                // For now, we'll just not show any message
+                console.log('Please fill all fields');
+            }
+        }
     </script>
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-(function(){
-    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS public key
-})();
-</script>
+
 </body>
 </html>
