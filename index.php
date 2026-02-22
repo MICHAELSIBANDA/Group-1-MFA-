@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $formType = $_POST['form_type'];
 
         if ($formType === 'award_application') {
-            // Award application form
+            // Award application form (from modal)
             $firstName = trim($_POST['firstName'] ?? '');
             $lastName  = trim($_POST['lastName'] ?? '');
             $email     = trim($_POST['email'] ?? '');
@@ -72,32 +72,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $achievements  = trim($_POST['achievements'] ?? '');
             $categoryCode  = trim($_POST['category'] ?? '');
 
-            // Basic validation
             if ($firstName && $lastName && $email && $phone && $qualification && $institution && $categoryCode && $achievements) {
-                // Build full LinkedIn URL if only username provided
                 if (!empty($linkedin) && strpos($linkedin, 'linkedin.com') === false) {
                     $linkedin = 'https://linkedin.com/in/' . ltrim($linkedin, '/');
                 }
 
-                // Insert nominee
                 $stmt = $conn->prepare("INSERT INTO nominees (first_name, last_name, email, phone) VALUES (?, ?, ?, ?)");
                 $stmt->bind_param("ssss", $firstName, $lastName, $email, $phone);
                 if ($stmt->execute()) {
                     $nomineeId = $stmt->insert_id;
-
-                    // Insert category record
                     $stmt2 = $conn->prepare("INSERT INTO categories (category_type, qualification, institution, weblinkurl, achievement_description, nominee_id) VALUES (?, ?, ?, ?, ?, ?)");
                     $stmt2->bind_param("sssssi", $categoryCode, $qualification, $institution, $linkedin, $achievements, $nomineeId);
                     if ($stmt2->execute()) {
                         $_SESSION['success'] = "Your award application has been submitted successfully!";
-
-                        // Send confirmation email with full category name
                         $fullCategory = $categoryNames[$categoryCode] ?? $categoryCode;
-                        $subject = "🎉 YOU'VE BEEN NOMINATED for the MEF Awards!";
+                        $subject = "YOU'VE BEEN NOMINATED for the MEF Awards!";
                         $body = "Dear $firstName $lastName,\n\n";
-                        $body .= "We are excited to inform you that you have been nominated for the **MEF Awards** in the **$fullCategory** category! 🌟\n\n";
-                        $body .= "Someone who recognizes your excellence and contribution has shared your story. This nomination reflects the positive impact you have made.\n\n";
-                        $body .= "Our panel will now review your submission, and we will be in touch soon regarding the outcome.\n\n";
+                        $body .= "We are excited to inform you that you have been nominated for the **MEF Awards** in the **$fullCategory** category! 🌟\n";
+                        $body .= "Someone who recognizes your excellence and contribution has shared your story. This nomination reflects the positive impact you have made.\n";
+                        $body .= "Our panel will now review the submission, and we will be in touch soon regarding the outcome.\n\n";
                         $body .= "Nomination Details:\n";
                         $body .= "Category: $fullCategory\n";
                         $body .= "Qualification: $qualification\n";
@@ -118,94 +111,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['error'] = "Please fill in all required fields.";
             }
 
-        } elseif ($formType === 'story_nomination') {
-            // Story nomination form
-            $nominationType = $_POST['nominationType'] ?? 'self';
+        } elseif ($formType === 'standalone_nomination') {
+            // Standalone nomination form (same fields as award_application + category dropdown)
+            $firstName = trim($_POST['firstName'] ?? '');
+            $lastName  = trim($_POST['lastName'] ?? '');
+            $email     = trim($_POST['email'] ?? '');
+            $phone     = trim($_POST['phone'] ?? '');
+            $qualification = trim($_POST['qualification'] ?? '');
+            $institution   = trim($_POST['institution'] ?? '');
+            $linkedin      = trim($_POST['linkedin'] ?? '');
+            $achievements  = trim($_POST['achievements'] ?? '');
+            $categoryCode  = trim($_POST['category'] ?? '');
 
-            // Nominee fields (always required)
-            $nomineeFirstName = trim($_POST['nomineeFirstName'] ?? '');
-            $nomineeLastName  = trim($_POST['nomineeLastName'] ?? '');
-            $nomineeEmail     = trim($_POST['nomineeEmail'] ?? '');
-            $nomineePhone     = trim($_POST['nomineePhone'] ?? '');
-            $nomineeLinkedin  = trim($_POST['nomineeLinkedin'] ?? '');
-            $categoryCode     = trim($_POST['nominationCategory'] ?? '');
-            $storyTitle       = trim($_POST['storyTitle'] ?? '');
-            $inspirationStory = trim($_POST['inspirationStory'] ?? '');
-            $keyAchievements  = trim($_POST['keyAchievements'] ?? '');
-            $socialLinks      = trim($_POST['socialLinks'] ?? '');
+            if ($firstName && $lastName && $email && $phone && $qualification && $institution && $categoryCode && $achievements) {
+                if (!empty($linkedin) && strpos($linkedin, 'linkedin.com') === false) {
+                    $linkedin = 'https://linkedin.com/in/' . ltrim($linkedin, '/');
+                }
 
-            // Build a combined achievement description (limit to 200 chars)
-            $combined = "Title: $storyTitle\n\nStory: $inspirationStory\n\nAchievements: $keyAchievements\n\nSocial: $socialLinks";
-            $achievementDesc = substr($combined, 0, 200);
-
-            // Build full LinkedIn URL
-            if (!empty($nomineeLinkedin) && strpos($nomineeLinkedin, 'linkedin.com') === false) {
-                $nomineeLinkedin = 'https://linkedin.com/in/' . ltrim($nomineeLinkedin, '/');
-            }
-
-            // Validate required nominee fields
-            if ($nomineeFirstName && $nomineeLastName && $nomineeEmail && $nomineePhone && $categoryCode && $storyTitle && $inspirationStory) {
-                // Insert nominee
                 $stmt = $conn->prepare("INSERT INTO nominees (first_name, last_name, email, phone) VALUES (?, ?, ?, ?)");
-                $stmt->bind_param("ssss", $nomineeFirstName, $nomineeLastName, $nomineeEmail, $nomineePhone);
+                $stmt->bind_param("ssss", $firstName, $lastName, $email, $phone);
                 if ($stmt->execute()) {
                     $nomineeId = $stmt->insert_id;
-
-                    // Insert category record (qualification & institution are not present in this form – use placeholders)
-                    $qualification = 'N/A';
-                    $institution = 'N/A';
                     $stmt2 = $conn->prepare("INSERT INTO categories (category_type, qualification, institution, weblinkurl, achievement_description, nominee_id) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt2->bind_param("sssssi", $categoryCode, $qualification, $institution, $nomineeLinkedin, $achievementDesc, $nomineeId);
+                    $stmt2->bind_param("sssssi", $categoryCode, $qualification, $institution, $linkedin, $achievements, $nomineeId);
                     if ($stmt2->execute()) {
-                        $_SESSION['success'] = "Your story nomination has been submitted successfully!";
-
-                        // Send confirmation email to nominee with full category name and cool tone
+                        $_SESSION['success'] = "Your nomination has been submitted successfully!";
                         $fullCategory = $categoryNames[$categoryCode] ?? $categoryCode;
-
-                        if ($nominationType === 'other' && !empty($_POST['nominatorFirstName']) && !empty($_POST['nominatorLastName'])) {
-                            $nominatorFirstName = trim($_POST['nominatorFirstName']);
-                            $nominatorLastName = trim($_POST['nominatorLastName']);
-                            $nominatorName = "$nominatorFirstName $nominatorLastName";
-                            $subject = "🎉 YOU'VE BEEN NOMINATED for the MEF Awards!";
-                            $body = "Dear $nomineeFirstName $nomineeLastName,\n\n";
-                            $body .= "🎊 **Guess what?** $nominatorName thinks you're amazing and has nominated you for the **MEF Awards** in the **$fullCategory** category!\n\n";
-                        } else {
-                            // Self-nomination
-                            $subject = "🌟 Congratulations on Your MEF Awards Nomination!";
-                            $body = "Dear $nomineeFirstName $nomineeLastName,\n\n";
-                            $body .= "🌟 **Way to go!** You've taken a bold step and nominated yourself for the **MEF Awards** in the **$fullCategory** category. We love your confidence!\n\n";
-                        }
-
-                        $body .= "Your inspiring story has been received, and our team can't wait to review it. Here's what you shared with us:\n";
-                        $body .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-                        $body .= "📌 **Story Title:** $storyTitle\n";
-                        $body .= "📖 **Your Story:**\n$inspirationStory\n";
-                        $body .= "🏆 **Key Achievements:**\n$keyAchievements\n";
-                        if (!empty($nomineeLinkedin)) {
-                            $body .= "🔗 **LinkedIn:** $nomineeLinkedin\n";
-                        }
-                        if (!empty($socialLinks)) {
-                            $body .= "🌐 **Social Media:** $socialLinks\n";
-                        }
-                        $body .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
-                        $body .= "We'll be in touch soon with updates. In the meantime, celebrate this moment—you deserve it!\n\n";
-                        $body .= "With excitement,\n";
-                        $body .= "**The MEF Awards Team** 🌟";
-
-                        sendEmail($nomineeEmail, $subject, $body, $env);
-
-                        // Optionally send email to nominator if different
-                        if ($nominationType === 'other' && !empty($_POST['nominatorEmail'])) {
-                            $nominatorEmail = trim($_POST['nominatorEmail']);
-                            $nominatorFirstName = trim($_POST['nominatorFirstName'] ?? '');
-                            $nominatorLastName = trim($_POST['nominatorLastName'] ?? '');
-                            $nominatorSubject = "Thank You for Nominating Someone Special!";
-                            $nominatorBody = "Dear $nominatorFirstName $nominatorLastName,\n\n";
-                            $nominatorBody .= "Thank you for nominating $nomineeFirstName $nomineeLastName for the MEF Awards. Your gesture means a lot and helps shine a light on deserving individuals.\n\n";
-                            $nominatorBody .= "We have received the nomination and will review it shortly.\n\n";
-                            $nominatorBody .= "Regards,\nMEF Awards Team";
-                            sendEmail($nominatorEmail, $nominatorSubject, $nominatorBody, $env);
-                        }
+                        $subject = "YOU'VE BEEN NOMINATED for the MEF Awards!";
+                        $body = "Dear $nomineeFirstName $nomineeLastName,\n\n";
+                        $body .= "We are excited to inform you that you have been nominated for the MEF Awards! 🌟\n";
+                        $body .= "Your story has been shared by someone who recognizes your excellence and contribution. This nomination reflects the positive impact you have made.\n";
+                        $body .= "Our panel will now review the submission, and we will be in touch soon regarding the outcome.\n\n";
+                        $body .= "Nomination Details:\n";
+                        $body .= "Category: $category\n";
+                        $body .= "Story Title: $storyTitle\n";
+                        $body .= "Achievements: $keyAchievements\n\n";
+                        $body .= "Regards,\nMEF Awards Team";
+                        sendEmail($email, $subject, $body, $env);
                     } else {
                         $_SESSION['error'] = "Failed to save category details.";
                     }
@@ -215,7 +157,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $stmt->close();
             } else {
-                $_SESSION['error'] = "Please fill in all required nominee fields.";
+                $_SESSION['error'] = "Please fill in all required fields.";
+            }
+
+        } elseif ($formType === 'contact') {
+            // Contact form
+            $name = trim($_POST['name'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $subject = trim($_POST['subject'] ?? '');
+            $message = trim($_POST['message'] ?? '');
+
+            if ($name && $email && $subject && $message) {
+                $adminEmail = $env['SMTP_FROM'];
+                $mailSubject = "Contact Form Message from $name";
+                $mailBody = "You have received a new message from the MEF contact form.\n\n";
+                $mailBody .= "Name: $name\n";
+                $mailBody .= "Email: $email\n";
+                $mailBody .= "Subject: $subject\n";
+                $mailBody .= "Message:\n$message\n";
+
+                if (sendEmail($adminEmail, $mailSubject, $mailBody, $env)) {
+                    $_SESSION['success'] = "Your message has been sent successfully!";
+                } else {
+                    $_SESSION['error'] = "Failed to send your message. Please try again later.";
+                }
+            } else {
+                $_SESSION['error'] = "Please fill in all required fields.";
             }
         }
 
@@ -240,8 +207,6 @@ unset($_SESSION['success'], $_SESSION['error']);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* ===== FULL CSS FROM PREVIOUS VERSION ===== */
-        /* Paste your complete CSS here – unchanged from the earlier index.php */
         :root {
             --primary-dark: #0a192f;
             --primary-navy: #112240;
@@ -300,7 +265,6 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         a { color: inherit; text-decoration: none; }
 
-        /* FIXED NAVBAR - with hide/show on scroll */
         .fixed-nav {
             position: fixed;
             top: 0; left: 0;
@@ -415,7 +379,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             cursor: pointer;
         }
 
-        /* HOME */
         #home {
             min-height: 100vh;
             position: relative;
@@ -523,7 +486,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             box-shadow: 0 20px 40px rgba(255,215,0,0.35);
         }
 
-        /* SECTIONS */
         .section { padding: 7rem 3rem; }
         .section-container { max-width: 1240px; margin: 0 auto; }
 
@@ -548,7 +510,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             border-radius: 3px;
         }
 
-        /* ALERT MESSAGES */
         .alert {
             padding: 1rem 1.5rem;
             border-radius: var(--radius-md);
@@ -562,7 +523,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             color: var(--accent-teal-light);
         }
 
-        /* ABOUT */
         #about {
             background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary-navy) 100%);
         }
@@ -619,7 +579,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             font-style: italic;
         }
 
-        /* SERVICES */
         #services {
             background: linear-gradient(135deg, var(--primary-light), var(--primary-navy));
             position: relative;
@@ -678,12 +637,13 @@ unset($_SESSION['success'], $_SESSION['error']);
         .founder-image-frame {
             position: relative;
             width: 100%;
-            height: 500px;
+            max-height: 500px;
             border-radius: 20px;
             overflow: hidden;
             border: 5px solid var(--accent-gold);
             box-shadow: 0 0 30px rgba(255,215,0,0.3);
             transition: var(--transition);
+            background-color: var(--primary-navy);
         }
 
         .founder-image-frame:hover {
@@ -694,9 +654,11 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         .founder-image-frame img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
+            max-height: 500px;
+            object-fit: contain;
             transition: var(--transition);
+            display: block;
         }
 
         .founder-image-frame:hover img {
@@ -711,6 +673,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             border: 1px solid rgba(255,215,0,0.15);
             box-shadow: var(--shadow-xl);
             transition: var(--transition);
+            overflow-wrap: break-word;
         }
 
         .founder-content:hover {
@@ -897,7 +860,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             border-color: var(--accent-gold);
         }
 
-        /* NOMINATION CARD */
         .nomination-card {
             background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(45,212,191,0.15));
             backdrop-filter: blur(12px);
@@ -979,7 +941,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             transform: translateX(5px);
         }
 
-        /* MODAL STYLES */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -1113,7 +1074,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             transform: translateY(-3px);
         }
 
-        /* APPLICATION FORM STYLES */
         .application-form {
             margin-top: 2rem;
             border-top: 1px solid rgba(255,215,0,0.3);
@@ -1247,7 +1207,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             box-shadow: none;
         }
 
-        /* TESTIMONIALS */
         #testimonials {
             background: linear-gradient(135deg, var(--primary-navy), var(--primary-dark));
         }
@@ -1306,7 +1265,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             font-weight: bold;
         }
 
-        /* CONTACT */
         #contact {
             background: linear-gradient(135deg, var(--primary-light), var(--primary-navy));
         }
@@ -1417,7 +1375,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             box-shadow: var(--shadow-md);
         }
 
-        /* FOOTER */
         footer {
             background: var(--primary-dark);
             padding: 4rem 2rem 2rem;
@@ -1580,12 +1537,11 @@ unset($_SESSION['success'], $_SESSION['error']);
             color: var(--accent-gold);
         }
 
-        /* RESPONSIVE */
         @media (max-width: 968px) {
             .contact-grid { grid-template-columns: 1fr; }
             .home-content h1 { font-size: 3.6rem; }
             .founder-showcase { grid-template-columns: 1fr; }
-            .founder-image-frame { height: 400px; }
+            .founder-image-frame { height: auto; }
             .footer-main { grid-template-columns: 1fr; gap: 2rem; }
             .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
             .form-row {
@@ -1619,6 +1575,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 flex-direction: column;
             }
         }
+
         /* ===== Nomination Form Styling ===== */
         .nomination-form-section {
             background: var(--primary-navy);
@@ -1629,6 +1586,11 @@ unset($_SESSION['success'], $_SESSION['error']);
             max-width: 900px;
             margin-left: auto;
             margin-right: auto;
+            transition: padding 0.3s ease;
+        }
+
+        .nomination-form-section.collapsed {
+            padding-bottom: 0; /* Remove bottom padding when form is hidden */
         }
 
         .nomination-form-section h3 {
@@ -1645,7 +1607,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             margin-bottom: 2rem;
         }
 
-        /* Toggle button */
         .btn-gold {
             display: block;
             background: var(--accent-gold);
@@ -1664,7 +1625,10 @@ unset($_SESSION['success'], $_SESSION['error']);
             transform: translateY(-2px);
         }
 
-        /* Form container */
+        .nomination-form-section.collapsed .btn-gold {
+            margin-bottom: 0; /* Remove bottom margin when form hidden */
+        }
+
         .nomination-form {
             background: var(--primary-dark);
             padding: 2rem;
@@ -1707,37 +1671,23 @@ unset($_SESSION['success'], $_SESSION['error']);
             background: var(--primary-light);
         }
 
-        /* Radio buttons */
-        .radio-group {
-            display: flex;
-            gap: 2rem;
+        .nomination-form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
-        .radio-group input[type="radio"] {
-            accent-color: var(--accent-gold);
-            margin-right: 0.5rem;
-        }
-
-        /* Section headings inside form */
-        .nomination-form h4 {
-            font-size: 1.3rem;
-            color: var(--accent-teal);
-            margin-bottom: 1rem;
-        }
-
-        /* Checkbox */
-        .checkbox-group {
+        .nomination-form .checkbox-group {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             margin-top: 1rem;
         }
 
-        .checkbox-group input[type="checkbox"] {
+        .nomination-form .checkbox-group input[type="checkbox"] {
             accent-color: var(--accent-gold);
         }
 
-        /* Submit button */
         .nomination-form button[type="submit"] {
             display: block;
             background: var(--accent-gold);
@@ -1757,7 +1707,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             transform: translateY(-2px);
         }
 
-        /* LinkedIn input group */
         .linkedin-input {
             display: flex;
             align-items: center;
@@ -1776,26 +1725,17 @@ unset($_SESSION['success'], $_SESSION['error']);
             border-left: none;
         }
 
-        /* Hide/show nominee/nominator info toggling (if needed) */
-        #nominatorInfo,
-        #nomineeInfo {
-            transition: all 0.3s ease;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-        .nomination-form-section {
-            padding: 2rem 1rem;
+            .nomination-form-section {
+                padding: 2rem 1rem;
+            }
+            .btn-gold, .nomination-form button[type="submit"] {
+                width: 100%;
+            }
+            .nomination-form .form-row {
+                grid-template-columns: 1fr;
+            }
         }
-        .btn-gold, .nomination-form button[type="submit"] {
-            width: 100%;
-        }
-        .radio-group {
-            flex-direction: column;
-            gap: 1rem;
-        }
-}
-
     </style>
 </head>
 <body>
@@ -1830,22 +1770,17 @@ unset($_SESSION['success'], $_SESSION['error']);
             <span class="modal-close" id="modalClose">&times;</span>
             <h3 class="modal-title" id="modalTitle">Category Title</h3>
             
-            <!-- Requirements Section -->
             <div id="requirementsSection">
                 <div class="modal-section">
                     <h4>Requirements:</h4>
-                    <ul id="requirementsList">
-                        <!-- Populated by JS -->
-                    </ul>
+                    <ul id="requirementsList"></ul>
                 </div>
-                
                 <div class="modal-buttons">
                     <button class="modal-btn modal-btn-primary" id="showApplicationBtn">Apply Now</button>
                     <button class="modal-btn modal-btn-secondary" id="modalCancelBtn">Cancel</button>
                 </div>
             </div>
             
-            <!-- Application Form Section -->
             <div id="applicationSection" style="display: none;">
                 <div class="application-form">
                     <h4>Apply for <span id="applicationTitle"></span></h4>
@@ -1853,7 +1788,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <input type="hidden" name="form_type" value="award_application">
                         <input type="hidden" id="applicationCategory" name="category">
                         
-                        <!-- All form fields unchanged -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="firstName">First Name *</label>
@@ -1925,7 +1859,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                 </div>
             </div>
             
-            <!-- Success Section (UI only) -->
             <div id="successSection" style="display: none;">
                 <div class="application-success">
                     <i class="fas fa-check-circle"></i>
@@ -1937,144 +1870,9 @@ unset($_SESSION['success'], $_SESSION['error']);
         </div>
     </div>
 
-    <!-- MODAL OVERLAY for Story Nomination -->
-    <div class="modal-overlay" id="nominationModal">
-        <div class="modal-content">
-            <span class="modal-close" id="nominationModalClose">&times;</span>
-            <h3 class="modal-title">Share Your Story</h3>
-            
-            <div id="nominationFormSection">
-                <div class="application-form">
-                    <form method="POST" action="index.php">
-                        <input type="hidden" name="form_type" value="story_nomination">
-                        
-                        <!-- Nomination Type -->
-                        <div class="form-group">
-                            <label>I am nominating: *</label>
-                            <div class="radio-group">
-                                <label><input type="radio" name="nominationType" value="self" checked> Myself</label>
-                                <label><input type="radio" name="nominationType" value="other"> Someone else</label>
-                            </div>
-                        </div>
-
-                        <!-- Nominee Information -->
-                        <div id="nomineeInfo">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="nomineeFirstName">First Name *</label>
-                                    <input type="text" id="nomineeFirstName" name="nomineeFirstName" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="nomineeLastName">Last Name *</label>
-                                    <input type="text" id="nomineeLastName" name="nomineeLastName" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="nomineeEmail">Email Address *</label>
-                                <input type="email" id="nomineeEmail" name="nomineeEmail" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="nomineePhone">Phone Number *</label>
-                                <input type="tel" id="nomineePhone" name="nomineePhone" required>
-                            </div>
-                        </div>
-
-                        <!-- Nominator Information (shown only when nominating someone else) -->
-                        <div id="nominatorInfo" style="display: none;">
-                            <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="nominatorFirstName">Your First Name</label>
-                                    <input type="text" id="nominatorFirstName" name="nominatorFirstName">
-                                </div>
-                                <div class="form-group">
-                                    <label for="nominatorLastName">Your Last Name</label>
-                                    <input type="text" id="nominatorLastName" name="nominatorLastName">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="nominatorEmail">Your Email Address</label>
-                                <input type="email" id="nominatorEmail" name="nominatorEmail">
-                            </div>
-                            <div class="form-group">
-                                <label for="nominatorPhone">Your Phone Number</label>
-                                <input type="tel" id="nominatorPhone" name="nominatorPhone">
-                            </div>
-                            <div class="form-group">
-                                <label for="relationship">Relationship to Nominee</label>
-                                <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family member">
-                            </div>
-                        </div>
-
-                        <!-- Award Category -->
-                        <div class="form-group">
-                            <label for="nominationCategory">Award Category *</label>
-                            <select id="nominationCategory" name="nominationCategory" required>
-                                <option value="">Select a category</option>
-                                <option value="research">African Development Research Award</option>
-                                <option value="ai">AI Champion Award</option>
-                                <option value="women">Mamokgethi Phakeng Prize</option>
-                                <option value="entrepreneur">Young Entrepreneur Award</option>
-                                <option value="agriculture">Youth in Agriculture Award</option>
-                            </select>
-                        </div>
-
-                        <!-- Story Details -->
-                        <div class="form-group">
-                            <label for="storyTitle">Story Title *</label>
-                            <input type="text" id="storyTitle" name="storyTitle" placeholder="Give your story a title" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="inspirationStory">Share Your/Their Story of Victory *</label>
-                            <textarea id="inspirationStory" name="inspirationStory" rows="6" required></textarea>
-                        </div>
-
-                        <!-- LinkedIn -->
-                        <div class="form-group">
-                            <label for="nomineeLinkedin">LinkedIn Profile (Optional)</label>
-                            <div class="linkedin-input">
-                                <span>linkedin.com/in/</span>
-                                <input type="text" id="nomineeLinkedin" name="nomineeLinkedin" placeholder="username">
-                            </div>
-                        </div>
-
-                        <!-- Key Achievements -->
-                        <div class="form-group">
-                            <label for="keyAchievements">Key Achievements (Optional)</label>
-                            <textarea id="keyAchievements" name="keyAchievements" rows="3"></textarea>
-                        </div>
-
-                        <!-- Social Links -->
-                        <div class="form-group">
-                            <label for="socialLinks">Social Media Links (Optional)</label>
-                            <input type="text" id="socialLinks" name="socialLinks" placeholder="Twitter, Instagram, etc.">
-                        </div>
-
-                        <!-- Consent -->
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="nominationTerms" name="nominationTerms" required>
-                            <label for="nominationTerms">I confirm that the information provided is true and accurate *</label>
-                        </div>
-                        
-                        <div class="modal-buttons">
-                            <button type="submit" class="modal-btn modal-btn-primary">Submit Nomination</button>
-                            <button type="button" class="modal-btn modal-btn-secondary" id="nominationModalCancel">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Success Section (UI only) -->
-            <div id="nominationSuccess" style="display: none;">
-                <div class="application-success">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Nomination Submitted Successfully!</h3>
-                    <p>Thank you for sharing this story of victory.</p>
-                    <button class="modal-btn modal-btn-primary" onclick="closeNominationModal()">Close</button>
-                </div>
-            </div>
-        </div>
+    <!-- MODAL OVERLAY for Story Nomination (this modal is no longer used but kept for reference) -->
+    <div class="modal-overlay" id="nominationModal" style="display: none;">
+        <!-- This modal is deprecated; the standalone form is below -->
     </div>
 
     <!-- NAVBAR with clickable logo -->
@@ -2103,11 +1901,10 @@ unset($_SESSION['success'], $_SESSION['error']);
 
     <main class="content">
 
-        <!-- HOME with graduates.jpeg background -->
+        <!-- HOME -->
         <section id="home">
             <img src="graduates.jpg" alt="MEF Background - Graduates" class="home-bg">
             <div class="home-overlay"></div>
-            
             <div class="home-content">
                 <h1>Make Education Fashionable</h1>
                 <p>Transforming education through inspiration, leadership, and real stories of triumph. Join the movement started by Prof. Mamokgethi Phakeng to celebrate learning and impact.</p>
@@ -2122,17 +1919,13 @@ unset($_SESSION['success'], $_SESSION['error']);
         <section id="about" class="section">
             <div class="section-container">
                 <h2 class="section-title">About MEF</h2>
-                
                 <div class="about-content">
                     <div class="about-text">
                         <p><strong>MEF (Make Education Fashionable)</strong> is a powerful social media campaign founded by <strong>Prof. Mamokgethi Phakeng</strong> (@fabacademic), one of South Africa's most distinguished academics and businesswomen.</p>
-
                         <p>Launched in <strong>2015</strong>, the campaign inspires people by sharing authentic stories of individuals who have earned post-school qualifications and used them to overcome challenges and transform their lives.</p>
-
                         <div class="highlight-box">
                             <p>“The main purpose of the campaign is to inspire through stories of victory — stories of those who succeeded despite challenges and whose qualifications changed their lives.”</p>
                         </div>
-
                         <h3>Campaign Impact</h3>
                         <ul>
                             <li>Participants have secured job opportunities</li>
@@ -2140,7 +1933,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                             <li>It creates visibility and recognition for graduates</li>
                             <li>Brings positivity to social media spaces often filled with negativity</li>
                         </ul>
-
                         <h3>How to Participate</h3>
                         <ul>
                             <li>Post your graduation picture</li>
@@ -2152,7 +1944,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             </div>
         </section>
 
-        <!-- SERVICES (6 boxes + ticket link) -->
+        <!-- SERVICES (6 boxes + ticket link + standalone nomination form) -->
         <section id="services" class="section">
             <div class="section-container">
                 <h2 class="section-title">Our Services & Awards</h2>
@@ -2162,7 +1954,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <p>MEF provides platforms for recognition, inspiration, and connection through our awards and nomination services.</p>
                 </div>
 
-                <!-- Founder Showcase -->
+                <!-- Founder Showcase (image fixed) -->
                 <div class="founder-showcase">
                     <div class="founder-image-frame">
                         <img src="founder.jpeg" alt="Prof. Mamokgethi Phakeng - Founder of MEF">
@@ -2240,92 +2032,45 @@ unset($_SESSION['success'], $_SESSION['error']);
                     </div>
                 </div>
 
-               <!-- Enhanced Nomination Form Section (updated) -->
+               <!-- Standalone Nomination Form (identical to award application form) -->
                 <div class="nomination-form-section" id="nominationForm">
-                    <h3>Share Your Story</h3>
-                    <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
+                    <h3>Nominate Yourself or Someone Else</h3>
+                    <p>Every story of victory deserves to be celebrated. Fill out the form below to submit a nomination.</p>
                     
                     <!-- Button to toggle form -->
                     <button class="btn-gold" onclick="toggleNominationForm()" id="toggleFormBtn">
-                        Share Your Story
+                        Nominate
                     </button>
                     
                     <!-- Form (hidden by default) -->
                     <div class="nomination-form" id="nominationFormContainer" style="display: none;">
                         <form method="POST" action="index.php">
-                            <input type="hidden" name="form_type" value="story_nomination">
+                            <input type="hidden" name="form_type" value="standalone_nomination">
                             
-                            <!-- Nomination Type -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName2">First Name *</label>
+                                    <input type="text" id="firstName2" name="firstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName2">Last Name *</label>
+                                    <input type="text" id="lastName2" name="lastName" required>
+                                </div>
+                            </div>
+                            
                             <div class="form-group">
-                                <label>I am nominating: *</label>
-                                <div class="radio-group">
-                                    <label>
-                                        <input type="radio" name="nominationType" value="self" checked> Myself
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="nominationType" value="other"> Someone else
-                                    </label>
-                                </div>
+                                <label for="email2">Email Address *</label>
+                                <input type="email" id="email2" name="email" required>
                             </div>
-
-                            <!-- Nominee Information -->
-                            <div id="nomineeInfo">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="nomineeFirstName">First Name *</label>
-                                        <input type="text" id="nomineeFirstName" name="nomineeFirstName" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="nomineeLastName">Last Name *</label>
-                                        <input type="text" id="nomineeLastName" name="nomineeLastName" required>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nomineeEmail">Email Address *</label>
-                                    <input type="email" id="nomineeEmail" name="nomineeEmail" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nomineePhone">Phone Number *</label>
-                                    <input type="tel" id="nomineePhone" name="nomineePhone" required>
-                                </div>
-                            </div>
-
-                            <!-- Nominator Information (optional) -->
-                            <div id="nominatorInfo" style="display: none;">
-                                <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="nominatorFirstName">Your First Name *</label>
-                                        <input type="text" id="nominatorFirstName" name="nominatorFirstName">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="nominatorLastName">Your Last Name *</label>
-                                        <input type="text" id="nominatorLastName" name="nominatorLastName">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nominatorEmail">Your Email Address *</label>
-                                    <input type="email" id="nominatorEmail" name="nominatorEmail">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nominatorPhone">Your Phone Number *</label>
-                                    <input type="tel" id="nominatorPhone" name="nominatorPhone">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="relationship">Relationship to Nominee *</label>
-                                    <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family member">
-                                </div>
-                            </div>
-
-                            <!-- Category -->
+                            
                             <div class="form-group">
-                                <label for="nominationCategory">Award Category *</label>
-                                <select id="nominationCategory" name="nominationCategory" required>
+                                <label for="phone2">Phone Number *</label>
+                                <input type="tel" id="phone2" name="phone" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="category2">Award Category *</label>
+                                <select id="category2" name="category" required>
                                     <option value="">Select a category</option>
                                     <option value="research">African Development Research Award</option>
                                     <option value="ai">AI Champion Award</option>
@@ -2334,43 +2079,42 @@ unset($_SESSION['success'], $_SESSION['error']);
                                     <option value="agriculture">Youth in Agriculture Award</option>
                                 </select>
                             </div>
-
-                            <!-- Story -->
+                            
                             <div class="form-group">
-                                <label for="storyTitle">Story Title *</label>
-                                <input type="text" id="storyTitle" name="storyTitle" placeholder="Give your story a title" required>
+                                <label for="qualification2">Highest Qualification *</label>
+                                <select id="qualification2" name="qualification" required>
+                                    <option value="">Select your qualification</option>
+                                    <option value="bachelors">Bachelor's Degree</option>
+                                    <option value="masters">Master's Degree</option>
+                                    <option value="phd">PhD/Doctorate</option>
+                                    <option value="diploma">Diploma</option>
+                                    <option value="certificate">Certificate</option>
+                                    <option value="other">Other</option>
+                                </select>
                             </div>
                             
                             <div class="form-group">
-                                <label for="inspirationStory">Share Your/Their Story of Victory *</label>
-                                <textarea id="inspirationStory" name="inspirationStory" rows="6" required></textarea>
+                                <label for="institution2">Institution *</label>
+                                <input type="text" id="institution2" name="institution" required>
                             </div>
-
-                            <!-- LinkedIn -->
+                            
                             <div class="form-group">
-                                <label for="nomineeLinkedin">LinkedIn Profile (Optional)</label>
+                                <label for="linkedin2">LinkedIn Profile *</label>
                                 <div class="linkedin-input">
                                     <span>linkedin.com/in/</span>
-                                    <input type="text" id="nomineeLinkedin" name="nomineeLinkedin" placeholder="username">
+                                    <input type="text" id="linkedin2" name="linkedin" placeholder="username" required>
                                 </div>
+                                <small style="color: var(--text-muted);">Enter your LinkedIn username</small>
                             </div>
-
-                            <!-- Achievements -->
+                            
                             <div class="form-group">
-                                <label for="keyAchievements">Key Achievements</label>
-                                <textarea id="keyAchievements" name="keyAchievements" rows="3"></textarea>
+                                <label for="achievements2">Key Achievements *</label>
+                                <textarea id="achievements2" name="achievements" placeholder="Tell us about achievements relevant to this award" required></textarea>
                             </div>
-
-                            <!-- Social -->
-                            <div class="form-group">
-                                <label for="socialLinks">Social Media Links</label>
-                                <input type="text" id="socialLinks" name="socialLinks" placeholder="Twitter, Instagram, etc.">
-                            </div>
-
-                            <!-- Consent -->
+                            
                             <div class="checkbox-group">
-                                <input type="checkbox" id="nominationTerms" name="nominationTerms" required>
-                                <label for="nominationTerms">I confirm that the information provided is true *</label>
+                                <input type="checkbox" id="terms2" name="terms" required>
+                                <label for="terms2">I confirm that all information provided is true and complete *</label>
                             </div>
                             
                             <button type="submit" class="btn-gold">Submit Nomination</button>
@@ -2382,23 +2126,20 @@ unset($_SESSION['success'], $_SESSION['error']);
                 function toggleNominationForm() {
                     const form = document.getElementById("nominationFormContainer");
                     const button = document.getElementById("toggleFormBtn");
+                    const section = document.getElementById("nominationForm");
+                    
                     if (form.style.display === "none") {
                         form.style.display = "block";
                         button.textContent = "Hide Form";
+                        section.classList.remove("collapsed");
                         form.scrollIntoView({ behavior: "smooth" });
                     } else {
                         form.style.display = "none";
-                        button.textContent = "Share Your Story";
+                        button.textContent = "Nominate";
+                        section.classList.add("collapsed");
                     }
                 }
                 </script>
-
-                <!-- Success Message (hidden by default) -->
-                <div id="nominationSuccess" class="nomination-success" style="display: none;">
-                    <i class="fas fa-check-circle"></i>
-                    <h4>Nomination Submitted Successfully!</h4>
-                    <p>Thank you for sharing this story of victory. We will review the nomination and contact you soon.</p>
-                </div>
             </div>
         </section>
 
@@ -2406,74 +2147,34 @@ unset($_SESSION['success'], $_SESSION['error']);
         <section id="testimonials" class="section">
             <div class="section-container">
                 <h2 class="section-title">Testimonies</h2>
-                
                 <div class="testimonials-grid">
                     <div class="testimonial-card">
-                        <div class="testimonial-header">
-                            <div class="stars">★★★★★</div>
-                            <div class="date">Dec 2025</div>
-                        </div>
+                        <div class="testimonial-header"><div class="stars">★★★★★</div><div class="date">Dec 2025</div></div>
                         <p class="testimonial-message">“MEF gave my story a platform — I went from feeling invisible to inspiring thousands. Thank you for making education fashionable again!”</p>
-                        <div class="testimonial-author">
-                            <div class="author-avatar">N</div>
-                            <div>
-                                <div style="font-weight:600;">Nomfundo</div>
-                                <div style="color:var(--text-muted);font-size:0.9rem;">BCom Graduate • Johannesburg</div>
-                            </div>
-                        </div>
+                        <div class="testimonial-author"><div class="author-avatar">N</div><div><div style="font-weight:600;">Nomfundo</div><div style="color:var(--text-muted);font-size:0.9rem;">BCom Graduate • Johannesburg</div></div></div>
                     </div>
-
                     <div class="testimonial-card">
-                        <div class="testimonial-header">
-                            <div class="stars">★★★★★</div>
-                            <div class="date">Nov 2025</div>
-                        </div>
+                        <div class="testimonial-header"><div class="stars">★★★★★</div><div class="date">Nov 2025</div></div>
                         <p class="testimonial-message">“After sharing my journey in agriculture, I connected with investors. MEF truly changes lives.”</p>
-                        <div class="testimonial-author">
-                            <div class="author-avatar">T</div>
-                            <div>
-                                <div style="font-weight:600;">Thabo</div>
-                                <div style="color:var(--text-muted);font-size:0.9rem;">BSc Agric • Limpopo</div>
-                            </div>
-                        </div>
+                        <div class="testimonial-author"><div class="author-avatar">T</div><div><div style="font-weight:600;">Thabo</div><div style="color:var(--text-muted);font-size:0.9rem;">BSc Agric • Limpopo</div></div></div>
                     </div>
-
                     <div class="testimonial-card">
-                        <div class="testimonial-header">
-                            <div class="stars">★★★★★</div>
-                            <div class="date">Oct 2025</div>
-                        </div>
+                        <div class="testimonial-header"><div class="stars">★★★★★</div><div class="date">Oct 2025</div></div>
                         <p class="testimonial-message">“Winning the Young Entrepreneur Award opened doors I never imagined. MEF is truly life-changing.”</p>
-                        <div class="testimonial-author">
-                            <div class="author-avatar">K</div>
-                            <div>
-                                <div style="font-weight:600;">Kabelo</div>
-                                <div style="color:var(--text-muted);font-size:0.9rem;">Tech Founder • Cape Town</div>
-                            </div>
-                        </div>
+                        <div class="testimonial-author"><div class="author-avatar">K</div><div><div style="font-weight:600;">Kabelo</div><div style="color:var(--text-muted);font-size:0.9rem;">Tech Founder • Cape Town</div></div></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- CONTACT - Updated to show only success message -->
+        <!-- CONTACT -->
         <section id="contact" class="section">
             <div class="section-container">
                 <h2 class="section-title">Get in Touch</h2>
-                
                 <div class="contact-grid">
                     <div class="contact-info">
                         <h3>Connect With Us</h3>
-                        
-                        <div class="info-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <div style="font-weight:600;color:var(--accent-purple);">Email</div>
-                                <div>pngnkosi@gmail.com</div>
-                                <div>kgethi@perspicuty.africa</div>
-                            </div>
-                        </div>
-
+                        <div class="info-item"><i class="fas fa-envelope"></i><div><div style="font-weight:600;color:var(--accent-purple);">Email</div><div>pngnkosi@gmail.com</div><div>kgethi@perspicuty.africa</div></div></div>
                         <div class="social-links">
                             <a href="https://www.tiktok.com/@fabacademic" target="_blank" class="social-link"><i class="fab fa-tiktok"></i></a>
                             <a href="https://twitter.com/fabacademic" target="_blank" class="social-link"><i class="fab fa-twitter"></i></a>
@@ -2483,141 +2184,42 @@ unset($_SESSION['success'], $_SESSION['error']);
                             <a href="https://www.facebook.com/kgethi.phakeng" target="_blank" class="social-link"><i class="fab fa-facebook"></i></a>
                         </div>
                     </div>
-                    
                     <div class="contact-form">
-                        <!-- Only success message -->
-                        <div id="contactSuccess" class="alert alert-success" style="display: none;">
-                            <i class="fas fa-check-circle"></i> Your message has been sent successfully! We'll get back to you soon.
-                        </div>
-
-                        <form id="contactForm" onsubmit="submitContactForm(event)">
-                            <div class="form-group">
-                                <input type="text" id="name" name="name" placeholder="Your Name" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="email" id="email" name="email" placeholder="Your Email" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" id="subject" name="subject" placeholder="Subject" required>
-                            </div>
-                            <div class="form-group">
-                                <textarea id="message" name="message" placeholder="Your Message" required></textarea>
-                            </div>
+                        <form method="POST" action="index.php">
+                            <input type="hidden" name="form_type" value="contact">
+                            <div class="form-group"><input type="text" id="name" name="name" placeholder="Your Name" required></div>
+                            <div class="form-group"><input type="email" id="email" name="email" placeholder="Your Email" required></div>
+                            <div class="form-group"><input type="text" id="subject" name="subject" placeholder="Subject" required></div>
+                            <div class="form-group"><textarea id="message" name="message" placeholder="Your Message" required></textarea></div>
                             <button type="submit" class="submit-btn">Send Message</button>
                         </form>
                     </div>
                 </div>
             </div>
         </section>
-
     </main>
 
     <!-- FOOTER -->
     <footer>
         <div class="footer-container">
             <div class="footer-main">
-                <div class="footer-about">
-                    <h4>About MEF</h4>
-                    <p>Make Education Fashionable is a movement founded by Prof. Mamokgethi Phakeng to celebrate educational achievements and inspire the next generation of African leaders.</p>
-                    <div class="brand-small">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>MEF · Since 2015</span>
-                    </div>
-                </div>
-                <div class="footer-quick">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
-                        <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
-                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Services & Awards</a></li>
-                        <li><a href="#testimonials"><i class="fas fa-chevron-right"></i> Testimonies</a></li>
-                        <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-social">
-                    <h4>Connect With Us</h4>
-                    <div class="footer-social-grid">
-                        <a href="https://www.tiktok.com/@fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-tiktok"></i><span>TikTok</span></a>
-                        <a href="https://twitter.com/fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-twitter"></i><span>Twitter / X</span></a>
-                        <a href="https://instagram.com/fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-instagram"></i><span>Instagram</span></a>
-                        <a href="https://linkedin.com/in/mamokgethiphakeng" target="_blank" class="footer-social-item"><i class="fab fa-linkedin"></i><span>LinkedIn</span></a>
-                        <a href="https://www.youtube.com/@Fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-youtube"></i><span>YouTube</span></a>
-                        <a href="https://www.facebook.com/kgethi.phakeng" target="_blank" class="footer-social-item"><i class="fab fa-facebook"></i><span>Facebook</span></a>
-                    </div>
-                </div>
+                <div class="footer-about"><h4>About MEF</h4><p>Make Education Fashionable is a movement founded by Prof. Mamokgethi Phakeng to celebrate educational achievements and inspire the next generation of African leaders.</p><div class="brand-small"><i class="fas fa-graduation-cap"></i><span>MEF · Since 2015</span></div></div>
+                <div class="footer-quick"><h4>Quick Links</h4><ul><li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li><li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li><li><a href="#services"><i class="fas fa-chevron-right"></i> Services & Awards</a></li><li><a href="#testimonials"><i class="fas fa-chevron-right"></i> Testimonies</a></li><li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li></ul></div>
+                <div class="footer-social"><h4>Connect With Us</h4><div class="footer-social-grid"><a href="https://www.tiktok.com/@fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-tiktok"></i><span>TikTok</span></a><a href="https://twitter.com/fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-twitter"></i><span>Twitter / X</span></a><a href="https://instagram.com/fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-instagram"></i><span>Instagram</span></a><a href="https://linkedin.com/in/mamokgethiphakeng" target="_blank" class="footer-social-item"><i class="fab fa-linkedin"></i><span>LinkedIn</span></a><a href="https://www.youtube.com/@Fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-youtube"></i><span>YouTube</span></a><a href="https://www.facebook.com/kgethi.phakeng" target="_blank" class="footer-social-item"><i class="fab fa-facebook"></i><span>Facebook</span></a></div></div>
             </div>
-            <div class="footer-bottom">
-                <div>© 2025 MEF – Make Education Fashionable. All rights reserved.</div>
-                <div class="footer-bottom-links">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Use</a>
-                    <a href="#">Cookie Policy</a>
-                </div>
-            </div>
+            <div class="footer-bottom"><div>© 2025 MEF – Make Education Fashionable. All rights reserved.</div><div class="footer-bottom-links"><a href="#">Privacy Policy</a><a href="#">Terms of Use</a><a href="#">Cookie Policy</a></div></div>
         </div>
     </footer>
 
     <script>
-        // Category data for requirements
         const categoryData = {
-            research: {
-                title: 'African Development Research Award',
-                requirements: [
-                    'PhD or equivalent research experience',
-                    'Minimum 5 years of research in African development',
-                    'Published at least 3 peer-reviewed papers',
-                    'Demonstrated impact on African communities',
-                    'South African citizen or permanent resident',
-                    'Under 45 years of age'
-                ]
-            },
-            ai: {
-                title: 'AI Champion Award',
-                requirements: [
-                    'Minimum 3 years experience in AI/ML',
-                    'Proven track record of AI innovation',
-                    'Active involvement in AI ethics and advocacy',
-                    'Portfolio of AI projects or implementations',
-                    'South African citizen or permanent resident',
-                    'Open to all ages'
-                ]
-            },
-            women: {
-                title: 'Mamokgethi Phakeng Prize',
-                requirements: [
-                    'Identify as a woman',
-                    'Minimum 5 years leadership experience',
-                    'Demonstrated impact in breaking barriers',
-                    'Mentorship of young women',
-                    'South African citizen or permanent resident',
-                    'Open to all ages'
-                ]
-            },
-            entrepreneur: {
-                title: 'Young Entrepreneur Award',
-                requirements: [
-                    'Age 18-35 years',
-                    'Own and run a registered business',
-                    'Business operational for minimum 2 years',
-                    'Minimum 3 employees',
-                    'Demonstrated revenue growth',
-                    'South African citizen or permanent resident'
-                ]
-            },
-            agriculture: {
-                title: 'Youth in Agriculture Award',
-                requirements: [
-                    'Age 18-35 years',
-                    'Degree/Diploma in Agriculture or related field',
-                    'Minimum 2 years experience in agriculture',
-                    'Demonstrated innovation in farming',
-                    'South African citizen or permanent resident',
-                    'Sustainable farming practices'
-                ]
-            }
+            research: { title: 'African Development Research Award', requirements: ['PhD or equivalent research experience', 'Minimum 5 years of research in African development', 'Published at least 3 peer-reviewed papers', 'Demonstrated impact on African communities', 'South African citizen or permanent resident', 'Under 45 years of age'] },
+            ai: { title: 'AI Champion Award', requirements: ['Minimum 3 years experience in AI/ML', 'Proven track record of AI innovation', 'Active involvement in AI ethics and advocacy', 'Portfolio of AI projects or implementations', 'South African citizen or permanent resident', 'Open to all ages'] },
+            women: { title: 'Mamokgethi Phakeng Prize', requirements: ['Identify as a woman', 'Minimum 5 years leadership experience', 'Demonstrated impact in breaking barriers', 'Mentorship of young women', 'South African citizen or permanent resident', 'Open to all ages'] },
+            entrepreneur: { title: 'Young Entrepreneur Award', requirements: ['Age 18-35 years', 'Own and run a registered business', 'Business operational for minimum 2 years', 'Minimum 3 employees', 'Demonstrated revenue growth', 'South African citizen or permanent resident'] },
+            agriculture: { title: 'Youth in Agriculture Award', requirements: ['Age 18-35 years', 'Degree/Diploma in Agriculture or related field', 'Minimum 2 years experience in agriculture', 'Demonstrated innovation in farming', 'South African citizen or permanent resident', 'Sustainable farming practices'] }
         };
 
-        // Modal elements for award applications
         const modal = document.getElementById('categoryModal');
         const modalTitle = document.getElementById('modalTitle');
         const requirementsList = document.getElementById('requirementsList');
@@ -2632,167 +2234,67 @@ unset($_SESSION['success'], $_SESSION['error']);
         const showApplicationBtn = document.getElementById('showApplicationBtn');
         const backToRequirementsBtn = document.getElementById('backToRequirementsBtn');
 
-        // Modal elements for nomination
-        const nominationModal = document.getElementById('nominationModal');
-        const nominationModalClose = document.getElementById('nominationModalClose');
-        const nominationModalCancel = document.getElementById('nominationModalCancel');
-        const nominationFormSection = document.getElementById('nominationFormSection');
-        const nominationSuccess = document.getElementById('nominationSuccess');
-
-        // Get all category cards (except the 6th one which has its own onclick)
         const categoryCards = document.querySelectorAll('.category-card:not([onclick])');
-        
-        // Add click event to each card
         categoryCards.forEach(card => {
             card.addEventListener('click', function(e) {
                 const category = this.dataset.category;
                 const data = categoryData[category];
-                
                 if (data) {
                     modalTitle.textContent = data.title;
                     applicationTitle.textContent = data.title;
                     appliedCategory.value = data.title;
                     applicationCategory.value = category;
-                    
-                    // Build requirements list
                     let requirementsHtml = '';
-                    data.requirements.forEach(req => {
-                        requirementsHtml += `<li>${req}</li>`;
-                    });
+                    data.requirements.forEach(req => requirementsHtml += `<li>${req}</li>`);
                     requirementsList.innerHTML = requirementsHtml;
-                    
-                    // Show requirements section, hide others
                     requirementsSection.style.display = 'block';
                     applicationSection.style.display = 'none';
                     successSection.style.display = 'none';
-                    
-                    // Show modal
                     modal.classList.add('active');
                     document.body.style.overflow = 'hidden';
                 }
             });
         });
 
-        // Show application form
         showApplicationBtn.addEventListener('click', function() {
             requirementsSection.style.display = 'none';
             applicationSection.style.display = 'block';
             successSection.style.display = 'none';
         });
 
-        // Back to requirements
         backToRequirementsBtn.addEventListener('click', function() {
             requirementsSection.style.display = 'block';
             applicationSection.style.display = 'none';
             successSection.style.display = 'none';
         });
 
-        // Close modal function for award modal
         function closeModal() {
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
         }
 
-        // Close modal with X button
         modalClose.addEventListener('click', closeModal);
-        
-        // Close modal with Cancel button
         modalCancel.addEventListener('click', closeModal);
-        
-        // Close modal when clicking outside
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-
-        // Nomination modal functions
-        function openNominationModal() {
-            // Reset modal to show form, hide success
-            nominationFormSection.style.display = 'block';
-            nominationSuccess.style.display = 'none';
-            
-            // Reset form
-            document.getElementById('storyNominationForm').reset();
-            
-            // Hide nominator info by default (since "Myself" is checked)
-            document.getElementById('nominatorInfo').style.display = 'none';
-            
-            // Show modal
-            nominationModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeNominationModal() {
-            nominationModal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        // Close nomination modal with X button
-        nominationModalClose.addEventListener('click', closeNominationModal);
-        
-        // Close nomination modal with Cancel button
-        nominationModalCancel.addEventListener('click', closeNominationModal);
-        
-        // Close nomination modal when clicking outside
-        nominationModal.addEventListener('click', function(e) {
-            if (e.target === nominationModal) {
-                closeNominationModal();
-            }
-        });
-
-        // Nomination form handling (for modal)
-        const nominationTypeRadios = document.querySelectorAll('input[name="nominationType"]');
-        const nominatorInfo = document.getElementById('nominatorInfo');
-        
-        nominationTypeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.value === 'other') {
-                    nominatorInfo.style.display = 'block';
-                    // Make nominator fields required
-                    document.getElementById('nominatorFirstName').required = true;
-                    document.getElementById('nominatorLastName').required = true;
-                    document.getElementById('nominatorEmail').required = true;
-                    document.getElementById('nominatorPhone').required = true;
-                    document.getElementById('relationship').required = true;
-                } else {
-                    nominatorInfo.style.display = 'none';
-                    // Remove required from nominator fields
-                    document.getElementById('nominatorFirstName').required = false;
-                    document.getElementById('nominatorLastName').required = false;
-                    document.getElementById('nominatorEmail').required = false;
-                    document.getElementById('nominatorPhone').required = false;
-                    document.getElementById('relationship').required = false;
-                }
-            });
-        });
+        modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 
         // Mobile menu toggle
         document.querySelector('.menu-toggle').addEventListener('click', () => {
             document.querySelector('.nav-links').classList.toggle('active');
         });
 
-        // Smooth scroll + active link (including clickable logo)
+        // Smooth scroll + active link
         document.querySelectorAll('.nav-links a, .logo-link').forEach(link => {
             link.addEventListener('click', e => {
                 const href = link.getAttribute('href');
                 if (href && href.startsWith('#')) {
                     e.preventDefault();
-                    
                     if (!link.classList.contains('logo-link')) {
                         document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
                         link.classList.add('active');
                     }
-                    
                     document.querySelector('.nav-links').classList.remove('active');
-
                     const target = document.querySelector(href);
-                    if (target) {
-                        window.scrollTo({
-                            top: target.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                    }
+                    if (target) window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
                 }
             });
         });
@@ -2800,32 +2302,13 @@ unset($_SESSION['success'], $_SESSION['error']);
         // Navbar hide/show on scroll
         let lastScrollTop = 0;
         const navbar = document.querySelector('.fixed-nav');
-        
         window.addEventListener('scroll', () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            // Add/remove scrolled class for padding change
-            if (scrollTop > 100) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-            
-            // Hide navbar when scrolling down, show when scrolling up
-            if (scrollTop > lastScrollTop && scrollTop > 200) {
-                // Scrolling down
-                navbar.classList.add('hidden');
-            } else {
-                // Scrolling up
-                navbar.classList.remove('hidden');
-            }
-            
+            if (scrollTop > 100) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled');
+            if (scrollTop > lastScrollTop && scrollTop > 200) navbar.classList.add('hidden'); else navbar.classList.remove('hidden');
             lastScrollTop = scrollTop;
-
-            // Update active link on scroll
             const sections = document.querySelectorAll('section[id]');
             const scrollPos = window.scrollY + 100;
-
             sections.forEach(sec => {
                 const top = sec.offsetTop;
                 const height = sec.offsetHeight;
@@ -2838,31 +2321,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                 }
             });
         });
-
-        // CONTACT FORM HANDLING - Only shows success message
-        function submitContactForm(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const subject = document.getElementById('subject').value.trim();
-            const message = document.getElementById('message').value.trim();
-            const successDiv = document.getElementById('contactSuccess');
-            
-            // Simple validation - if all fields filled, show success
-            if (name && email && subject && message) {
-                // Show success message
-                successDiv.style.display = 'block';
-                
-                // Clear the form
-                document.getElementById('contactForm').reset();
-                
-                // Hide success message after 5 seconds
-                setTimeout(() => {
-                    successDiv.style.display = 'none';
-                }, 5000);
-            }
-        }
     </script>
 </body>
 </html>
