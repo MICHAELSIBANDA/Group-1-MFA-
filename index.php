@@ -1619,6 +1619,183 @@ unset($_SESSION['success'], $_SESSION['error']);
                 flex-direction: column;
             }
         }
+        /* ===== Nomination Form Styling ===== */
+        .nomination-form-section {
+            background: var(--primary-navy);
+            padding: 3rem 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            margin: 3rem 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .nomination-form-section h3 {
+            font-size: 2rem;
+            color: var(--accent-gold);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .nomination-form-section p {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Toggle button */
+        .btn-gold {
+            display: block;
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            font-weight: 600;
+            padding: 0.8rem 2rem;
+            border-radius: var(--radius-full);
+            margin: 0 auto 2rem auto;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-gold:hover {
+            background: var(--accent-gold-light);
+            transform: translateY(-2px);
+        }
+
+        /* Form container */
+        .nomination-form {
+            background: var(--primary-dark);
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+        }
+
+        .nomination-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .nomination-form label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .nomination-form input[type="text"],
+        .nomination-form input[type="email"],
+        .nomination-form input[type="tel"],
+        .nomination-form select,
+        .nomination-form textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid #333;
+            background: var(--primary-navy);
+            color: var(--text-light);
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .nomination-form input:focus,
+        .nomination-form select:focus,
+        .nomination-form textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background: var(--primary-light);
+        }
+
+        /* Radio buttons */
+        .radio-group {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .radio-group input[type="radio"] {
+            accent-color: var(--accent-gold);
+            margin-right: 0.5rem;
+        }
+
+        /* Section headings inside form */
+        .nomination-form h4 {
+            font-size: 1.3rem;
+            color: var(--accent-teal);
+            margin-bottom: 1rem;
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            accent-color: var(--accent-gold);
+        }
+
+        /* Submit button */
+        .nomination-form button[type="submit"] {
+            display: block;
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            padding: 0.8rem 2rem;
+            border-radius: var(--radius-full);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 1rem auto 0 auto;
+            transition: var(--transition);
+        }
+
+        .nomination-form button[type="submit"]:hover {
+            background: var(--accent-gold-light);
+            transform: translateY(-2px);
+        }
+
+        /* LinkedIn input group */
+        .linkedin-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .linkedin-input span {
+            background: var(--primary-navy);
+            padding: 0.8rem 1rem;
+            border: 1px solid #333;
+            border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+            color: var(--text-light);
+        }
+
+        .linkedin-input input {
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            border-left: none;
+        }
+
+        /* Hide/show nominee/nominator info toggling (if needed) */
+        #nominatorInfo,
+        #nomineeInfo {
+            transition: all 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+        .nomination-form-section {
+            padding: 2rem 1rem;
+        }
+        .btn-gold, .nomination-form button[type="submit"] {
+            width: 100%;
+        }
+        .radio-group {
+            flex-direction: column;
+            gap: 1rem;
+        }
+}
+
     </style>
 </head>
 <body>
