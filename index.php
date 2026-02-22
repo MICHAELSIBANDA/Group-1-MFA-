@@ -1,8 +1,57 @@
 <?php
 session_start();
 
+// Include Composer autoload (if using Composer)
+require_once __DIR__ . '/vendor/autoload.php';
+
 // Include setup_db.php which connects to the database and creates tables if needed
 require_once __DIR__ . '/setup_db.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Category mapping: short code => full display name
+$categoryNames = [
+    'research'     => 'African Development Research Award',
+    'ai'           => 'AI Champion Award',
+    'women'        => 'Mamokgethi Phakeng Prize',
+    'entrepreneur' => 'Young Entrepreneur Award',
+    'agriculture'  => 'Youth in Agriculture Award'
+];
+
+// Function to send email using PHPMailer
+function sendEmail($to, $subject, $body, $env) {
+    $mail = new PHPMailer(true);
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = $env['SMTP_HOST'];
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $env['SMTP_USER'];
+        $mail->Password   = $env['SMTP_PASS'];
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = $env['SMTP_PORT'];
+
+        // Recipients
+        $mail->setFrom($env['SMTP_FROM'], $env['SMTP_FROM_NAME']);
+        $mail->addAddress($to);
+
+        // Content
+        $mail->isHTML(false);
+        $mail->Subject = $subject;
+        $mail->Body    = $body;
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        // Log error if needed
+        error_log("Mailer Error: " . $mail->ErrorInfo);
+        return false;
+    }
+}
+
+// Load environment variables
+$env = parse_ini_file(__DIR__ . '/.env');
 
 // The $conn object is now available from setup_db.php
 
@@ -21,10 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $institution   = trim($_POST['institution'] ?? '');
             $linkedin      = trim($_POST['linkedin'] ?? '');
             $achievements  = trim($_POST['achievements'] ?? '');
-            $category      = trim($_POST['category'] ?? '');
+            $categoryCode  = trim($_POST['category'] ?? '');
 
             // Basic validation
-            if ($firstName && $lastName && $email && $phone && $qualification && $institution && $category && $achievements) {
+            if ($firstName && $lastName && $email && $phone && $qualification && $institution && $categoryCode && $achievements) {
                 // Build full LinkedIn URL if only username provided
                 if (!empty($linkedin) && strpos($linkedin, 'linkedin.com') === false) {
                     $linkedin = 'https://linkedin.com/in/' . ltrim($linkedin, '/');
@@ -38,9 +87,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     // Insert category record
                     $stmt2 = $conn->prepare("INSERT INTO categories (category_type, qualification, institution, weblinkurl, achievement_description, nominee_id) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt2->bind_param("sssssi", $category, $qualification, $institution, $linkedin, $achievements, $nomineeId);
+                    $stmt2->bind_param("sssssi", $categoryCode, $qualification, $institution, $linkedin, $achievements, $nomineeId);
                     if ($stmt2->execute()) {
                         $_SESSION['success'] = "Your award application has been submitted successfully!";
+
+                        // Send confirmation email with full category name
+                        $fullCategory = $categoryNames[$categoryCode] ?? $categoryCode;
+                        $subject = "🎉 YOU'VE BEEN NOMINATED for the MEF Awards!";
+                        $body = "Dear $firstName $lastName,\n\n";
+                        $body .= "We are excited to inform you that you have been nominated for the **MEF Awards** in the **$fullCategory** category! 🌟\n\n";
+                        $body .= "Someone who recognizes your excellence and contribution has shared your story. This nomination reflects the positive impact you have made.\n\n";
+                        $body .= "Our panel will now review your submission, and we will be in touch soon regarding the outcome.\n\n";
+                        $body .= "Nomination Details:\n";
+                        $body .= "Category: $fullCategory\n";
+                        $body .= "Qualification: $qualification\n";
+                        $body .= "Institution: $institution\n";
+                        $body .= "LinkedIn: $linkedin\n";
+                        $body .= "Achievements: $achievements\n\n";
+                        $body .= "Regards,\nMEF Awards Team";
+                        sendEmail($email, $subject, $body, $env);
                     } else {
                         $_SESSION['error'] = "Failed to save category details.";
                     }
@@ -63,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nomineeEmail     = trim($_POST['nomineeEmail'] ?? '');
             $nomineePhone     = trim($_POST['nomineePhone'] ?? '');
             $nomineeLinkedin  = trim($_POST['nomineeLinkedin'] ?? '');
-            $category         = trim($_POST['nominationCategory'] ?? '');
+            $categoryCode     = trim($_POST['nominationCategory'] ?? '');
             $storyTitle       = trim($_POST['storyTitle'] ?? '');
             $inspirationStory = trim($_POST['inspirationStory'] ?? '');
             $keyAchievements  = trim($_POST['keyAchievements'] ?? '');
@@ -79,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Validate required nominee fields
-            if ($nomineeFirstName && $nomineeLastName && $nomineeEmail && $nomineePhone && $category && $storyTitle && $inspirationStory) {
+            if ($nomineeFirstName && $nomineeLastName && $nomineeEmail && $nomineePhone && $categoryCode && $storyTitle && $inspirationStory) {
                 // Insert nominee
                 $stmt = $conn->prepare("INSERT INTO nominees (first_name, last_name, email, phone) VALUES (?, ?, ?, ?)");
                 $stmt->bind_param("ssss", $nomineeFirstName, $nomineeLastName, $nomineeEmail, $nomineePhone);
@@ -90,9 +155,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $qualification = 'N/A';
                     $institution = 'N/A';
                     $stmt2 = $conn->prepare("INSERT INTO categories (category_type, qualification, institution, weblinkurl, achievement_description, nominee_id) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt2->bind_param("sssssi", $category, $qualification, $institution, $nomineeLinkedin, $achievementDesc, $nomineeId);
+                    $stmt2->bind_param("sssssi", $categoryCode, $qualification, $institution, $nomineeLinkedin, $achievementDesc, $nomineeId);
                     if ($stmt2->execute()) {
                         $_SESSION['success'] = "Your story nomination has been submitted successfully!";
+
+                        // Send confirmation email to nominee with full category name and cool tone
+                        $fullCategory = $categoryNames[$categoryCode] ?? $categoryCode;
+
+                        if ($nominationType === 'other' && !empty($_POST['nominatorFirstName']) && !empty($_POST['nominatorLastName'])) {
+                            $nominatorFirstName = trim($_POST['nominatorFirstName']);
+                            $nominatorLastName = trim($_POST['nominatorLastName']);
+                            $nominatorName = "$nominatorFirstName $nominatorLastName";
+                            $subject = "🎉 YOU'VE BEEN NOMINATED for the MEF Awards!";
+                            $body = "Dear $nomineeFirstName $nomineeLastName,\n\n";
+                            $body .= "🎊 **Guess what?** $nominatorName thinks you're amazing and has nominated you for the **MEF Awards** in the **$fullCategory** category!\n\n";
+                        } else {
+                            // Self-nomination
+                            $subject = "🌟 Congratulations on Your MEF Awards Nomination!";
+                            $body = "Dear $nomineeFirstName $nomineeLastName,\n\n";
+                            $body .= "🌟 **Way to go!** You've taken a bold step and nominated yourself for the **MEF Awards** in the **$fullCategory** category. We love your confidence!\n\n";
+                        }
+
+                        $body .= "Your inspiring story has been received, and our team can't wait to review it. Here's what you shared with us:\n";
+                        $body .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+                        $body .= "📌 **Story Title:** $storyTitle\n";
+                        $body .= "📖 **Your Story:**\n$inspirationStory\n";
+                        $body .= "🏆 **Key Achievements:**\n$keyAchievements\n";
+                        if (!empty($nomineeLinkedin)) {
+                            $body .= "🔗 **LinkedIn:** $nomineeLinkedin\n";
+                        }
+                        if (!empty($socialLinks)) {
+                            $body .= "🌐 **Social Media:** $socialLinks\n";
+                        }
+                        $body .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+                        $body .= "We'll be in touch soon with updates. In the meantime, celebrate this moment—you deserve it!\n\n";
+                        $body .= "With excitement,\n";
+                        $body .= "**The MEF Awards Team** 🌟";
+
+                        sendEmail($nomineeEmail, $subject, $body, $env);
+
+                        // Optionally send email to nominator if different
+                        if ($nominationType === 'other' && !empty($_POST['nominatorEmail'])) {
+                            $nominatorEmail = trim($_POST['nominatorEmail']);
+                            $nominatorFirstName = trim($_POST['nominatorFirstName'] ?? '');
+                            $nominatorLastName = trim($_POST['nominatorLastName'] ?? '');
+                            $nominatorSubject = "Thank You for Nominating Someone Special!";
+                            $nominatorBody = "Dear $nominatorFirstName $nominatorLastName,\n\n";
+                            $nominatorBody .= "Thank you for nominating $nomineeFirstName $nomineeLastName for the MEF Awards. Your gesture means a lot and helps shine a light on deserving individuals.\n\n";
+                            $nominatorBody .= "We have received the nomination and will review it shortly.\n\n";
+                            $nominatorBody .= "Regards,\nMEF Awards Team";
+                            sendEmail($nominatorEmail, $nominatorSubject, $nominatorBody, $env);
+                        }
                     } else {
                         $_SESSION['error'] = "Failed to save category details.";
                     }
@@ -117,7 +230,6 @@ $successMessage = $_SESSION['success'] ?? null;
 $errorMessage = $_SESSION['error'] ?? null;
 unset($_SESSION['success'], $_SESSION['error']);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -128,8 +240,8 @@ unset($_SESSION['success'], $_SESSION['error']);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* ... (keep all existing CSS from original index.php) ... */
-        /* For brevity, the full CSS from the original index.php is included here */
+        /* ===== FULL CSS FROM PREVIOUS VERSION ===== */
+        /* Paste your complete CSS here – unchanged from the earlier index.php */
         :root {
             --primary-dark: #0a192f;
             --primary-navy: #112240;
@@ -1511,19 +1623,31 @@ unset($_SESSION['success'], $_SESSION['error']);
 </head>
 <body>
 
-    <!-- Display flash messages -->
+    <!-- Display flash messages (auto-hide after 5 seconds) -->
     <?php if ($successMessage): ?>
-        <div class="alert alert-success" style="position: fixed; top: 100px; right: 20px; z-index: 9999; background: #0a192f; border: 2px solid #2dd4bf; color: #2dd4bf; padding: 1rem 2rem; border-radius: 8px;">
+        <div class="alert alert-success" id="successMessage" style="position: fixed; top: 100px; right: 20px; z-index: 9999; background: #0a192f; border: 2px solid #2dd4bf; color: #2dd4bf; padding: 1rem 2rem; border-radius: 8px;">
             <i class="fas fa-check-circle"></i> <?= htmlspecialchars($successMessage) ?>
         </div>
+        <script>
+            setTimeout(function() {
+                var msg = document.getElementById('successMessage');
+                if (msg) msg.style.display = 'none';
+            }, 5000);
+        </script>
     <?php endif; ?>
     <?php if ($errorMessage): ?>
-        <div class="alert alert-error" style="position: fixed; top: 100px; right: 20px; z-index: 9999; background: #0a192f; border: 2px solid #fb7185; color: #fb7185; padding: 1rem 2rem; border-radius: 8px;">
+        <div class="alert alert-error" id="errorMessage" style="position: fixed; top: 100px; right: 20px; z-index: 9999; background: #0a192f; border: 2px solid #fb7185; color: #fb7185; padding: 1rem 2rem; border-radius: 8px;">
             <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($errorMessage) ?>
         </div>
+        <script>
+            setTimeout(function() {
+                var msg = document.getElementById('errorMessage');
+                if (msg) msg.style.display = 'none';
+            }, 5000);
+        </script>
     <?php endif; ?>
 
-    <!-- MODAL OVERLAY for Award Applications (updated form) -->
+    <!-- MODAL OVERLAY for Award Applications -->
     <div class="modal-overlay" id="categoryModal">
         <div class="modal-content">
             <span class="modal-close" id="modalClose">&times;</span>
@@ -1534,7 +1658,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <div class="modal-section">
                     <h4>Requirements:</h4>
                     <ul id="requirementsList">
-                        <!-- Requirements will be populated by JavaScript -->
+                        <!-- Populated by JS -->
                     </ul>
                 </div>
                 
@@ -1552,6 +1676,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <input type="hidden" name="form_type" value="award_application">
                         <input type="hidden" id="applicationCategory" name="category">
                         
+                        <!-- All form fields unchanged -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="firstName">First Name *</label>
@@ -1635,7 +1760,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         </div>
     </div>
 
-    <!-- MODAL OVERLAY for Story Nomination (updated form) -->
+    <!-- MODAL OVERLAY for Story Nomination -->
     <div class="modal-overlay" id="nominationModal">
         <div class="modal-content">
             <span class="modal-close" id="nominationModalClose">&times;</span>
@@ -1677,7 +1802,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                             </div>
                         </div>
 
-                        <!-- Nominator Information (fields exist but are not stored per current schema) -->
+                        <!-- Nominator Information (shown only when nominating someone else) -->
                         <div id="nominatorInfo" style="display: none;">
                             <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
                             <div class="form-row">
@@ -2562,6 +2687,5 @@ unset($_SESSION['success'], $_SESSION['error']);
             }
         }
     </script>
-
 </body>
 </html>
