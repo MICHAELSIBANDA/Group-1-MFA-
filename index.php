@@ -1,16 +1,121 @@
 <?php
+session_start();
+
+// Include setup_db.php which connects to the database and creates tables if needed
 require_once __DIR__ . '/setup_db.php';
 
-// Load .env and connect to the database
-$env = parse_ini_file(__DIR__ . '/.env');
-$conn = new mysqli(
-    $env['DB_HOST'],
-    $env['DB_USER'],
-    $env['DB_PASS'],
-    $env['DB_NAME'],
-    $env['DB_PORT']
-);
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
+// The $conn object is now available from setup_db.php
+
+// Process form submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['form_type'])) {
+        $formType = $_POST['form_type'];
+
+        if ($formType === 'award_application') {
+            // Award application form
+            $firstName = trim($_POST['firstName'] ?? '');
+            $lastName  = trim($_POST['lastName'] ?? '');
+            $email     = trim($_POST['email'] ?? '');
+            $phone     = trim($_POST['phone'] ?? '');
+            $qualification = trim($_POST['qualification'] ?? '');
+            $institution   = trim($_POST['institution'] ?? '');
+            $linkedin      = trim($_POST['linkedin'] ?? '');
+            $achievements  = trim($_POST['achievements'] ?? '');
+            $category      = trim($_POST['category'] ?? '');
+
+            // Basic validation
+            if ($firstName && $lastName && $email && $phone && $qualification && $institution && $category && $achievements) {
+                // Build full LinkedIn URL if only username provided
+                if (!empty($linkedin) && strpos($linkedin, 'linkedin.com') === false) {
+                    $linkedin = 'https://linkedin.com/in/' . ltrim($linkedin, '/');
+                }
+
+                // Insert nominee
+                $stmt = $conn->prepare("INSERT INTO nominees (first_name, last_name, email, phone) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("ssss", $firstName, $lastName, $email, $phone);
+                if ($stmt->execute()) {
+                    $nomineeId = $stmt->insert_id;
+
+                    // Insert category record
+                    $stmt2 = $conn->prepare("INSERT INTO categories (category_type, qualification, institution, weblinkurl, achievement_description, nominee_id) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt2->bind_param("sssssi", $category, $qualification, $institution, $linkedin, $achievements, $nomineeId);
+                    if ($stmt2->execute()) {
+                        $_SESSION['success'] = "Your award application has been submitted successfully!";
+                    } else {
+                        $_SESSION['error'] = "Failed to save category details.";
+                    }
+                    $stmt2->close();
+                } else {
+                    $_SESSION['error'] = "Failed to save nominee details.";
+                }
+                $stmt->close();
+            } else {
+                $_SESSION['error'] = "Please fill in all required fields.";
+            }
+
+        } elseif ($formType === 'story_nomination') {
+            // Story nomination form
+            $nominationType = $_POST['nominationType'] ?? 'self';
+
+            // Nominee fields (always required)
+            $nomineeFirstName = trim($_POST['nomineeFirstName'] ?? '');
+            $nomineeLastName  = trim($_POST['nomineeLastName'] ?? '');
+            $nomineeEmail     = trim($_POST['nomineeEmail'] ?? '');
+            $nomineePhone     = trim($_POST['nomineePhone'] ?? '');
+            $nomineeLinkedin  = trim($_POST['nomineeLinkedin'] ?? '');
+            $category         = trim($_POST['nominationCategory'] ?? '');
+            $storyTitle       = trim($_POST['storyTitle'] ?? '');
+            $inspirationStory = trim($_POST['inspirationStory'] ?? '');
+            $keyAchievements  = trim($_POST['keyAchievements'] ?? '');
+            $socialLinks      = trim($_POST['socialLinks'] ?? '');
+
+            // Build a combined achievement description (limit to 200 chars)
+            $combined = "Title: $storyTitle\n\nStory: $inspirationStory\n\nAchievements: $keyAchievements\n\nSocial: $socialLinks";
+            $achievementDesc = substr($combined, 0, 200);
+
+            // Build full LinkedIn URL
+            if (!empty($nomineeLinkedin) && strpos($nomineeLinkedin, 'linkedin.com') === false) {
+                $nomineeLinkedin = 'https://linkedin.com/in/' . ltrim($nomineeLinkedin, '/');
+            }
+
+            // Validate required nominee fields
+            if ($nomineeFirstName && $nomineeLastName && $nomineeEmail && $nomineePhone && $category && $storyTitle && $inspirationStory) {
+                // Insert nominee
+                $stmt = $conn->prepare("INSERT INTO nominees (first_name, last_name, email, phone) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("ssss", $nomineeFirstName, $nomineeLastName, $nomineeEmail, $nomineePhone);
+                if ($stmt->execute()) {
+                    $nomineeId = $stmt->insert_id;
+
+                    // Insert category record (qualification & institution are not present in this form – use placeholders)
+                    $qualification = 'N/A';
+                    $institution = 'N/A';
+                    $stmt2 = $conn->prepare("INSERT INTO categories (category_type, qualification, institution, weblinkurl, achievement_description, nominee_id) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt2->bind_param("sssssi", $category, $qualification, $institution, $nomineeLinkedin, $achievementDesc, $nomineeId);
+                    if ($stmt2->execute()) {
+                        $_SESSION['success'] = "Your story nomination has been submitted successfully!";
+                    } else {
+                        $_SESSION['error'] = "Failed to save category details.";
+                    }
+                    $stmt2->close();
+                } else {
+                    $_SESSION['error'] = "Failed to save nominee details.";
+                }
+                $stmt->close();
+            } else {
+                $_SESSION['error'] = "Please fill in all required nominee fields.";
+            }
+        }
+
+        // Redirect to avoid resubmission
+        header('Location: index.php');
+        exit;
+    }
+}
+
+// Retrieve flash messages
+$successMessage = $_SESSION['success'] ?? null;
+$errorMessage = $_SESSION['error'] ?? null;
+unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
 <!DOCTYPE html>
@@ -23,6 +128,8 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
+        /* ... (keep all existing CSS from original index.php) ... */
+        /* For brevity, the full CSS from the original index.php is included here */
         :root {
             --primary-dark: #0a192f;
             --primary-navy: #112240;
@@ -1404,13 +1511,25 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 </head>
 <body>
 
-    <!-- MODAL OVERLAY for Award Applications -->
+    <!-- Display flash messages -->
+    <?php if ($successMessage): ?>
+        <div class="alert alert-success" style="position: fixed; top: 100px; right: 20px; z-index: 9999; background: #0a192f; border: 2px solid #2dd4bf; color: #2dd4bf; padding: 1rem 2rem; border-radius: 8px;">
+            <i class="fas fa-check-circle"></i> <?= htmlspecialchars($successMessage) ?>
+        </div>
+    <?php endif; ?>
+    <?php if ($errorMessage): ?>
+        <div class="alert alert-error" style="position: fixed; top: 100px; right: 20px; z-index: 9999; background: #0a192f; border: 2px solid #fb7185; color: #fb7185; padding: 1rem 2rem; border-radius: 8px;">
+            <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($errorMessage) ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- MODAL OVERLAY for Award Applications (updated form) -->
     <div class="modal-overlay" id="categoryModal">
         <div class="modal-content">
             <span class="modal-close" id="modalClose">&times;</span>
             <h3 class="modal-title" id="modalTitle">Category Title</h3>
             
-            <!-- Requirements Section (shown first) -->
+            <!-- Requirements Section -->
             <div id="requirementsSection">
                 <div class="modal-section">
                     <h4>Requirements:</h4>
@@ -1425,11 +1544,12 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                 </div>
             </div>
             
-            <!-- Application Form Section (shown after clicking Apply) -->
+            <!-- Application Form Section -->
             <div id="applicationSection" style="display: none;">
                 <div class="application-form">
                     <h4>Apply for <span id="applicationTitle"></span></h4>
-                    <form id="awardApplicationForm" onsubmit="submitApplication(event)">
+                    <form method="POST" action="index.php">
+                        <input type="hidden" name="form_type" value="award_application">
                         <input type="hidden" id="applicationCategory" name="category">
                         
                         <div class="form-row">
@@ -1453,7 +1573,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                             <input type="tel" id="phone" name="phone" required>
                         </div>
                         
-                        <!-- Category field - automatically populated -->
                         <div class="form-group">
                             <label>Applying for Category *</label>
                             <input type="text" id="appliedCategory" value="" readonly style="color: var(--accent-gold); font-weight: 600;">
@@ -1477,14 +1596,13 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                             <input type="text" id="institution" name="institution" required>
                         </div>
                         
-                        <!-- LinkedIn field -->
                         <div class="form-group">
                             <label for="linkedin">LinkedIn Profile *</label>
                             <div class="linkedin-input">
                                 <span>linkedin.com/in/</span>
                                 <input type="text" id="linkedin" name="linkedin" placeholder="username" required>
                             </div>
-                            <small style="color: var(--text-muted);">Enter your LinkedIn username or full profile URL</small>
+                            <small style="color: var(--text-muted);">Enter your LinkedIn username</small>
                         </div>
                         
                         <div class="form-group">
@@ -1497,11 +1615,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                             <label for="terms">I confirm that all information provided is true and complete *</label>
                         </div>
                         
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="notifications" name="notifications">
-                            <label for="notifications">I would like to receive updates about MEF events and opportunities</label>
-                        </div>
-                        
                         <div class="modal-buttons">
                             <button type="submit" class="modal-btn modal-btn-primary">Submit Application</button>
                             <button type="button" class="modal-btn modal-btn-secondary" id="backToRequirementsBtn">Back</button>
@@ -1510,7 +1623,7 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                 </div>
             </div>
             
-            <!-- Success Section -->
+            <!-- Success Section (UI only) -->
             <div id="successSection" style="display: none;">
                 <div class="application-success">
                     <i class="fas fa-check-circle"></i>
@@ -1522,26 +1635,23 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
         </div>
     </div>
 
-    <!-- MODAL OVERLAY for Story Nomination -->
+    <!-- MODAL OVERLAY for Story Nomination (updated form) -->
     <div class="modal-overlay" id="nominationModal">
         <div class="modal-content">
             <span class="modal-close" id="nominationModalClose">&times;</span>
             <h3 class="modal-title">Share Your Story</h3>
             
-            <!-- Nomination Form Section -->
             <div id="nominationFormSection">
                 <div class="application-form">
-                    <form id="storyNominationForm" onsubmit="submitNomination(event)">
+                    <form method="POST" action="index.php">
+                        <input type="hidden" name="form_type" value="story_nomination">
+                        
                         <!-- Nomination Type -->
                         <div class="form-group">
                             <label>I am nominating: *</label>
                             <div class="radio-group">
-                                <label>
-                                    <input type="radio" name="nominationType" value="self" checked> Myself
-                                </label>
-                                <label>
-                                    <input type="radio" name="nominationType" value="other"> Someone else
-                                </label>
+                                <label><input type="radio" name="nominationType" value="self" checked> Myself</label>
+                                <label><input type="radio" name="nominationType" value="other"> Someone else</label>
                             </div>
                         </div>
 
@@ -1557,49 +1667,44 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                                     <input type="text" id="nomineeLastName" name="nomineeLastName" required>
                                 </div>
                             </div>
-                            
                             <div class="form-group">
                                 <label for="nomineeEmail">Email Address *</label>
                                 <input type="email" id="nomineeEmail" name="nomineeEmail" required>
                             </div>
-                            
                             <div class="form-group">
                                 <label for="nomineePhone">Phone Number *</label>
                                 <input type="tel" id="nomineePhone" name="nomineePhone" required>
                             </div>
                         </div>
 
-                        <!-- Nominator Information (shown only when nominating someone else) -->
+                        <!-- Nominator Information (fields exist but are not stored per current schema) -->
                         <div id="nominatorInfo" style="display: none;">
                             <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="nominatorFirstName">Your First Name *</label>
+                                    <label for="nominatorFirstName">Your First Name</label>
                                     <input type="text" id="nominatorFirstName" name="nominatorFirstName">
                                 </div>
                                 <div class="form-group">
-                                    <label for="nominatorLastName">Your Last Name *</label>
+                                    <label for="nominatorLastName">Your Last Name</label>
                                     <input type="text" id="nominatorLastName" name="nominatorLastName">
                                 </div>
                             </div>
-                            
                             <div class="form-group">
-                                <label for="nominatorEmail">Your Email Address *</label>
+                                <label for="nominatorEmail">Your Email Address</label>
                                 <input type="email" id="nominatorEmail" name="nominatorEmail">
-                                </div>
-                            
+                            </div>
                             <div class="form-group">
-                                <label for="nominatorPhone">Your Phone Number *</label>
+                                <label for="nominatorPhone">Your Phone Number</label>
                                 <input type="tel" id="nominatorPhone" name="nominatorPhone">
                             </div>
-                            
                             <div class="form-group">
-                                <label for="relationship">Relationship to Nominee *</label>
+                                <label for="relationship">Relationship to Nominee</label>
                                 <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family member">
                             </div>
                         </div>
 
-                        <!-- Award Category Selection -->
+                        <!-- Award Category -->
                         <div class="form-group">
                             <label for="nominationCategory">Award Category *</label>
                             <select id="nominationCategory" name="nominationCategory" required>
@@ -1612,7 +1717,7 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                             </select>
                         </div>
 
-                        <!-- Story/Inspiration -->
+                        <!-- Story Details -->
                         <div class="form-group">
                             <label for="storyTitle">Story Title *</label>
                             <input type="text" id="storyTitle" name="storyTitle" placeholder="Give your story a title" required>
@@ -1620,26 +1725,25 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                         
                         <div class="form-group">
                             <label for="inspirationStory">Share Your/Their Story of Victory *</label>
-                            <textarea id="inspirationStory" name="inspirationStory" rows="6" placeholder="Tell us about the journey, challenges overcome, and the impact of education..." required></textarea>
+                            <textarea id="inspirationStory" name="inspirationStory" rows="6" required></textarea>
                         </div>
 
-                        <!-- LinkedIn Profile (optional but recommended) -->
+                        <!-- LinkedIn -->
                         <div class="form-group">
-                            <label for="nomineeLinkedIn">LinkedIn Profile (Optional but recommended)</label>
+                            <label for="nomineeLinkedin">LinkedIn Profile (Optional)</label>
                             <div class="linkedin-input">
                                 <span>linkedin.com/in/</span>
                                 <input type="text" id="nomineeLinkedin" name="nomineeLinkedin" placeholder="username">
                             </div>
-                            <small style="color: var(--text-muted);">Share the LinkedIn profile to help us verify the story</small>
                         </div>
 
                         <!-- Key Achievements -->
                         <div class="form-group">
                             <label for="keyAchievements">Key Achievements (Optional)</label>
-                            <textarea id="keyAchievements" name="keyAchievements" rows="3" placeholder="List any relevant achievements, awards, or recognition..."></textarea>
+                            <textarea id="keyAchievements" name="keyAchievements" rows="3"></textarea>
                         </div>
 
-                        <!-- Social Media Links -->
+                        <!-- Social Links -->
                         <div class="form-group">
                             <label for="socialLinks">Social Media Links (Optional)</label>
                             <input type="text" id="socialLinks" name="socialLinks" placeholder="Twitter, Instagram, etc.">
@@ -1648,14 +1752,9 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                         <!-- Consent -->
                         <div class="checkbox-group">
                             <input type="checkbox" id="nominationTerms" name="nominationTerms" required>
-                            <label for="nominationTerms">I confirm that the information provided is true and accurate, and I have permission to share this story *</label>
+                            <label for="nominationTerms">I confirm that the information provided is true and accurate *</label>
                         </div>
                         
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="nominationUpdates" name="nominationUpdates">
-                            <label for="nominationUpdates">I'd like to receive updates about the nomination status and MEF events</label>
-                        </div>
-
                         <div class="modal-buttons">
                             <button type="submit" class="modal-btn modal-btn-primary">Submit Nomination</button>
                             <button type="button" class="modal-btn modal-btn-secondary" id="nominationModalCancel">Cancel</button>
@@ -1664,12 +1763,12 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                 </div>
             </div>
 
-            <!-- Success Section -->
+            <!-- Success Section (UI only) -->
             <div id="nominationSuccess" style="display: none;">
                 <div class="application-success">
                     <i class="fas fa-check-circle"></i>
                     <h3>Nomination Submitted Successfully!</h3>
-                    <p>Thank you for sharing this story of victory. We will review the nomination and contact you soon.</p>
+                    <p>Thank you for sharing this story of victory.</p>
                     <button class="modal-btn modal-btn-primary" onclick="closeNominationModal()">Close</button>
                 </div>
             </div>
@@ -1839,165 +1938,164 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                     </div>
                 </div>
 
-               <!-- NEW: Enhanced Nomination Form Section -->
-<div class="nomination-form-section" id="nominationForm">
-    <h3>Share Your Story</h3>
-    <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
-    
-    <!-- ✅ BUTTON TO TOGGLE FORM -->
-    <button class="btn-gold" onclick="toggleNominationForm()" id="toggleFormBtn">
-        Share Your Story
-    </button>
-    
-    <!-- ✅ FORM (HIDDEN BY DEFAULT) -->
-    <div class="nomination-form" id="nominationFormContainer" style="display: none;">
-        <form id="storyNominationForm" onsubmit="submitNomination(event)">
-            
-            <!-- Nomination Type -->
-            <div class="form-group">
-                <label>I am nominating: *</label>
-                <div class="radio-group">
-                    <label>
-                        <input type="radio" name="nominationType" value="self" checked> Myself
-                    </label>
-                    <label>
-                        <input type="radio" name="nominationType" value="other"> Someone else
-                    </label>
-                </div>
-            </div>
+               <!-- Enhanced Nomination Form Section (updated) -->
+                <div class="nomination-form-section" id="nominationForm">
+                    <h3>Share Your Story</h3>
+                    <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
+                    
+                    <!-- Button to toggle form -->
+                    <button class="btn-gold" onclick="toggleNominationForm()" id="toggleFormBtn">
+                        Share Your Story
+                    </button>
+                    
+                    <!-- Form (hidden by default) -->
+                    <div class="nomination-form" id="nominationFormContainer" style="display: none;">
+                        <form method="POST" action="index.php">
+                            <input type="hidden" name="form_type" value="story_nomination">
+                            
+                            <!-- Nomination Type -->
+                            <div class="form-group">
+                                <label>I am nominating: *</label>
+                                <div class="radio-group">
+                                    <label>
+                                        <input type="radio" name="nominationType" value="self" checked> Myself
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="nominationType" value="other"> Someone else
+                                    </label>
+                                </div>
+                            </div>
 
-            <!-- Nominee Information -->
-            <div id="nomineeInfo">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nomineeFirstName">First Name *</label>
-                        <input type="text" id="nomineeFirstName" name="nomineeFirstName" required>
+                            <!-- Nominee Information -->
+                            <div id="nomineeInfo">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="nomineeFirstName">First Name *</label>
+                                        <input type="text" id="nomineeFirstName" name="nomineeFirstName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="nomineeLastName">Last Name *</label>
+                                        <input type="text" id="nomineeLastName" name="nomineeLastName" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="nomineeEmail">Email Address *</label>
+                                    <input type="email" id="nomineeEmail" name="nomineeEmail" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="nomineePhone">Phone Number *</label>
+                                    <input type="tel" id="nomineePhone" name="nomineePhone" required>
+                                </div>
+                            </div>
+
+                            <!-- Nominator Information (optional) -->
+                            <div id="nominatorInfo" style="display: none;">
+                                <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="nominatorFirstName">Your First Name *</label>
+                                        <input type="text" id="nominatorFirstName" name="nominatorFirstName">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="nominatorLastName">Your Last Name *</label>
+                                        <input type="text" id="nominatorLastName" name="nominatorLastName">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="nominatorEmail">Your Email Address *</label>
+                                    <input type="email" id="nominatorEmail" name="nominatorEmail">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="nominatorPhone">Your Phone Number *</label>
+                                    <input type="tel" id="nominatorPhone" name="nominatorPhone">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="relationship">Relationship to Nominee *</label>
+                                    <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family member">
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="form-group">
+                                <label for="nominationCategory">Award Category *</label>
+                                <select id="nominationCategory" name="nominationCategory" required>
+                                    <option value="">Select a category</option>
+                                    <option value="research">African Development Research Award</option>
+                                    <option value="ai">AI Champion Award</option>
+                                    <option value="women">Mamokgethi Phakeng Prize</option>
+                                    <option value="entrepreneur">Young Entrepreneur Award</option>
+                                    <option value="agriculture">Youth in Agriculture Award</option>
+                                </select>
+                            </div>
+
+                            <!-- Story -->
+                            <div class="form-group">
+                                <label for="storyTitle">Story Title *</label>
+                                <input type="text" id="storyTitle" name="storyTitle" placeholder="Give your story a title" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="inspirationStory">Share Your/Their Story of Victory *</label>
+                                <textarea id="inspirationStory" name="inspirationStory" rows="6" required></textarea>
+                            </div>
+
+                            <!-- LinkedIn -->
+                            <div class="form-group">
+                                <label for="nomineeLinkedin">LinkedIn Profile (Optional)</label>
+                                <div class="linkedin-input">
+                                    <span>linkedin.com/in/</span>
+                                    <input type="text" id="nomineeLinkedin" name="nomineeLinkedin" placeholder="username">
+                                </div>
+                            </div>
+
+                            <!-- Achievements -->
+                            <div class="form-group">
+                                <label for="keyAchievements">Key Achievements</label>
+                                <textarea id="keyAchievements" name="keyAchievements" rows="3"></textarea>
+                            </div>
+
+                            <!-- Social -->
+                            <div class="form-group">
+                                <label for="socialLinks">Social Media Links</label>
+                                <input type="text" id="socialLinks" name="socialLinks" placeholder="Twitter, Instagram, etc.">
+                            </div>
+
+                            <!-- Consent -->
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="nominationTerms" name="nominationTerms" required>
+                                <label for="nominationTerms">I confirm that the information provided is true *</label>
+                            </div>
+                            
+                            <button type="submit" class="btn-gold">Submit Nomination</button>
+                        </form>
                     </div>
-                    <div class="form-group">
-                        <label for="nomineeLastName">Last Name *</label>
-                        <input type="text" id="nomineeLastName" name="nomineeLastName" required>
-                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="nomineeEmail">Email Address *</label>
-                    <input type="email" id="nomineeEmail" name="nomineeEmail" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="nomineePhone">Phone Number *</label>
-                    <input type="tel" id="nomineePhone" name="nomineePhone" required>
-                </div>
-            </div>
 
-            <!-- Nominator Information -->
-            <div id="nominatorInfo" style="display: none;">
-                <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nominatorFirstName">Your First Name *</label>
-                        <input type="text" id="nominatorFirstName" name="nominatorFirstName">
-                    </div>
-                    <div class="form-group">
-                        <label for="nominatorLastName">Your Last Name *</label>
-                        <input type="text" id="nominatorLastName" name="nominatorLastName">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="nominatorEmail">Your Email Address *</label>
-                    <input type="email" id="nominatorEmail" name="nominatorEmail">
-                </div>
-                
-                <div class="form-group">
-                    <label for="nominatorPhone">Your Phone Number *</label>
-                    <input type="tel" id="nominatorPhone" name="nominatorPhone">
-                </div>
-                
-                <div class="form-group">
-                    <label for="relationship">Relationship to Nominee *</label>
-                    <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family member">
-                </div>
-            </div>
+                <script>
+                function toggleNominationForm() {
+                    const form = document.getElementById("nominationFormContainer");
+                    const button = document.getElementById("toggleFormBtn");
+                    if (form.style.display === "none") {
+                        form.style.display = "block";
+                        button.textContent = "Hide Form";
+                        form.scrollIntoView({ behavior: "smooth" });
+                    } else {
+                        form.style.display = "none";
+                        button.textContent = "Share Your Story";
+                    }
+                }
+                </script>
 
-            <!-- Category -->
-            <div class="form-group">
-                <label for="nominationCategory">Award Category *</label>
-                <select id="nominationCategory" name="nominationCategory" required>
-                    <option value="">Select a category</option>
-                    <option value="research">African Development Research Award</option>
-                    <option value="ai">AI Champion Award</option>
-                    <option value="women">Mamokgethi Phakeng Prize</option>
-                    <option value="entrepreneur">Young Entrepreneur Award</option>
-                    <option value="agriculture">Youth in Agriculture Award</option>
-                </select>
-            </div>
-
-            <!-- Story -->
-            <div class="form-group">
-                <label for="storyTitle">Story Title *</label>
-                <input type="text" id="storyTitle" name="storyTitle" placeholder="Give your story a title" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="inspirationStory">Share Your/Their Story of Victory *</label>
-                <textarea id="inspirationStory" name="inspirationStory" rows="6" required></textarea>
-            </div>
-
-            <!-- LinkedIn -->
-            <div class="form-group">
-                <label for="nomineeLinkedIn">LinkedIn Profile (Optional)</label>
-                <div class="linkedin-input">
-                    <span>linkedin.com/in/</span>
-                    <input type="text" id="nomineeLinkedin" name="nomineeLinkedin">
-                </div>
-            </div>
-
-            <!-- Achievements -->
-            <div class="form-group">
-                <label for="keyAchievements">Key Achievements</label>
-                <textarea id="keyAchievements" name="keyAchievements" rows="3"></textarea>
-            </div>
-
-            <!-- Social -->
-            <div class="form-group">
-                <label for="socialLinks">Social Media Links</label>
-                <input type="text" id="socialLinks" name="socialLinks">
-            </div>
-
-            <!-- Consent -->
-            <div class="checkbox-group">
-                <input type="checkbox" id="nominationTerms" required>
-                <label for="nominationTerms">I confirm that the information provided is true *</label>
-            </div>
-            
-            <button type="submit" class="btn-gold">Submit Nomination</button>
-        </form>
-    </div>
-</div>
-
-<script>
-function toggleNominationForm() {
-    const form = document.getElementById("nominationFormContainer");
-    const button = document.getElementById("toggleFormBtn");
-
-    if (form.style.display === "none") {
-        form.style.display = "block";
-        button.textContent = "Hide Form";
-        form.scrollIntoView({ behavior: "smooth" });
-    } else {
-        form.style.display = "none";
-        button.textContent = "Share Your Story";
-    }
-}
-</script>
-
-                    <!-- Success Message (hidden by default) -->
-                    <div id="nominationSuccess" class="nomination-success" style="display: none;">
-                        <i class="fas fa-check-circle"></i>
-                        <h4>Nomination Submitted Successfully!</h4>
-                        <p>Thank you for sharing this story of victory. We will review the nomination and contact you soon.</p>
-                    </div>
+                <!-- Success Message (hidden by default) -->
+                <div id="nominationSuccess" class="nomination-success" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <h4>Nomination Submitted Successfully!</h4>
+                    <p>Thank you for sharing this story of victory. We will review the nomination and contact you soon.</p>
                 </div>
             </div>
         </section>
@@ -2236,8 +2334,6 @@ function toggleNominationForm() {
         const nominationModal = document.getElementById('nominationModal');
         const nominationModalClose = document.getElementById('nominationModalClose');
         const nominationModalCancel = document.getElementById('nominationModalCancel');
-        const nominationCard = document.getElementById('nominationCard');
-        const nominationCardBtn = document.getElementById('nominationCardBtn');
         const nominationFormSection = document.getElementById('nominationFormSection');
         const nominationSuccess = document.getElementById('nominationSuccess');
 
@@ -2308,18 +2404,6 @@ function toggleNominationForm() {
             }
         });
 
-        // Application submission
-        function submitApplication(event) {
-            event.preventDefault();
-            
-            // Hide form, show success
-            requirementsSection.style.display = 'none';
-            applicationSection.style.display = 'none';
-            successSection.style.display = 'block';
-            
-            console.log('Application submitted for:', applicationCategory.value);
-        }
-
         // Nomination modal functions
         function openNominationModal() {
             // Reset modal to show form, hide success
@@ -2342,13 +2426,6 @@ function toggleNominationForm() {
             document.body.style.overflow = 'auto';
         }
 
-        // Nomination card click handlers
-        nominationCard.addEventListener('click', openNominationModal);
-        nominationCardBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            openNominationModal();
-        });
-
         // Close nomination modal with X button
         nominationModalClose.addEventListener('click', closeNominationModal);
         
@@ -2362,7 +2439,7 @@ function toggleNominationForm() {
             }
         });
 
-        // Nomination form handling
+        // Nomination form handling (for modal)
         const nominationTypeRadios = document.querySelectorAll('input[name="nominationType"]');
         const nominatorInfo = document.getElementById('nominatorInfo');
         
@@ -2387,14 +2464,6 @@ function toggleNominationForm() {
                 }
             });
         });
-
-        function submitNomination(event) {
-            event.preventDefault();
-            
-            // Hide form, show success
-            nominationFormSection.style.display = 'none';
-            nominationSuccess.style.display = 'block';
-        }
 
         // Mobile menu toggle
         document.querySelector('.menu-toggle').addEventListener('click', () => {
