@@ -305,8 +305,8 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .logo {
-            width: auto;
-            height: 100px;
+            width: 60px;
+            height: 60px;
             object-fit: contain;
             border: none;
             border-radius: 0;
@@ -1871,7 +1871,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <nav class="fixed-nav">
         <div class="nav-left">
             <a href="#home" class="logo-link">
-                <img src="realogo.png" alt="MEF Logo" class="logo">
+                <img src="ko kae.jpeg" alt="MEF Logo" class="logo">
             </a>
             <div class="brand-text">
                 <div class="brand-main">MAKE EDUCATION</div>
@@ -2022,6 +2022,20 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <p>Join the flagship event celebrating educational achievements. Network with leaders, share stories, and be inspired.</p>
                         <span class="category-tag">Get Tickets</span>
                     </div>
+<<<<<<< HEAD
+                    <!-- 7. Nomination Card - Share Your Story (opens modal) -->
+                    <div class="nomination-card" id="nominationCard">
+                        <div class="nomination-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3>Share Your Story</h3>
+                        <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
+                        <div class="nomination-btn" id="nominationCardBtn">
+                            <span>Nominate Now</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+=======
                 </div>
 
                <!-- Standalone Nomination Button (MODIFIED - now opens modal) -->
@@ -2033,6 +2047,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <button class="btn-gold" id="openNominationModalBtn">
                         <i class="fas fa-pen"></i> Nominate Now
                     </button>
+>>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
                 </div>
             </div>
         </section>
