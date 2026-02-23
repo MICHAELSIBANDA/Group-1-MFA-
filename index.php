@@ -138,14 +138,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['success'] = "Your nomination has been submitted successfully!";
                         $fullCategory = $categoryNames[$categoryCode] ?? $categoryCode;
                         $subject = "YOU'VE BEEN NOMINATED for the MEF Awards!";
-                        $body = "Dear $nomineeFirstName $nomineeLastName,\n\n";
+                        $body = "Dear $firstName $lastName,\n\n";
                         $body .= "We are excited to inform you that you have been nominated for the MEF Awards! 🌟\n";
                         $body .= "Your story has been shared by someone who recognizes your excellence and contribution. This nomination reflects the positive impact you have made.\n";
                         $body .= "Our panel will now review the submission, and we will be in touch soon regarding the outcome.\n\n";
                         $body .= "Nomination Details:\n";
-                        $body .= "Category: $category\n";
-                        $body .= "Story Title: $storyTitle\n";
-                        $body .= "Achievements: $keyAchievements\n\n";
+                        $body .= "Category: $fullCategory\n";
+                        $body .= "Qualification: $qualification\n";
+                        $body .= "Institution: $institution\n";
+                        $body .= "LinkedIn: $linkedin\n";
+                        $body .= "Achievements: $achievements\n\n";
                         $body .= "Regards,\nMEF Awards Team";
                         sendEmail($email, $subject, $body, $env);
                     } else {
@@ -1575,6 +1577,76 @@ unset($_SESSION['success'], $_SESSION['error']);
                 flex-direction: column;
             }
         }
+<<<<<<< HEAD
+=======
+
+        /* ===== Nomination Form Styling - MODIFIED for modal ===== */
+        .nomination-form-section {
+            background: var(--primary-navy);
+            padding: 3rem 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            margin: 3rem 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: padding 0.3s ease;
+            text-align: center;
+        }
+
+        .nomination-form-section h3 {
+            font-size: 2rem;
+            color: var(--accent-gold);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .nomination-form-section p {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-gold {
+            display: inline-block;
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            font-weight: 600;
+            padding: 0.8rem 2rem;
+            border-radius: var(--radius-full);
+            margin: 0 auto;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-gold:hover {
+            background: var(--accent-gold-light);
+            transform: translateY(-2px);
+        }
+
+        /* Remove the old inline form styling since we're using modal now */
+        .nomination-form-section .nomination-form {
+            display: none !important; /* Hide the inline form */
+        }
+
+        /* Nomination modal specific styling */
+        #nominationModalContent .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        #nominationModalContent .modal-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        #nominationModalContent .application-form {
+            margin-top: 0;
+            border-top: none;
+            padding-top: 0;
+        }
+>>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
     </style>
 </head>
 <body>
@@ -1709,6 +1781,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         </div>
     </div>
 
+<<<<<<< HEAD
     <!-- NEW MODAL OVERLAY for Story Nomination (pops up like award cards) -->
     <div class="modal-overlay" id="nominationModal">
         <div class="modal-content">
@@ -1876,6 +1949,93 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <p>Thank you for sharing this story of victory. We will review it and contact you soon.</p>
                     <button class="modal-btn modal-btn-primary" onclick="closeNominationModal()">Close</button>
                 </div>
+=======
+    <!-- NEW MODAL OVERLAY for Standalone Nomination -->
+    <div class="modal-overlay" id="nominationModal">
+        <div class="modal-content" id="nominationModalContent">
+            <span class="modal-close" id="nominationModalClose">&times;</span>
+            <h3 class="modal-title">Nominate Yourself or Someone Else</h3>
+            
+            <div class="application-form">
+                <form method="POST" action="index.php">
+                    <input type="hidden" name="form_type" value="standalone_nomination">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modalFirstName">First Name *</label>
+                            <input type="text" id="modalFirstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalLastName">Last Name *</label>
+                            <input type="text" id="modalLastName" name="lastName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modalEmail">Email Address *</label>
+                        <input type="email" id="modalEmail" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modalPhone">Phone Number *</label>
+                        <input type="tel" id="modalPhone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modalCategory">Award Category *</label>
+                        <select id="modalCategory" name="category" required>
+                            <option value="">Select a category</option>
+                            <option value="research">African Development Research Award</option>
+                            <option value="ai">AI Champion Award</option>
+                            <option value="women">Mamokgethi Phakeng Prize</option>
+                            <option value="entrepreneur">Young Entrepreneur Award</option>
+                            <option value="agriculture">Youth in Agriculture Award</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modalQualification">Highest Qualification *</label>
+                        <select id="modalQualification" name="qualification" required>
+                            <option value="">Select your qualification</option>
+                            <option value="bachelors">Bachelor's Degree</option>
+                            <option value="masters">Master's Degree</option>
+                            <option value="phd">PhD/Doctorate</option>
+                            <option value="diploma">Diploma</option>
+                            <option value="certificate">Certificate</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modalInstitution">Institution *</label>
+                        <input type="text" id="modalInstitution" name="institution" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modalLinkedin">LinkedIn Profile *</label>
+                        <div class="linkedin-input">
+                            <span>linkedin.com/in/</span>
+                            <input type="text" id="modalLinkedin" name="linkedin" placeholder="username" required>
+                        </div>
+                        <small style="color: var(--text-muted);">Enter your LinkedIn username</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modalAchievements">Key Achievements *</label>
+                        <textarea id="modalAchievements" name="achievements" placeholder="Tell us about achievements relevant to this award" required></textarea>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="modalTerms" name="terms" required>
+                        <label for="modalTerms">I confirm that all information provided is true and complete *</label>
+                    </div>
+                    
+                    <div class="modal-buttons">
+                        <button type="submit" class="modal-btn modal-btn-primary">Submit Nomination</button>
+                        <button type="button" class="modal-btn modal-btn-secondary" id="nominationModalCancel">Cancel</button>
+                    </div>
+                </form>
+>>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
             </div>
         </div>
     </div>
@@ -1949,7 +2109,11 @@ unset($_SESSION['success'], $_SESSION['error']);
             </div>
         </section>
 
+<<<<<<< HEAD
         <!-- SERVICES (6 boxes + ticket link) -->
+=======
+        <!-- SERVICES (6 boxes + ticket link + standalone nomination button) -->
+>>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
         <section id="services" class="section">
             <div class="section-container">
                 <h2 class="section-title">Our Services & Awards</h2>
@@ -2035,6 +2199,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <p>Join the flagship event celebrating educational achievements. Network with leaders, share stories, and be inspired.</p>
                         <span class="category-tag">Get Tickets</span>
                     </div>
+<<<<<<< HEAD
                     <!-- 7. Nomination Card - Share Your Story (opens modal) -->
                     <div class="nomination-card" id="nominationCard">
                         <div class="nomination-icon">
@@ -2047,6 +2212,19 @@ unset($_SESSION['success'], $_SESSION['error']);
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </div>
+=======
+                </div>
+
+               <!-- Standalone Nomination Button (MODIFIED - now opens modal) -->
+                <div class="nomination-form-section" id="nominationForm">
+                    <h3>Nominate Yourself or Someone Else</h3>
+                    <p>Every story of victory deserves to be celebrated. Click the button below to submit a nomination.</p>
+                    
+                    <!-- Button to open modal -->
+                    <button class="btn-gold" id="openNominationModalBtn">
+                        <i class="fas fa-pen"></i> Nominate Now
+                    </button>
+>>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
                 </div>
             </div>
         </section>
@@ -2143,6 +2321,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         const showApplicationBtn = document.getElementById('showApplicationBtn');
         const backToRequirementsBtn = document.getElementById('backToRequirementsBtn');
 
+<<<<<<< HEAD
         // Nomination Modal elements
         const nominationModal = document.getElementById('nominationModal');
         const nominationModalClose = document.getElementById('nominationModalClose');
@@ -2182,6 +2361,14 @@ unset($_SESSION['success'], $_SESSION['error']);
         });
 
         // Award category cards click
+=======
+        // NEW: Nomination modal elements
+        const nominationModal = document.getElementById('nominationModal');
+        const nominationModalClose = document.getElementById('nominationModalClose');
+        const nominationModalCancel = document.getElementById('nominationModalCancel');
+        const openNominationModalBtn = document.getElementById('openNominationModalBtn');
+
+>>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
         const categoryCards = document.querySelectorAll('.category-card:not([onclick])');
         categoryCards.forEach(card => {
             card.addEventListener('click', function(e) {
@@ -2228,6 +2415,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         modalCancel.addEventListener('click', closeModal);
         modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 
+<<<<<<< HEAD
         // Nomination card click - open nomination modal
         function openNominationModal() {
             nominationRequirementsSection.style.display = 'block';
@@ -2258,11 +2446,34 @@ unset($_SESSION['success'], $_SESSION['error']);
         });
 
         // Close nomination modal
+=======
+        // NEW: Functions for nomination modal
+        function openNominationModal() {
+            nominationModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            // Reset form fields if needed
+            document.getElementById('modalFirstName').value = '';
+            document.getElementById('modalLastName').value = '';
+            document.getElementById('modalEmail').value = '';
+            document.getElementById('modalPhone').value = '';
+            document.getElementById('modalCategory').value = '';
+            document.getElementById('modalQualification').value = '';
+            document.getElementById('modalInstitution').value = '';
+            document.getElementById('modalLinkedin').value = '';
+            document.getElementById('modalAchievements').value = '';
+            document.getElementById('modalTerms').checked = false;
+        }
+
+>>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
         function closeNominationModal() {
             nominationModal.classList.remove('active');
             document.body.style.overflow = 'auto';
         }
 
+<<<<<<< HEAD
+=======
+        openNominationModalBtn.addEventListener('click', openNominationModal);
+>>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
         nominationModalClose.addEventListener('click', closeNominationModal);
         nominationModalCancel.addEventListener('click', closeNominationModal);
         nominationModal.addEventListener('click', function(e) { if (e.target === nominationModal) closeNominationModal(); });
