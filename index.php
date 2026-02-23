@@ -1577,8 +1577,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                 flex-direction: column;
             }
         }
-<<<<<<< HEAD
-=======
 
         /* ===== Nomination Form Styling - MODIFIED for modal ===== */
         .nomination-form-section {
@@ -1646,7 +1644,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             border-top: none;
             padding-top: 0;
         }
->>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
     </style>
 </head>
 <body>
@@ -1781,175 +1778,6 @@ unset($_SESSION['success'], $_SESSION['error']);
         </div>
     </div>
 
-<<<<<<< HEAD
-    <!-- NEW MODAL OVERLAY for Story Nomination (pops up like award cards) -->
-    <div class="modal-overlay" id="nominationModal">
-        <div class="modal-content">
-            <span class="modal-close" id="nominationModalClose">&times;</span>
-            <h3 class="modal-title">Share Your Story</h3>
-            
-            <div id="nominationRequirementsSection">
-                <div class="modal-section">
-                    <h4>Tell Us Your Story</h4>
-                    <p style="color: var(--text-muted); margin-bottom: 1rem;">Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
-                </div>
-                <div class="modal-buttons">
-                    <button class="modal-btn modal-btn-primary" id="showNominationFormBtn">Nominate Now</button>
-                    <button class="modal-btn modal-btn-secondary" id="nominationModalCancel">Cancel</button>
-                </div>
-            </div>
-            
-            <div id="nominationFormSection" style="display: none;">
-                <div class="application-form">
-                    <h4>Nomination Form</h4>
-                    <form method="POST" action="index.php">
-                        <input type="hidden" name="form_type" value="standalone_nomination">
-                        
-                        <!-- Nomination Type -->
-                        <div class="form-group">
-                            <label>I am nominating: *</label>
-                            <div style="display: flex; gap: 2rem; margin-top: 0.5rem;">
-                                <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <input type="radio" name="nominationType" value="self" checked style="width: auto;"> 
-                                    <span style="color: var(--accent-gold);">Myself</span>
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <input type="radio" name="nominationType" value="other" style="width: auto;"> 
-                                    <span style="color: var(--accent-teal);">Someone else</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Nominee Information (always shown) -->
-                        <div id="nomineeInfo">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="nomineeFirstName">First Name *</label>
-                                    <input type="text" id="nomineeFirstName" name="firstName" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="nomineeLastName">Last Name *</label>
-                                    <input type="text" id="nomineeLastName" name="lastName" required>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="nomineeEmail">Email Address *</label>
-                                <input type="email" id="nomineeEmail" name="email" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="nomineePhone">Phone Number *</label>
-                                <input type="tel" id="nomineePhone" name="phone" required>
-                            </div>
-                        </div>
-
-                        <!-- Nominator Information (hidden initially) -->
-                        <div id="nominatorInfo" style="display: none;">
-                            <h4 style="color: var(--accent-purple); margin: 1rem 0;">Your Information</h4>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="nominatorFirstName">Your First Name *</label>
-                                    <input type="text" id="nominatorFirstName" name="nominatorFirstName">
-                                </div>
-                                <div class="form-group">
-                                    <label for="nominatorLastName">Your Last Name *</label>
-                                    <input type="text" id="nominatorLastName" name="nominatorLastName">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="nominatorEmail">Your Email Address *</label>
-                                <input type="email" id="nominatorEmail" name="nominatorEmail">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="nominatorPhone">Your Phone Number *</label>
-                                <input type="tel" id="nominatorPhone" name="nominatorPhone">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="relationship">Relationship to Nominee *</label>
-                                <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family">
-                            </div>
-                        </div>
-
-                        <!-- Award Category -->
-                        <div class="form-group">
-                            <label for="nominationCategory">Award Category *</label>
-                            <select id="nominationCategory" name="category" required>
-                                <option value="">Select a category</option>
-                                <option value="research">African Development Research Award</option>
-                                <option value="ai">AI Champion Award</option>
-                                <option value="women">Mamokgethi Phakeng Prize</option>
-                                <option value="entrepreneur">Young Entrepreneur Award</option>
-                                <option value="agriculture">Youth in Agriculture Award</option>
-                            </select>
-                        </div>
-
-                        <!-- Qualification -->
-                        <div class="form-group">
-                            <label for="nomineeQualification">Highest Qualification *</label>
-                            <select id="nomineeQualification" name="qualification" required>
-                                <option value="">Select qualification</option>
-                                <option value="bachelors">Bachelor's Degree</option>
-                                <option value="masters">Master's Degree</option>
-                                <option value="phd">PhD/Doctorate</option>
-                                <option value="diploma">Diploma</option>
-                                <option value="certificate">Certificate</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-
-                        <!-- Institution -->
-                        <div class="form-group">
-                            <label for="nomineeInstitution">Institution *</label>
-                            <input type="text" id="nomineeInstitution" name="institution" required>
-                        </div>
-
-                        <!-- LinkedIn -->
-                        <div class="form-group">
-                            <label for="nomineeLinkedin">LinkedIn Profile *</label>
-                            <div class="linkedin-input">
-                                <span>linkedin.com/in/</span>
-                                <input type="text" id="nomineeLinkedin" name="linkedin" placeholder="username" required>
-                            </div>
-                        </div>
-
-                        <!-- Key Achievements -->
-                        <div class="form-group">
-                            <label for="nomineeAchievements">Key Achievements *</label>
-                            <textarea id="nomineeAchievements" name="achievements" placeholder="Tell us about achievements relevant to this award" required></textarea>
-                        </div>
-
-                        <!-- Story of Victory (additional) -->
-                        <div class="form-group">
-                            <label for="storyOfVictory">Story of Victory *</label>
-                            <textarea id="storyOfVictory" name="story" rows="4" placeholder="Briefly share the journey, challenges overcome, and impact of education..." required></textarea>
-                        </div>
-
-                        <!-- Consent -->
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="nominationTerms" name="terms" required>
-                            <label for="nominationTerms">I confirm that all information provided is true and complete *</label>
-                        </div>
-
-                        <div class="modal-buttons">
-                            <button type="submit" class="modal-btn modal-btn-primary">Submit Nomination</button>
-                            <button type="button" class="modal-btn modal-btn-secondary" id="backToNominationRequirementsBtn">Back</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div id="nominationSuccessSection" style="display: none;">
-                <div class="application-success">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Nomination Submitted!</h3>
-                    <p>Thank you for sharing this story of victory. We will review it and contact you soon.</p>
-                    <button class="modal-btn modal-btn-primary" onclick="closeNominationModal()">Close</button>
-                </div>
-=======
     <!-- NEW MODAL OVERLAY for Standalone Nomination -->
     <div class="modal-overlay" id="nominationModal">
         <div class="modal-content" id="nominationModalContent">
@@ -2035,7 +1863,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <button type="button" class="modal-btn modal-btn-secondary" id="nominationModalCancel">Cancel</button>
                     </div>
                 </form>
->>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
             </div>
         </div>
     </div>
@@ -2109,11 +1936,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             </div>
         </section>
 
-<<<<<<< HEAD
-        <!-- SERVICES (6 boxes + ticket link) -->
-=======
         <!-- SERVICES (6 boxes + ticket link + standalone nomination button) -->
->>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
         <section id="services" class="section">
             <div class="section-container">
                 <h2 class="section-title">Our Services & Awards</h2>
@@ -2199,20 +2022,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <p>Join the flagship event celebrating educational achievements. Network with leaders, share stories, and be inspired.</p>
                         <span class="category-tag">Get Tickets</span>
                     </div>
-<<<<<<< HEAD
-                    <!-- 7. Nomination Card - Share Your Story (opens modal) -->
-                    <div class="nomination-card" id="nominationCard">
-                        <div class="nomination-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <h3>Share Your Story</h3>
-                        <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
-                        <div class="nomination-btn" id="nominationCardBtn">
-                            <span>Nominate Now</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </div>
-=======
                 </div>
 
                <!-- Standalone Nomination Button (MODIFIED - now opens modal) -->
@@ -2224,7 +2033,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <button class="btn-gold" id="openNominationModalBtn">
                         <i class="fas fa-pen"></i> Nominate Now
                     </button>
->>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
                 </div>
             </div>
         </section>
@@ -2321,54 +2129,12 @@ unset($_SESSION['success'], $_SESSION['error']);
         const showApplicationBtn = document.getElementById('showApplicationBtn');
         const backToRequirementsBtn = document.getElementById('backToRequirementsBtn');
 
-<<<<<<< HEAD
-        // Nomination Modal elements
-        const nominationModal = document.getElementById('nominationModal');
-        const nominationModalClose = document.getElementById('nominationModalClose');
-        const nominationModalCancel = document.getElementById('nominationModalCancel');
-        const nominationRequirementsSection = document.getElementById('nominationRequirementsSection');
-        const nominationFormSection = document.getElementById('nominationFormSection');
-        const nominationSuccessSection = document.getElementById('nominationSuccessSection');
-        const showNominationFormBtn = document.getElementById('showNominationFormBtn');
-        const backToNominationRequirementsBtn = document.getElementById('backToNominationRequirementsBtn');
-        const nominationCard = document.getElementById('nominationCard');
-        const nominationCardBtn = document.getElementById('nominationCardBtn');
-
-        // Nomination type toggle
-        const nominationTypeRadios = document.querySelectorAll('input[name="nominationType"]');
-        const nominatorInfo = document.getElementById('nominatorInfo');
-        
-        nominationTypeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.value === 'other') {
-                    nominatorInfo.style.display = 'block';
-                    // Make nominator fields required
-                    document.getElementById('nominatorFirstName').required = true;
-                    document.getElementById('nominatorLastName').required = true;
-                    document.getElementById('nominatorEmail').required = true;
-                    document.getElementById('nominatorPhone').required = true;
-                    document.getElementById('relationship').required = true;
-                } else {
-                    nominatorInfo.style.display = 'none';
-                    // Remove required from nominator fields
-                    document.getElementById('nominatorFirstName').required = false;
-                    document.getElementById('nominatorLastName').required = false;
-                    document.getElementById('nominatorEmail').required = false;
-                    document.getElementById('nominatorPhone').required = false;
-                    document.getElementById('relationship').required = false;
-                }
-            });
-        });
-
-        // Award category cards click
-=======
         // NEW: Nomination modal elements
         const nominationModal = document.getElementById('nominationModal');
         const nominationModalClose = document.getElementById('nominationModalClose');
         const nominationModalCancel = document.getElementById('nominationModalCancel');
         const openNominationModalBtn = document.getElementById('openNominationModalBtn');
 
->>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
         const categoryCards = document.querySelectorAll('.category-card:not([onclick])');
         categoryCards.forEach(card => {
             card.addEventListener('click', function(e) {
@@ -2415,38 +2181,6 @@ unset($_SESSION['success'], $_SESSION['error']);
         modalCancel.addEventListener('click', closeModal);
         modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 
-<<<<<<< HEAD
-        // Nomination card click - open nomination modal
-        function openNominationModal() {
-            nominationRequirementsSection.style.display = 'block';
-            nominationFormSection.style.display = 'none';
-            nominationSuccessSection.style.display = 'none';
-            nominationModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        nominationCard.addEventListener('click', openNominationModal);
-        nominationCardBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            openNominationModal();
-        });
-
-        // Show nomination form
-        showNominationFormBtn.addEventListener('click', function() {
-            nominationRequirementsSection.style.display = 'none';
-            nominationFormSection.style.display = 'block';
-            nominationSuccessSection.style.display = 'none';
-        });
-
-        // Back to nomination requirements
-        backToNominationRequirementsBtn.addEventListener('click', function() {
-            nominationRequirementsSection.style.display = 'block';
-            nominationFormSection.style.display = 'none';
-            nominationSuccessSection.style.display = 'none';
-        });
-
-        // Close nomination modal
-=======
         // NEW: Functions for nomination modal
         function openNominationModal() {
             nominationModal.classList.add('active');
@@ -2464,16 +2198,12 @@ unset($_SESSION['success'], $_SESSION['error']);
             document.getElementById('modalTerms').checked = false;
         }
 
->>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
         function closeNominationModal() {
             nominationModal.classList.remove('active');
             document.body.style.overflow = 'auto';
         }
 
-<<<<<<< HEAD
-=======
         openNominationModalBtn.addEventListener('click', openNominationModal);
->>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
         nominationModalClose.addEventListener('click', closeNominationModal);
         nominationModalCancel.addEventListener('click', closeNominationModal);
         nominationModal.addEventListener('click', function(e) { if (e.target === nominationModal) closeNominationModal(); });
