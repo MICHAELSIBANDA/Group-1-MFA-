@@ -15,7 +15,7 @@ if ($conn->connect_error) {
 // Create database if it doesn't exist
 $dbname = $env['DB_NAME'];
 if ($conn->query("CREATE DATABASE IF NOT EXISTS `$dbname`") === TRUE) {
-    echo "Database '$dbname' ready or already exists.\n";
+    //echo "Database '$dbname' ready or already exists.\n";
 } else {
     die("Error creating database: " . $conn->error . "\n");
 }
@@ -34,7 +34,7 @@ $sqlNominees = "CREATE TABLE IF NOT EXISTS nominees (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
 if ($conn->query($sqlNominees) === TRUE) {
-    echo "Table 'nominees' ready or already exists.\n";
+    //echo "Table 'nominees' ready or already exists.\n";
 } else {
     die("Error creating nominees table: " . $conn->error . "\n");
 }
@@ -53,7 +53,7 @@ $sqlCategories = "CREATE TABLE IF NOT EXISTS categories (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
 if ($conn->query($sqlCategories) === TRUE) {
-    echo "Table 'categories' ready or already exists.\n";
+   // echo "Table 'categories' ready or already exists.\n";
 } else {
     die("Error creating categories table: " . $conn->error . "\n");
 }
