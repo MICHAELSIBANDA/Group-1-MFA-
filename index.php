@@ -209,7 +209,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- Favicon links for all browsers (Chrome, Safari, Android, iOS) -->
-    <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 
     <style>
         :root {
