@@ -204,13 +204,10 @@ unset($_SESSION['success'], $_SESSION['error']);
 <head>
     <meta charset="UTF-8">
     <title>MEF · Make Education Fashionable</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <meta name="description" content="Make Education Fashionable - A movement founded by Prof. Mamokgethi Phakeng to celebrate educational achievements and inspire the next generation of African leaders.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Favicon links for all browsers (Chrome, Safari, Android, iOS) -->
-    <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
-
     <style>
         :root {
             --primary-dark: #0a192f;
@@ -249,6 +246,13 @@ unset($_SESSION['success'], $_SESSION['error']);
             --radius-full: 9999px;
 
             --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            
+            /* Mobile breakpoints */
+            --mobile-sm: 320px;
+            --mobile-md: 375px;
+            --mobile-lg: 425px;
+            --tablet: 768px;
+            --laptop: 1024px;
         }
 
         * {
@@ -259,6 +263,7 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         html {
             scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -266,18 +271,26 @@ unset($_SESSION['success'], $_SESSION['error']);
             color: var(--text-light);
             line-height: 1.7;
             background: var(--primary-dark);
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
         }
 
-        a { color: inherit; text-decoration: none; }
+        a { 
+            color: inherit; 
+            text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
+        /* Mobile-first navbar */
         .fixed-nav {
             position: fixed;
             top: 0; left: 0;
             width: 100%;
-            background: rgba(10, 25, 47, 0.92);
+            background: rgba(10, 25, 47, 0.98);
             backdrop-filter: blur(12px);
             border-bottom: 2px solid var(--accent-gold);
-            padding: 1rem 3.5rem;
+            padding: 0.8rem 1rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -291,14 +304,15 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .fixed-nav.scrolled {
-            padding: 0.8rem 3.5rem;
+            padding: 0.5rem 1rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
 
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 1.6rem;
+            gap: 0.8rem;
+            flex: 1;
         }
 
         .logo-link {
@@ -309,7 +323,7 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         .logo {
             width: auto;
-            height: 100px;
+            height: 50px;
             object-fit: contain;
             border: none;
             border-radius: 0;
@@ -325,37 +339,64 @@ unset($_SESSION['success'], $_SESSION['error']);
         .brand-text {
             border: none;
             background: transparent;
+            flex: 1;
         }
         
         .brand-text .brand-main {
-            font-size: 1.5rem;
+            font-size: 1rem;
             font-weight: 800;
             color: #ffffff;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             line-height: 1.2;
-            white-space: nowrap; /* Prevent wrapping */
+            white-space: nowrap;
         }
         
         .brand-text .brand-sub {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
-            letter-spacing: 1.2px;
-            margin-top: 0.2rem;
+            letter-spacing: 0.8px;
+            margin-top: 0.1rem;
+        }
+
+        .menu-toggle {
+            display: block;
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            cursor: pointer;
+            z-index: 1001;
+            padding: 0.5rem;
         }
 
         .nav-links {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: var(--primary-dark);
+            flex-direction: column;
+            padding: 1.5rem;
+            gap: 1rem;
+            border-bottom: 2px solid var(--accent-gold);
+            box-shadow: var(--shadow-lg);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .nav-links.active {
             display: flex;
-            gap: 1.8rem;
         }
 
         .nav-links a {
             font-weight: 600;
-            padding: 0.7rem 1.6rem;
+            padding: 0.8rem 1.5rem;
             border-radius: var(--radius-full);
             background: rgba(255,255,255,0.06);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+            text-align: center;
+            font-size: 1.1rem;
         }
 
         .nav-links a::after {
@@ -378,13 +419,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             transform: translateY(-2px);
         }
 
-        .menu-toggle {
-            display: none;
-            font-size: 1.9rem;
-            color: var(--accent-gold);
-            cursor: pointer;
-        }
-
+        /* HOME section mobile optimized */
         #home {
             min-height: 100vh;
             position: relative;
@@ -392,7 +427,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 2rem;
+            padding: 6rem 1rem 2rem;
             overflow: hidden;
         }
 
@@ -418,6 +453,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             position: relative;
             z-index: 2;
             animation: fadeInUp 1.2s ease-out;
+            width: 100%;
         }
 
         @keyframes fadeInUp {
@@ -426,22 +462,24 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .home-content h1 {
-            font-size: 4.6rem;
+            font-size: 2.2rem;
             font-weight: 800;
-            margin-bottom: 1.6rem;
+            margin-bottom: 1.2rem;
             background: linear-gradient(135deg, var(--accent-gold), var(--accent-teal), var(--accent-purple));
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            min-height: 120px; /* Ensure space for typing animation */
+            min-height: 100px;
+            word-break: break-word;
+            line-height: 1.3;
         }
 
         /* Typing cursor animation */
         .typing-cursor {
             display: inline-block;
-            width: 4px;
-            margin-left: 5px;
+            width: 3px;
+            margin-left: 3px;
             background-color: var(--accent-gold);
             animation: blink 0.7s infinite;
         }
@@ -452,29 +490,33 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .home-content p {
-            font-size: 1.35rem;
+            font-size: 1rem;
             max-width: 720px;
-            margin: 0 auto 2.5rem;
+            margin: 0 auto 2rem;
             color: var(--text-light);
             opacity: 0.95;
+            padding: 0 0.5rem;
         }
 
         .home-buttons {
             display: flex;
-            gap: 1.8rem;
+            gap: 1rem;
             justify-content: center;
             flex-wrap: wrap;
+            padding: 0 0.5rem;
         }
 
         .btn {
-            padding: 1.1rem 2.8rem;
+            padding: 0.8rem 1.8rem;
             border-radius: var(--radius-full);
             font-weight: 700;
-            font-size: 1.15rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: var(--transition);
             box-shadow: var(--shadow-md);
             display: inline-block;
+            width: 100%;
+            max-width: 200px;
         }
 
         .btn-primary {
@@ -507,13 +549,21 @@ unset($_SESSION['success'], $_SESSION['error']);
             box-shadow: 0 20px 40px rgba(255,215,0,0.35);
         }
 
-        .section { padding: 7rem 3rem; }
-        .section-container { max-width: 1240px; margin: 0 auto; }
+        /* Section padding mobile optimized */
+        .section { 
+            padding: 4rem 1rem; 
+        }
+        
+        .section-container { 
+            max-width: 1240px; 
+            margin: 0 auto; 
+            width: 100%;
+        }
 
         .section-title {
             text-align: center;
-            font-size: 3rem;
-            margin-bottom: 4rem;
+            font-size: 2rem;
+            margin-bottom: 3rem;
             position: relative;
             display: inline-block;
             width: 100%;
@@ -522,20 +572,21 @@ unset($_SESSION['success'], $_SESSION['error']);
         .section-title:after {
             content: '';
             position: absolute;
-            bottom: -18px;
+            bottom: -15px;
             left: 50%;
             transform: translateX(-50%);
-            width: 140px;
-            height: 5px;
+            width: 100px;
+            height: 4px;
             background: linear-gradient(90deg, var(--accent-gold), var(--accent-teal), var(--accent-purple));
             border-radius: 3px;
         }
 
         .alert {
-            padding: 1rem 1.5rem;
+            padding: 1rem;
             border-radius: var(--radius-md);
             margin-bottom: 2rem;
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .alert-success {
@@ -552,23 +603,23 @@ unset($_SESSION['success'], $_SESSION['error']);
             background: rgba(255,255,255,0.04);
             backdrop-filter: blur(12px);
             border-radius: var(--radius-xl);
-            padding: 3.5rem;
+            padding: 2rem 1.5rem;
             border: 1px solid rgba(255,215,0,0.14);
             box-shadow: var(--shadow-xl);
         }
 
         .about-text p {
             color: var(--text-muted);
-            font-size: 1.15rem;
-            margin-bottom: 1.6rem;
+            font-size: 1rem;
+            margin-bottom: 1.4rem;
         }
 
         .about-text strong { color: var(--accent-gold); }
 
         .about-text h3 {
             color: var(--accent-teal);
-            font-size: 1.8rem;
-            margin: 2rem 0 1rem;
+            font-size: 1.6rem;
+            margin: 1.8rem 0 1rem;
         }
 
         .about-text ul {
@@ -577,10 +628,11 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .about-text li {
-            margin: 1rem 0;
-            padding-left: 2rem;
+            margin: 0.8rem 0;
+            padding-left: 1.8rem;
             position: relative;
             color: var(--text-muted);
+            font-size: 0.95rem;
         }
 
         .about-text li:before {
@@ -591,7 +643,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             font-weight: bold;
         }
 
-        /* Highlighted hashtag styling - same as Campaign Impact (accent-teal) */
+        /* Highlighted hashtag styling */
         .highlight-hashtag {
             color: var(--accent-teal);
             font-weight: 600;
@@ -600,6 +652,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             border-radius: var(--radius-sm);
             display: inline-block;
             transition: var(--transition);
+            font-size: 0.95rem;
         }
 
         .highlight-hashtag:hover {
@@ -610,11 +663,12 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         .highlight-box {
             background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(45,212,191,0.12));
-            padding: 2.2rem;
+            padding: 1.5rem;
             border-radius: var(--radius-lg);
-            margin: 2.5rem 0;
+            margin: 2rem 0;
             border-left: 5px solid var(--accent-gold);
             font-style: italic;
+            font-size: 0.95rem;
         }
 
         #services {
@@ -628,8 +682,8 @@ unset($_SESSION['success'], $_SESSION['error']);
             position: absolute;
             top: -20%;
             right: -10%;
-            width: 600px;
-            height: 600px;
+            width: 300px;
+            height: 300px;
             background: radial-gradient(circle, rgba(45,212,191,0.1) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
@@ -640,8 +694,8 @@ unset($_SESSION['success'], $_SESSION['error']);
             position: absolute;
             bottom: -20%;
             left: -10%;
-            width: 600px;
-            height: 600px;
+            width: 300px;
+            height: 300px;
             background: radial-gradient(circle, rgba(167,139,250,0.1) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
@@ -650,32 +704,33 @@ unset($_SESSION['success'], $_SESSION['error']);
         .services-intro {
             text-align: center;
             max-width: 800px;
-            margin: 0 auto 4rem;
+            margin: 0 auto 3rem;
         }
 
         .services-intro h3 {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             color: var(--accent-gold);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
 
         .services-intro p {
             color: var(--text-muted);
-            font-size: 1.2rem;
+            font-size: 1rem;
+            padding: 0 0.5rem;
         }
 
         .founder-showcase {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            margin-bottom: 5rem;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 4rem;
             align-items: center;
         }
 
         .founder-image-frame {
             position: relative;
             width: 100%;
-            max-height: 500px;
+            max-height: 400px;
             border-radius: 20px;
             overflow: hidden;
             border: 5px solid var(--accent-gold);
@@ -693,7 +748,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         .founder-image-frame img {
             width: 100%;
             height: auto;
-            max-height: 500px;
+            max-height: 400px;
             object-fit: contain;
             transition: var(--transition);
             display: block;
@@ -707,7 +762,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(10px);
             border-radius: var(--radius-xl);
-            padding: 3rem;
+            padding: 2rem 1.5rem;
             border: 1px solid rgba(255,215,0,0.15);
             box-shadow: var(--shadow-xl);
             transition: var(--transition);
@@ -721,16 +776,16 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .founder-icon {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             background: linear-gradient(135deg, var(--accent-gold), var(--accent-coral));
             border-radius: var(--radius-lg);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             color: var(--primary-dark);
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             transition: var(--transition);
         }
 
@@ -739,23 +794,23 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .founder-content h4 {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             color: var(--accent-gold);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
 
         .founder-content p {
             color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            line-height: 1.8;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
         }
 
         .founder-quote {
             font-style: italic;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--accent-teal-light);
-            padding: 1.5rem;
+            padding: 1.2rem;
             border-left: 4px solid var(--accent-gold);
             background: rgba(255,255,255,0.02);
             border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
@@ -763,13 +818,13 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         .categories-title {
             text-align: center;
-            margin: 5rem 0 3rem;
+            margin: 4rem 0 2.5rem;
         }
 
         .categories-title h3 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: var(--accent-gold);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             position: relative;
             display: inline-block;
         }
@@ -777,25 +832,25 @@ unset($_SESSION['success'], $_SESSION['error']);
         .categories-title h3:after {
             content: '';
             position: absolute;
-            bottom: -10px;
+            bottom: -8px;
             left: 25%;
             width: 50%;
-            height: 4px;
+            height: 3px;
             background: linear-gradient(90deg, var(--accent-teal), var(--accent-purple));
             border-radius: 2px;
         }
 
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2.5rem;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
         }
 
         .category-card {
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(12px);
             border-radius: var(--radius-lg);
-            padding: 2.5rem 2rem;
+            padding: 2rem 1.5rem;
             border: 1px solid rgba(255,255,255,0.05);
             transition: var(--transition);
             position: relative;
@@ -822,20 +877,20 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .category-card:hover {
-            transform: translateY(-15px) scale(1.02);
+            transform: translateY(-10px) scale(1.02);
             border-color: var(--accent-gold);
             box-shadow: 0 30px 50px rgba(0,0,0,0.4);
         }
 
         .category-icon-wrapper {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: rgba(255,255,255,0.05);
             border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 1.8rem;
+            margin-bottom: 1.5rem;
             transition: var(--transition);
             pointer-events: none;
         }
@@ -847,14 +902,14 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .category-icon {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: white;
             transition: var(--transition);
             pointer-events: none;
@@ -867,16 +922,17 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .category-card h4 {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: var(--accent-gold);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             pointer-events: none;
         }
 
         .category-card p {
             color: var(--text-muted);
-            margin-bottom: 1.5rem;
-            line-height: 1.7;
+            margin-bottom: 1.2rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
             pointer-events: none;
         }
 
@@ -884,9 +940,9 @@ unset($_SESSION['success'], $_SESSION['error']);
             display: inline-block;
             background: rgba(255,215,0,0.1);
             color: var(--accent-gold-light);
-            padding: 0.4rem 1.2rem;
+            padding: 0.3rem 1rem;
             border-radius: var(--radius-full);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             border: 1px solid rgba(255,215,0,0.3);
             transition: var(--transition);
             pointer-events: none;
@@ -902,7 +958,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(45,212,191,0.15));
             backdrop-filter: blur(12px);
             border-radius: var(--radius-lg);
-            padding: 3rem 2rem;
+            padding: 2.5rem 1.5rem;
             border: 2px solid var(--accent-gold);
             box-shadow: var(--shadow-xl);
             text-align: center;
@@ -910,7 +966,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
-            grid-column: span 2;
+            grid-column: span 1;
         }
 
         .nomination-card:hover {
@@ -931,39 +987,40 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .nomination-icon {
-            font-size: 3.5rem;
+            font-size: 3rem;
             color: var(--accent-gold);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
 
         .nomination-card h3 {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             color: var(--accent-gold);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
 
         .nomination-card p {
             color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            line-height: 1.6;
         }
 
         .nomination-card .nomination-btn {
             background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
             color: var(--primary-dark);
             border: none;
-            padding: 1rem 2.5rem;
+            padding: 0.8rem 2rem;
             border-radius: var(--radius-full);
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: var(--transition);
             display: inline-flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.6rem;
         }
 
         .nomination-card .nomination-btn:hover {
@@ -985,7 +1042,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             backdrop-filter: blur(8px);
             z-index: 2000;
             display: none;
@@ -993,6 +1050,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             align-items: center;
             opacity: 0;
             transition: opacity 0.3s ease;
+            padding: 1rem;
         }
         
         .modal-overlay.active {
@@ -1002,10 +1060,10 @@ unset($_SESSION['success'], $_SESSION['error']);
         
         .modal-content {
             background: var(--primary-light);
-            max-width: 700px;
-            width: 90%;
+            max-width: 600px;
+            width: 100%;
             border-radius: var(--radius-lg);
-            padding: 2.5rem;
+            padding: 1.8rem 1.5rem;
             border: 2px solid var(--accent-gold);
             box-shadow: var(--shadow-xl);
             position: relative;
@@ -1021,12 +1079,13 @@ unset($_SESSION['success'], $_SESSION['error']);
         
         .modal-close {
             position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 2rem;
+            top: 0.8rem;
+            right: 1rem;
+            font-size: 1.8rem;
             color: var(--text-muted);
             cursor: pointer;
             transition: var(--transition);
+            z-index: 10;
         }
         
         .modal-close:hover {
@@ -1035,20 +1094,20 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
         
         .modal-title {
-            font-size: 2rem;
+            font-size: 1.6rem;
             color: var(--accent-gold);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
             padding-right: 2rem;
         }
         
         .modal-section {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
         
         .modal-section h4 {
             color: var(--accent-teal);
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
         }
         
         .modal-section ul {
@@ -1056,10 +1115,11 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
         
         .modal-section li {
-            margin: 0.8rem 0;
-            padding-left: 2rem;
+            margin: 0.6rem 0;
+            padding-left: 1.8rem;
             position: relative;
             color: var(--text-muted);
+            font-size: 0.95rem;
         }
         
         .modal-section li:before {
@@ -1068,26 +1128,26 @@ unset($_SESSION['success'], $_SESSION['error']);
             position: absolute;
             left: 0;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
         
         .modal-buttons {
             display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
             flex-wrap: wrap;
         }
         
         .modal-btn {
             flex: 1;
-            padding: 1rem;
+            padding: 0.8rem;
             border-radius: var(--radius-full);
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
             transition: var(--transition);
             text-align: center;
-            min-width: 150px;
+            min-width: 120px;
         }
         
         .modal-btn-primary {
@@ -1113,25 +1173,25 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .application-form {
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             border-top: 1px solid rgba(255,215,0,0.3);
-            padding-top: 2rem;
+            padding-top: 1.5rem;
         }
         
         .application-form h4 {
             color: var(--accent-gold);
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            margin-bottom: 1.2rem;
         }
         
         .application-form .form-group {
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
         }
         
         .application-form .form-group label {
             display: block;
             color: var(--text-muted);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             font-size: 0.9rem;
             font-weight: 600;
         }
@@ -1140,12 +1200,12 @@ unset($_SESSION['success'], $_SESSION['error']);
         .application-form .form-group select,
         .application-form .form-group textarea {
             width: 100%;
-            padding: 0.8rem 1rem;
+            padding: 0.7rem;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,215,0,0.3);
             border-radius: var(--radius-md);
             color: var(--text-light);
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: var(--transition);
         }
         
@@ -1169,21 +1229,21 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
         
         .application-form .form-group textarea {
-            min-height: 100px;
+            min-height: 80px;
             resize: vertical;
         }
         
         .application-form .form-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
         }
         
         .application-form .checkbox-group {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin: 1rem 0;
+            margin: 0.8rem 0;
         }
         
         .application-form .checkbox-group input {
@@ -1193,27 +1253,30 @@ unset($_SESSION['success'], $_SESSION['error']);
         .application-form .checkbox-group label {
             margin-bottom: 0;
             font-weight: normal;
+            font-size: 0.9rem;
         }
 
         .application-success {
             text-align: center;
-            padding: 2rem;
+            padding: 1.5rem;
         }
         
         .application-success i {
-            font-size: 4rem;
+            font-size: 3rem;
             color: var(--accent-teal);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
         
         .application-success h3 {
             color: var(--accent-gold);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.4rem;
         }
         
         .application-success p {
             color: var(--text-muted);
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
         }
 
         .linkedin-input {
@@ -1223,14 +1286,16 @@ unset($_SESSION['success'], $_SESSION['error']);
             border: 1px solid rgba(255,215,0,0.3);
             border-radius: var(--radius-md);
             overflow: hidden;
+            flex-wrap: wrap;
         }
 
         .linkedin-input span {
-            padding: 0.8rem 1rem;
+            padding: 0.7rem;
             background: rgba(255,215,0,0.1);
             color: var(--accent-gold);
             border-right: 1px solid rgba(255,215,0,0.3);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
 
         .linkedin-input input {
@@ -1238,6 +1303,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             border-radius: 0;
             background: transparent;
             flex: 1;
+            min-width: 120px;
         }
 
         .linkedin-input input:focus {
@@ -1251,21 +1317,21 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         .testimonials-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
         }
 
         .testimonial-card {
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(12px);
-            padding: 2.4rem;
+            padding: 1.8rem 1.5rem;
             border-radius: var(--radius-lg);
             border: 1px solid rgba(251,113,133,0.25);
             transition: var(--transition);
         }
 
         .testimonial-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-8px);
             border-color: var(--accent-coral);
             box-shadow: var(--shadow-lg);
         }
@@ -1273,34 +1339,44 @@ unset($_SESSION['success'], $_SESSION['error']);
         .testimonial-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
-        .stars { color: var(--accent-gold); font-size: 1.4rem; }
+        .stars { 
+            color: var(--accent-gold); 
+            font-size: 1.2rem; 
+        }
 
-        .date { color: var(--text-muted); font-size: 0.9rem; }
+        .date { 
+            color: var(--text-muted); 
+            font-size: 0.85rem; 
+        }
 
         .testimonial-message {
             font-style: italic;
-            margin: 1.5rem 0;
-            line-height: 1.8;
+            margin: 1.2rem 0;
+            line-height: 1.7;
+            font-size: 0.95rem;
         }
 
         .testimonial-author {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.8rem;
         }
 
         .author-avatar {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: var(--accent-coral);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            font-size: 1.1rem;
         }
 
         #contact {
@@ -1309,56 +1385,64 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         .contact-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 3.5rem;
+            grid-template-columns: 1fr;
+            gap: 2rem;
         }
 
         .contact-info, .contact-form {
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(12px);
-            padding: 2.5rem;
+            padding: 2rem 1.5rem;
             border-radius: var(--radius-lg);
             border: 1px solid rgba(167,139,250,0.3);
         }
 
-        .contact-info h3 { color: var(--accent-purple); margin-bottom: 2rem; }
+        .contact-info h3 { 
+            color: var(--accent-purple); 
+            margin-bottom: 1.5rem; 
+            font-size: 1.4rem;
+        }
 
         .info-item {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
             color: var(--text-muted);
+            font-size: 0.95rem;
+            flex-wrap: wrap;
         }
 
         .info-item i {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             background: rgba(167,139,250,0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--accent-purple);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
         }
 
         .social-links {
             display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         .social-link {
-            width: 58px;
-            height: 58px;
+            width: 48px;
+            height: 48px;
             background: rgba(255,255,255,0.08);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.7rem;
+            font-size: 1.4rem;
             transition: var(--transition);
             border: 1px solid rgba(255,255,255,0.15);
         }
@@ -1366,23 +1450,23 @@ unset($_SESSION['success'], $_SESSION['error']);
         .social-link:hover {
             background: var(--accent-gold);
             color: var(--primary-dark);
-            transform: translateY(-8px) scale(1.15);
+            transform: translateY(-6px) scale(1.15);
             box-shadow: 0 15px 30px rgba(255,215,0,0.35);
         }
 
         .contact-form .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
 
         .contact-form .form-group input,
         .contact-form .form-group textarea {
             width: 100%;
-            padding: 1rem;
+            padding: 0.8rem;
             background: rgba(255,255,255,0.1);
             border: 2px solid transparent;
             border-radius: var(--radius-md);
             color: var(--text-light);
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.3s;
         }
 
@@ -1393,16 +1477,19 @@ unset($_SESSION['success'], $_SESSION['error']);
             background: rgba(255,255,255,0.15);
         }
 
-        .contact-form .form-group textarea { min-height: 150px; resize: vertical; }
+        .contact-form .form-group textarea { 
+            min-height: 120px; 
+            resize: vertical; 
+        }
 
         .submit-btn {
             width: 100%;
-            padding: 1rem;
+            padding: 0.8rem;
             background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
             border: none;
             border-radius: var(--radius-md);
             color: white;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
@@ -1415,7 +1502,7 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         footer {
             background: var(--primary-dark);
-            padding: 4rem 2rem 2rem;
+            padding: 3rem 1rem 1.5rem;
             border-top: 4px solid var(--accent-gold);
             color: var(--text-muted);
         }
@@ -1427,10 +1514,10 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         .footer-main {
             display: grid;
-            grid-template-columns: 2fr 1fr 1.5fr;
-            gap: 3rem;
-            margin-bottom: 3rem;
-            padding-bottom: 2rem;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
             border-bottom: 1px solid rgba(255,215,0,0.15);
         }
 
@@ -1439,9 +1526,9 @@ unset($_SESSION['success'], $_SESSION['error']);
         .footer-social h4 {
             color: var(--accent-gold);
             font-size: 1.3rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
             position: relative;
-            padding-bottom: 0.8rem;
+            padding-bottom: 0.6rem;
         }
 
         .footer-about h4:after,
@@ -1451,7 +1538,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             position: absolute;
             bottom: 0;
             left: 0;
-            width: 50px;
+            width: 40px;
             height: 3px;
             background: linear-gradient(90deg, var(--accent-gold), var(--accent-teal));
             border-radius: 2px;
@@ -1459,9 +1546,9 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         .footer-about p {
             color: var(--text-muted);
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
         }
 
         .footer-about .brand-small {
@@ -1472,7 +1559,7 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         .footer-about .brand-small i {
             color: var(--accent-gold);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
         .footer-about .brand-small span {
@@ -1488,7 +1575,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .footer-quick li {
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
 
         .footer-quick a {
@@ -1497,15 +1584,16 @@ unset($_SESSION['success'], $_SESSION['error']);
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 0.9rem;
         }
 
         .footer-quick a:hover {
             color: var(--accent-gold);
-            transform: translateX(8px);
+            transform: translateX(5px);
         }
 
         .footer-quick a i {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             opacity: 0;
             transition: var(--transition);
         }
@@ -1518,31 +1606,32 @@ unset($_SESSION['success'], $_SESSION['error']);
         .footer-social-grid {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.8rem;
         }
 
         .footer-social-item {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.8rem;
             color: var(--text-muted);
             transition: var(--transition);
+            font-size: 0.9rem;
         }
 
         .footer-social-item:hover {
             color: var(--accent-gold);
-            transform: translateX(8px);
+            transform: translateX(5px);
         }
 
         .footer-social-item i {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             background: rgba(255,255,255,0.05);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             transition: var(--transition);
         }
 
@@ -1554,16 +1643,19 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         .footer-bottom {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 2rem;
-            font-size: 0.9rem;
+            flex-direction: column;
+            gap: 0.8rem;
+            padding-top: 1.2rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
+            text-align: center;
         }
 
         .footer-bottom-links {
             display: flex;
-            gap: 2rem;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .footer-bottom-links a {
@@ -1575,52 +1667,13 @@ unset($_SESSION['success'], $_SESSION['error']);
             color: var(--accent-gold);
         }
 
-        @media (max-width: 968px) {
-            .contact-grid { grid-template-columns: 1fr; }
-            .home-content h1 { font-size: 3.6rem; }
-            .founder-showcase { grid-template-columns: 1fr; }
-            .founder-image-frame { height: auto; }
-            .footer-main { grid-template-columns: 1fr; gap: 2rem; }
-            .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .fixed-nav { padding: 1rem 1.5rem; }
-            .menu-toggle { display: block; }
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background: var(--primary-dark);
-                flex-direction: column;
-                padding: 1.5rem;
-            }
-            .nav-links.active { display: flex; }
-            .section { padding: 5rem 1.5rem; }
-            .home-content h1 { font-size: 2.8rem; }
-            .home-buttons { flex-direction: column; gap: 1.2rem; }
-            .footer-bottom-links { flex-wrap: wrap; justify-content: center; }
-            .modal-content {
-                padding: 1.5rem;
-                width: 95%;
-            }
-            .modal-buttons {
-                flex-direction: column;
-            }
-        }
-
-        /* ===== Nomination Form Styling - MODIFIED for modal ===== */
+        /* ===== Nomination Form Styling ===== */
         .nomination-form-section {
             background: var(--primary-navy);
-            padding: 3rem 2rem;
+            padding: 2rem 1rem;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
-            margin: 3rem 0;
+            margin: 2.5rem 0;
             max-width: 900px;
             margin-left: auto;
             margin-right: auto;
@@ -1629,17 +1682,18 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .nomination-form-section h3 {
-            font-size: 2rem;
+            font-size: 1.6rem;
             color: var(--accent-gold);
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
 
         .nomination-form-section p {
             text-align: center;
             color: var(--text-muted);
-            font-size: 1rem;
-            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            padding: 0 0.5rem;
         }
 
         .btn-gold {
@@ -1647,12 +1701,13 @@ unset($_SESSION['success'], $_SESSION['error']);
             background: var(--accent-gold);
             color: var(--primary-dark);
             font-weight: 600;
-            padding: 0.8rem 2rem;
+            padding: 0.7rem 1.5rem;
             border-radius: var(--radius-full);
             margin: 0 auto;
             border: none;
             cursor: pointer;
             transition: var(--transition);
+            font-size: 0.95rem;
         }
 
         .btn-gold:hover {
@@ -1662,23 +1717,241 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         /* Remove the old inline form styling since we're using modal now */
         .nomination-form-section .nomination-form {
-            display: none !important; /* Hide the inline form */
+            display: none !important;
         }
 
-        /* Nomination modal specific styling */
-        #nominationModalContent .modal-title {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            .fixed-nav {
+                padding: 1rem 2rem;
+            }
+            
+            .nav-left {
+                gap: 1.2rem;
+            }
+            
+            .logo {
+                height: 70px;
+            }
+            
+            .brand-text .brand-main {
+                font-size: 1.3rem;
+            }
+            
+            .brand-text .brand-sub {
+                font-size: 0.8rem;
+            }
+            
+            .menu-toggle {
+                display: none;
+            }
+            
+            .nav-links {
+                display: flex;
+                position: static;
+                flex-direction: row;
+                background: transparent;
+                padding: 0;
+                gap: 0.8rem;
+                border-bottom: none;
+                box-shadow: none;
+                max-height: none;
+                overflow: visible;
+                width: auto;
+            }
+            
+            .nav-links a {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.95rem;
+            }
+            
+            .home-content h1 {
+                font-size: 3rem;
+            }
+            
+            .home-content p {
+                font-size: 1.1rem;
+            }
+            
+            .btn {
+                max-width: 180px;
+            }
+            
+            .section {
+                padding: 5rem 2rem;
+            }
+            
+            .section-title {
+                font-size: 2.4rem;
+            }
+            
+            .about-content {
+                padding: 2.5rem;
+            }
+            
+            .founder-showcase {
+                grid-template-columns: 1fr 1fr;
+                gap: 3rem;
+            }
+            
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .testimonials-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-main {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .application-form .form-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Laptop Styles */
+        @media (min-width: 1024px) {
+            .fixed-nav {
+                padding: 1rem 3.5rem;
+            }
+            
+            .nav-links {
+                gap: 1.5rem;
+            }
+            
+            .nav-links a {
+                padding: 0.7rem 1.6rem;
+                font-size: 1rem;
+            }
+            
+            .home-content h1 {
+                font-size: 4rem;
+            }
+            
+            .home-content p {
+                font-size: 1.2rem;
+            }
+            
+            .section {
+                padding: 6rem 3rem;
+            }
+            
+            .section-title {
+                font-size: 2.8rem;
+            }
+            
+            .categories-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2rem;
+            }
+            
+            .nomination-card {
+                grid-column: span 2;
+            }
+            
+            .testimonials-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .contact-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+            
+            .footer-main {
+                grid-template-columns: 2fr 1fr 1.5fr;
+            }
+        }
+
+        /* Large Desktop Styles */
+        @media (min-width: 1280px) {
+            .home-content h1 {
+                font-size: 4.6rem;
+            }
+            
+            .categories-grid {
+                gap: 2.5rem;
+            }
+        }
+
+        /* Mobile Landscape */
+        @media (max-width: 768px) and (orientation: landscape) {
+            #home {
+                min-height: auto;
+                padding: 7rem 1rem 3rem;
+            }
+            
+            .home-content h1 {
+                font-size: 2.5rem;
+                min-height: 80px;
+            }
+            
+            .modal-content {
+                max-height: 80vh;
+            }
+        }
+
+        /* Small Mobile Devices */
+        @media (max-width: 375px) {
+            .home-content h1 {
+                font-size: 1.8rem;
+                min-height: 80px;
+            }
+            
+            .btn {
+                max-width: 100%;
+            }
+            
+            .home-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .modal-content {
+                padding: 1.5rem 1rem;
+            }
+            
+            .modal-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        button, 
+        .btn, 
+        .nav-links a,
+        .social-link,
+        .modal-btn,
+        .submit-btn,
+        .btn-gold,
+        .category-card,
+        .nomination-card {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
         
-        #nominationModalContent .modal-section {
-            margin-bottom: 1.5rem;
+        button:focus,
+        .btn:focus,
+        .nav-links a:focus,
+        .modal-btn:focus,
+        .submit-btn:focus {
+            outline: none;
         }
         
-        #nominationModalContent .application-form {
-            margin-top: 0;
-            border-top: none;
-            padding-top: 0;
+        /* Prevent text overflow */
+        h1, h2, h3, h4, p, li, a, span {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Smooth scrolling for iOS */
+        .modal-content {
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
@@ -1793,6 +2066,11 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <div class="checkbox-group">
                             <input type="checkbox" id="terms" name="terms" required>
                             <label for="terms">I confirm that all information provided is true and complete *</label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="notifications" name="notifications">
+                            <label for="notifications">I would like to receive updates about MEF events and opportunities</label>
                         </div>
                         
                         <div class="modal-buttons">
@@ -1985,7 +2263,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <p>MEF provides platforms for recognition, inspiration, and connection through our awards and nomination services.</p>
                 </div>
 
-                <!-- Founder Showcase (image fixed) -->
+                <!-- Founder Showcase -->
                 <div class="founder-showcase">
                     <div class="founder-image-frame">
                         <img src="founder.jpeg" alt="Prof. Mamokgethi Phakeng - Founder of MEF">
@@ -1997,16 +2275,16 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <div class="founder-quote">
                             "Every story of victory deserves to be celebrated. Through MEF, we shine a light on those who have transformed their lives through education."
                         </div>
-                        <ul class="showcase-features" style="list-style: none; margin: 2rem 0;">
-                            <li style="margin: 1rem 0; padding-left: 2rem; position: relative; color: var(--text-muted);"><span style="content: '✓'; color: var(--accent-teal); position: absolute; left: 0; font-weight: bold; font-size: 1.3rem;">✓</span>5 prestigious award categories</li>
-                            <li style="margin: 1rem 0; padding-left: 2rem; position: relative; color: var(--text-muted);"><span style="content: '✓'; color: var(--accent-teal); position: absolute; left: 0; font-weight: bold; font-size: 1.3rem;">✓</span>Open nominations across the continent</li>
-                            <li style="margin: 1rem 0; padding-left: 2rem; position: relative; color: var(--text-muted);"><span style="content: '✓'; color: var(--accent-teal); position: absolute; left: 0; font-weight: bold; font-size: 1.3rem;">✓</span>Independent judging panel</li>
-                            <li style="margin: 1rem 0; padding-left: 2rem; position: relative; color: var(--text-muted);"><span style="content: '✓'; color: var(--accent-teal); position: absolute; left: 0; font-weight: bold; font-size: 1.3rem;">✓</span>Recognition ceremony and media coverage</li>
+                        <ul class="showcase-features" style="list-style: none; margin: 1.5rem 0;">
+                            <li style="margin: 0.8rem 0; padding-left: 2rem; position: relative; color: var(--text-muted); font-size: 0.95rem;"><span style="content: '✓'; color: var(--accent-teal); position: absolute; left: 0; font-weight: bold; font-size: 1.2rem;">✓</span>5 prestigious award categories</li>
+                            <li style="margin: 0.8rem 0; padding-left: 2rem; position: relative; color: var(--text-muted); font-size: 0.95rem;"><span style="content: '✓'; color: var(--accent-teal); position: absolute; left: 0; font-weight: bold; font-size: 1.2rem;">✓</span>Open nominations across the continent</li>
+                            <li style="margin: 0.8rem 0; padding-left: 2rem; position: relative; color: var(--text-muted); font-size: 0.95rem;"><span style="content: '✓'; color: var(--accent-teal); position: absolute; left: 0; font-weight: bold; font-size: 1.2rem;">✓</span>Independent judging panel</li>
+                            <li style="margin: 0.8rem 0; padding-left: 2rem; position: relative; color: var(--text-muted); font-size: 0.95rem;"><span style="content: '✓'; color: var(--accent-teal); position: absolute; left: 0; font-weight: bold; font-size: 1.2rem;">✓</span>Recognition ceremony and media coverage</li>
                         </ul>
-                        <div class="showcase-stats" style="display: flex; gap: 2rem; margin-top: 2rem;">
-                            <div class="stat-item" style="text-align: center;"><div class="stat-number" style="font-size: 2.5rem; font-weight: 800; color: var(--accent-gold); line-height: 1;">100+</div><div class="stat-label" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Nominees</div></div>
-                            <div class="stat-item" style="text-align: center;"><div class="stat-number" style="font-size: 2.5rem; font-weight: 800; color: var(--accent-gold); line-height: 1;">15</div><div class="stat-label" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Winners</div></div>
-                            <div class="stat-item" style="text-align: center;"><div class="stat-number" style="font-size: 2.5rem; font-weight: 800; color: var(--accent-gold); line-height: 1;">4</div><div class="stat-label" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Countries</div></div>
+                        <div class="showcase-stats" style="display: flex; gap: 1.5rem; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center;">
+                            <div class="stat-item" style="text-align: center;"><div class="stat-number" style="font-size: 2rem; font-weight: 800; color: var(--accent-gold); line-height: 1;">100+</div><div class="stat-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Nominees</div></div>
+                            <div class="stat-item" style="text-align: center;"><div class="stat-number" style="font-size: 2rem; font-weight: 800; color: var(--accent-gold); line-height: 1;">15</div><div class="stat-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Winners</div></div>
+                            <div class="stat-item" style="text-align: center;"><div class="stat-number" style="font-size: 2rem; font-weight: 800; color: var(--accent-gold); line-height: 1;">4</div><div class="stat-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Countries</div></div>
                         </div>
                     </div>
                 </div>
@@ -2014,7 +2292,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <!-- Award Categories Title -->
                 <div class="categories-title">
                     <h3>Award Categories & Events</h3>
-                    <p>Click on any category to view requirements and apply</p>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Click on any category to view requirements and apply</p>
                 </div>
 
                 <!-- 6 BOXES (5 award categories + 1 convocation card) -->
@@ -2061,9 +2339,9 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <p>Join the flagship event celebrating educational achievements. Network with leaders, share stories, and be inspired.</p>
                         <span class="category-tag">Get Tickets</span>
                     </div>
-                </div>
+               
 
-               <!-- Standalone Nomination Button (MODIFIED - now opens modal) -->
+               <!-- Standalone Nomination Button (opens modal) -->
                 <div class="nomination-form-section" id="nominationForm">
                     <h3>Nominate Yourself or Someone Else</h3>
                     <p>Every story of victory deserves to be celebrated. Click the button below to submit a nomination.</p>
@@ -2084,17 +2362,17 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <div class="testimonial-card">
                         <div class="testimonial-header"><div class="stars">★★★★★</div><div class="date">Dec 2025</div></div>
                         <p class="testimonial-message">“MEF gave my story a platform — I went from feeling invisible to inspiring thousands. Thank you for making education fashionable again!”</p>
-                        <div class="testimonial-author"><div class="author-avatar">N</div><div><div style="font-weight:600;">Nomfundo</div><div style="color:var(--text-muted);font-size:0.9rem;">BCom Graduate • Johannesburg</div></div></div>
+                        <div class="testimonial-author"><div class="author-avatar">N</div><div><div style="font-weight:600;">Nomfundo</div><div style="color:var(--text-muted);font-size:0.85rem;">BCom Graduate • Johannesburg</div></div></div>
                     </div>
                     <div class="testimonial-card">
                         <div class="testimonial-header"><div class="stars">★★★★★</div><div class="date">Nov 2025</div></div>
                         <p class="testimonial-message">“After sharing my journey in agriculture, I connected with investors. MEF truly changes lives.”</p>
-                        <div class="testimonial-author"><div class="author-avatar">T</div><div><div style="font-weight:600;">Thabo</div><div style="color:var(--text-muted);font-size:0.9rem;">BSc Agric • Limpopo</div></div></div>
+                        <div class="testimonial-author"><div class="author-avatar">T</div><div><div style="font-weight:600;">Thabo</div><div style="color:var(--text-muted);font-size:0.85rem;">BSc Agric • Limpopo</div></div></div>
                     </div>
                     <div class="testimonial-card">
                         <div class="testimonial-header"><div class="stars">★★★★★</div><div class="date">Oct 2025</div></div>
                         <p class="testimonial-message">“Winning the Young Entrepreneur Award opened doors I never imagined. MEF is truly life-changing.”</p>
-                        <div class="testimonial-author"><div class="author-avatar">K</div><div><div style="font-weight:600;">Kabelo</div><div style="color:var(--text-muted);font-size:0.9rem;">Tech Founder • Cape Town</div></div></div>
+                        <div class="testimonial-author"><div class="author-avatar">K</div><div><div style="font-weight:600;">Kabelo</div><div style="color:var(--text-muted);font-size:0.85rem;">Tech Founder • Cape Town</div></div></div>
                     </div>
                 </div>
             </div>
@@ -2107,7 +2385,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <div class="contact-grid">
                     <div class="contact-info">
                         <h3>Connect With Us</h3>
-                        <div class="info-item"><i class="fas fa-envelope"></i><div><div style="font-weight:600;color:var(--accent-purple);">Email</div><div>pngnkosi@gmail.com</div><div>kgethi@perspicuty.africa</div></div></div>
+                        <div class="info-item"><i class="fas fa-envelope"></i><div><div style="font-weight:600;color:var(--accent-purple);">Email</div><div style="font-size:0.9rem;">pngnkosi@gmail.com</div><div style="font-size:0.9rem;">kgethi@perspicuty.africa</div></div></div>
                         <div class="social-links">
                             <a href="https://www.tiktok.com/@fabacademic" target="_blank" class="social-link"><i class="fab fa-tiktok"></i></a>
                             <a href="https://twitter.com/fabacademic" target="_blank" class="social-link"><i class="fab fa-twitter"></i></a>
@@ -2150,37 +2428,32 @@ unset($_SESSION['success'], $_SESSION['error']);
         let headingIndex = 0;
         let isDeleting = false;
         const headingElement = document.getElementById("typingHeading");
-        const typingSpeed = 100; // Speed of typing in ms
-        const deletingSpeed = 50; // Speed of deleting in ms
-        const pauseTime = 2000; // Pause time when complete (2 seconds)
+        const typingSpeed = 100;
+        const deletingSpeed = 50;
+        const pauseTime = 2000;
         
         function typeHeadingEffect() {
-            const currentText = headingElement.innerHTML.replace('<span class="typing-cursor"></span>', '');
+            if (!headingElement) return;
             
             if (!isDeleting && headingIndex <= headingSentence.length) {
-                // Typing
                 headingElement.innerHTML = headingSentence.substring(0, headingIndex) + '<span class="typing-cursor"></span>';
                 headingIndex++;
                 
                 if (headingIndex > headingSentence.length) {
-                    // Finished typing, pause then start deleting
                     isDeleting = true;
                     setTimeout(typeHeadingEffect, pauseTime);
                     return;
                 }
             } else if (isDeleting && headingIndex >= 0) {
-                // Deleting
                 headingElement.innerHTML = headingSentence.substring(0, headingIndex) + '<span class="typing-cursor"></span>';
                 headingIndex--;
                 
                 if (headingIndex < 0) {
-                    // Finished deleting, start typing again
                     isDeleting = false;
                     headingIndex = 0;
                 }
             }
             
-            // Set next timeout
             const nextDelay = isDeleting ? deletingSpeed : typingSpeed;
             setTimeout(typeHeadingEffect, nextDelay);
         }
@@ -2189,6 +2462,84 @@ unset($_SESSION['success'], $_SESSION['error']);
         window.onload = function() {
             typeHeadingEffect();
         };
+
+        // Mobile menu toggle
+        document.querySelector('.menu-toggle').addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelector('.nav-links').classList.remove('active');
+            });
+        });
+
+        // Smooth scroll + active link
+        document.querySelectorAll('.nav-links a, .logo-link').forEach(link => {
+            link.addEventListener('click', e => {
+                const href = link.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    if (!link.classList.contains('logo-link')) {
+                        document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                    
+                    const target = document.querySelector(href);
+                    if (target) {
+                        const offset = 80; // Adjust for fixed navbar
+                        const targetPosition = target.offsetTop - offset;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Navbar hide/show on scroll
+        let lastScrollTop = 0;
+        const navbar = document.querySelector('.fixed-nav');
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Add/remove scrolled class for padding change
+            if (scrollTop > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            // Hide navbar when scrolling down, show when scrolling up (mobile only)
+            if (window.innerWidth <= 768) {
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    navbar.classList.add('hidden');
+                } else {
+                    navbar.classList.remove('hidden');
+                }
+            }
+            
+            lastScrollTop = scrollTop;
+
+            // Update active link on scroll
+            const sections = document.querySelectorAll('section[id]');
+            const scrollPos = window.scrollY + 100;
+
+            sections.forEach(sec => {
+                const top = sec.offsetTop;
+                const height = sec.offsetHeight;
+                if (scrollPos >= top && scrollPos < top + height) {
+                    const id = sec.getAttribute('id');
+                    document.querySelectorAll('.nav-links a').forEach(a => {
+                        a.classList.remove('active');
+                        if (a.getAttribute('href') === `#${id}`) a.classList.add('active');
+                    });
+                }
+            });
+        });
 
         const categoryData = {
             research: { title: 'African Development Research Award', requirements: ['PhD or equivalent research experience', 'Minimum 5 years of research in African development', 'Published at least 3 peer-reviewed papers', 'Demonstrated impact on African communities', 'South African citizen or permanent resident', 'Under 45 years of age'] },
@@ -2213,11 +2564,13 @@ unset($_SESSION['success'], $_SESSION['error']);
         const showApplicationBtn = document.getElementById('showApplicationBtn');
         const backToRequirementsBtn = document.getElementById('backToRequirementsBtn');
 
-        // NEW: Nomination modal elements
+        // Nomination modal elements
         const nominationModal = document.getElementById('nominationModal');
         const nominationModalClose = document.getElementById('nominationModalClose');
         const nominationModalCancel = document.getElementById('nominationModalCancel');
         const openNominationModalBtn = document.getElementById('openNominationModalBtn');
+        const nominationCard = document.getElementById('nominationCard');
+        const nominationCardBtn = document.getElementById('nominationCardBtn');
 
         const categoryCards = document.querySelectorAll('.category-card:not([onclick])');
         categoryCards.forEach(card => {
@@ -2265,21 +2618,10 @@ unset($_SESSION['success'], $_SESSION['error']);
         modalCancel.addEventListener('click', closeModal);
         modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 
-        // NEW: Functions for nomination modal
+        // Nomination modal functions
         function openNominationModal() {
             nominationModal.classList.add('active');
             document.body.style.overflow = 'hidden';
-            // Reset form fields if needed
-            document.getElementById('modalFirstName').value = '';
-            document.getElementById('modalLastName').value = '';
-            document.getElementById('modalEmail').value = '';
-            document.getElementById('modalPhone').value = '';
-            document.getElementById('modalCategory').value = '';
-            document.getElementById('modalQualification').value = '';
-            document.getElementById('modalInstitution').value = '';
-            document.getElementById('modalLinkedin').value = '';
-            document.getElementById('modalAchievements').value = '';
-            document.getElementById('modalTerms').checked = false;
         }
 
         function closeNominationModal() {
@@ -2287,54 +2629,44 @@ unset($_SESSION['success'], $_SESSION['error']);
             document.body.style.overflow = 'auto';
         }
 
-        openNominationModalBtn.addEventListener('click', openNominationModal);
-        nominationModalClose.addEventListener('click', closeNominationModal);
-        nominationModalCancel.addEventListener('click', closeNominationModal);
-        nominationModal.addEventListener('click', function(e) { if (e.target === nominationModal) closeNominationModal(); });
-
-        // Mobile menu toggle
-        document.querySelector('.menu-toggle').addEventListener('click', () => {
-            document.querySelector('.nav-links').classList.toggle('active');
-        });
-
-        // Smooth scroll + active link
-        document.querySelectorAll('.nav-links a, .logo-link').forEach(link => {
-            link.addEventListener('click', e => {
-                const href = link.getAttribute('href');
-                if (href && href.startsWith('#')) {
-                    e.preventDefault();
-                    if (!link.classList.contains('logo-link')) {
-                        document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-                        link.classList.add('active');
-                    }
-                    document.querySelector('.nav-links').classList.remove('active');
-                    const target = document.querySelector(href);
-                    if (target) window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
-                }
+        if (openNominationModalBtn) {
+            openNominationModalBtn.addEventListener('click', openNominationModal);
+        }
+        
+        if (nominationCard) {
+            nominationCard.addEventListener('click', openNominationModal);
+        }
+        
+        if (nominationCardBtn) {
+            nominationCardBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                openNominationModal();
             });
-        });
+        }
+        
+        if (nominationModalClose) {
+            nominationModalClose.addEventListener('click', closeNominationModal);
+        }
+        
+        if (nominationModalCancel) {
+            nominationModalCancel.addEventListener('click', closeNominationModal);
+        }
+        
+        if (nominationModal) {
+            nominationModal.addEventListener('click', function(e) { if (e.target === nominationModal) closeNominationModal(); });
+        }
 
-        // Navbar hide/show on scroll
-        let lastScrollTop = 0;
-        const navbar = document.querySelector('.fixed-nav');
-        window.addEventListener('scroll', () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            if (scrollTop > 100) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled');
-            if (scrollTop > lastScrollTop && scrollTop > 200) navbar.classList.add('hidden'); else navbar.classList.remove('hidden');
-            lastScrollTop = scrollTop;
-            const sections = document.querySelectorAll('section[id]');
-            const scrollPos = window.scrollY + 100;
-            sections.forEach(sec => {
-                const top = sec.offsetTop;
-                const height = sec.offsetHeight;
-                if (scrollPos >= top && scrollPos < top + height) {
-                    const id = sec.getAttribute('id');
-                    document.querySelectorAll('.nav-links a').forEach(a => {
-                        a.classList.remove('active');
-                        if (a.getAttribute('href') === `#${id}`) a.classList.add('active');
-                    });
-                }
-            });
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const navLinks = document.querySelector('.nav-links');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                navLinks.classList.contains('active') && 
+                !navLinks.contains(e.target) && 
+                !menuToggle.contains(e.target)) {
+                navLinks.classList.remove('active');
+            }
         });
     </script>
 </body>

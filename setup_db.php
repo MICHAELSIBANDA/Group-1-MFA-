@@ -58,6 +58,6 @@ if ($conn->query($sqlCategories) === TRUE) {
     die("Error creating categories table: " . $conn->error . "\n");
 }
 
-echo "Setup complete! You can now use index.php.\n";
+echo "";
 // Connection remains open for subsequent scripts that include this file
 ?>
