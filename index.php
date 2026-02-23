@@ -305,8 +305,8 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .logo {
-            width: 60px;
-            height: 60px;
+            width: auto;
+            height: 100px;
             object-fit: contain;
             border: none;
             border-radius: 0;
@@ -330,6 +330,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             color: #ffffff;
             letter-spacing: 0.5px;
             line-height: 1.2;
+            white-space: nowrap; /* Prevent wrapping */
         }
         
         .brand-text .brand-sub {
@@ -430,6 +431,21 @@ unset($_SESSION['success'], $_SESSION['error']);
             background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            min-height: 120px; /* Ensure space for typing animation */
+        }
+
+        /* Typing cursor animation */
+        .typing-cursor {
+            display: inline-block;
+            width: 4px;
+            margin-left: 5px;
+            background-color: var(--accent-gold);
+            animation: blink 0.7s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
 
         .home-content p {
@@ -570,6 +586,23 @@ unset($_SESSION['success'], $_SESSION['error']);
             position: absolute;
             left: 0;
             font-weight: bold;
+        }
+
+        /* Highlighted hashtag styling - same as Campaign Impact (accent-teal) */
+        .highlight-hashtag {
+            color: var(--accent-teal);
+            font-weight: 600;
+            background: rgba(45,212,191,0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .highlight-hashtag:hover {
+            color: var(--accent-teal-light);
+            background: rgba(45,212,191,0.2);
+            transform: translateY(-2px);
         }
 
         .highlight-box {
@@ -1871,11 +1904,10 @@ unset($_SESSION['success'], $_SESSION['error']);
     <nav class="fixed-nav">
         <div class="nav-left">
             <a href="#home" class="logo-link">
-                <img src="ko kae.jpeg" alt="MEF Logo" class="logo">
+                <img src="realogo.png" alt="MEF Logo" class="logo">
             </a>
             <div class="brand-text">
-                <div class="brand-main">MAKE EDUCATION</div>
-                <div class="brand-main" style="margin-top: -0.3rem;">FASHIONABLE</div>
+                <div class="brand-main">MAKE EDUCATION FASHIONABLE</div>
                 <div class="brand-sub">MEF · Since 2015</div>
             </div>
         </div>
@@ -1893,12 +1925,12 @@ unset($_SESSION['success'], $_SESSION['error']);
 
     <main class="content">
 
-        <!-- HOME -->
+        <!-- HOME with looping typing animation on H1 -->
         <section id="home">
             <img src="graduates.jpg" alt="MEF Background - Graduates" class="home-bg">
             <div class="home-overlay"></div>
             <div class="home-content">
-                <h1>Make Education Fashionable</h1>
+                <h1 id="typingHeading"></h1>
                 <p>Transforming education through inspiration, leadership, and real stories of triumph. Join the movement started by Prof. Mamokgethi Phakeng to celebrate learning and impact.</p>
                 <div class="home-buttons">
                     <a href="#about" class="btn btn-primary">Learn More</a>
@@ -1914,10 +1946,13 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <div class="about-content">
                     <div class="about-text">
                         <p><strong>MEF (Make Education Fashionable)</strong> is a powerful social media campaign founded by <strong>Prof. Mamokgethi Phakeng</strong> (@fabacademic), one of South Africa's most distinguished academics and businesswomen.</p>
+
                         <p>Launched in <strong>2015</strong>, the campaign inspires people by sharing authentic stories of individuals who have earned post-school qualifications and used them to overcome challenges and transform their lives.</p>
+
                         <div class="highlight-box">
                             <p>“The main purpose of the campaign is to inspire through stories of victory — stories of those who succeeded despite challenges and whose qualifications changed their lives.”</p>
                         </div>
+
                         <h3>Campaign Impact</h3>
                         <ul>
                             <li>Participants have secured job opportunities</li>
@@ -1925,11 +1960,12 @@ unset($_SESSION['success'], $_SESSION['error']);
                             <li>It creates visibility and recognition for graduates</li>
                             <li>Brings positivity to social media spaces often filled with negativity</li>
                         </ul>
+
                         <h3>How to Participate</h3>
                         <ul>
                             <li>Post your graduation picture</li>
                             <li>Mention your qualification and institution</li>
-                            <li>Share your personal story of victory with <b>#MakeEducationFashionable</b></li>
+                            <li>Share your personal story of victory with <span class="highlight-hashtag">#MakeEducationFashionable</span></li>
                         </ul>
                     </div>
                 </div>
@@ -1978,7 +2014,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <p>Click on any category to view requirements and apply</p>
                 </div>
 
-                <!-- 7 BOXES (6 award categories + 1 nomination card) -->
+                <!-- 6 BOXES (5 award categories + 1 convocation card) -->
                 <div class="categories-grid">
                     <!-- 1. African Development Research Award -->
                     <div class="category-card" data-category="research">
@@ -2022,20 +2058,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <p>Join the flagship event celebrating educational achievements. Network with leaders, share stories, and be inspired.</p>
                         <span class="category-tag">Get Tickets</span>
                     </div>
-<<<<<<< HEAD
-                    <!-- 7. Nomination Card - Share Your Story (opens modal) -->
-                    <div class="nomination-card" id="nominationCard">
-                        <div class="nomination-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <h3>Share Your Story</h3>
-                        <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
-                        <div class="nomination-btn" id="nominationCardBtn">
-                            <span>Nominate Now</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </div>
-=======
                 </div>
 
                <!-- Standalone Nomination Button (MODIFIED - now opens modal) -->
@@ -2047,7 +2069,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <button class="btn-gold" id="openNominationModalBtn">
                         <i class="fas fa-pen"></i> Nominate Now
                     </button>
->>>>>>> 520ad0488c68f63eb30ee2bafe30483bea6f3388
                 </div>
             </div>
         </section>
@@ -2121,6 +2142,51 @@ unset($_SESSION['success'], $_SESSION['error']);
     </footer>
 
     <script>
+        // LOOPING TYPING ANIMATION FOR HOME HEADING
+        const headingSentence = "Make Education Fashionable";
+        let headingIndex = 0;
+        let isDeleting = false;
+        const headingElement = document.getElementById("typingHeading");
+        const typingSpeed = 100; // Speed of typing in ms
+        const deletingSpeed = 50; // Speed of deleting in ms
+        const pauseTime = 2000; // Pause time when complete (2 seconds)
+        
+        function typeHeadingEffect() {
+            const currentText = headingElement.innerHTML.replace('<span class="typing-cursor"></span>', '');
+            
+            if (!isDeleting && headingIndex <= headingSentence.length) {
+                // Typing
+                headingElement.innerHTML = headingSentence.substring(0, headingIndex) + '<span class="typing-cursor"></span>';
+                headingIndex++;
+                
+                if (headingIndex > headingSentence.length) {
+                    // Finished typing, pause then start deleting
+                    isDeleting = true;
+                    setTimeout(typeHeadingEffect, pauseTime);
+                    return;
+                }
+            } else if (isDeleting && headingIndex >= 0) {
+                // Deleting
+                headingElement.innerHTML = headingSentence.substring(0, headingIndex) + '<span class="typing-cursor"></span>';
+                headingIndex--;
+                
+                if (headingIndex < 0) {
+                    // Finished deleting, start typing again
+                    isDeleting = false;
+                    headingIndex = 0;
+                }
+            }
+            
+            // Set next timeout
+            const nextDelay = isDeleting ? deletingSpeed : typingSpeed;
+            setTimeout(typeHeadingEffect, nextDelay);
+        }
+
+        // Start typing animation when page loads
+        window.onload = function() {
+            typeHeadingEffect();
+        };
+
         const categoryData = {
             research: { title: 'African Development Research Award', requirements: ['PhD or equivalent research experience', 'Minimum 5 years of research in African development', 'Published at least 3 peer-reviewed papers', 'Demonstrated impact on African communities', 'South African citizen or permanent resident', 'Under 45 years of age'] },
             ai: { title: 'AI Champion Award', requirements: ['Minimum 3 years experience in AI/ML', 'Proven track record of AI innovation', 'Active involvement in AI ethics and advocacy', 'Portfolio of AI projects or implementations', 'South African citizen or permanent resident', 'Open to all ages'] },
@@ -2267,19 +2333,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                 }
             });
         });
-
-        // Form submission - show success (simulated)
-        function submitNominationForm(event) {
-            event.preventDefault();
-            nominationFormSection.style.display = 'none';
-            nominationSuccessSection.style.display = 'block';
-        }
-
-        // Attach to form if needed
-        const nominationForm = document.querySelector('#nominationFormSection form');
-        if (nominationForm) {
-            nominationForm.addEventListener('submit', submitNominationForm);
-        }
     </script>
 </body>
 </html>
