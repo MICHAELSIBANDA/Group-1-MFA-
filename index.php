@@ -305,8 +305,8 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .logo {
-            width: 60px;
-            height: 60px;
+            width: auto;
+            height: 100px;
             object-fit: contain;
             border: none;
             border-radius: 0;
@@ -1871,7 +1871,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <nav class="fixed-nav">
         <div class="nav-left">
             <a href="#home" class="logo-link">
-                <img src="ko kae.jpeg" alt="MEF Logo" class="logo">
+                <img src="realogo.png" alt="MEF Logo" class="logo">
             </a>
             <div class="brand-text">
                 <div class="brand-main">MAKE EDUCATION</div>
