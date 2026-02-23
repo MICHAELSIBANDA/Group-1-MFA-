@@ -1,18 +1,202 @@
 <?php
+session_start();
+
+// Include Composer autoload (if using Composer)
+require_once __DIR__ . '/vendor/autoload.php';
+
+// Include setup_db.php which connects to the database and creates tables if needed
 require_once __DIR__ . '/setup_db.php';
 
-// Load .env and connect to the database
-$env = parse_ini_file(__DIR__ . '/.env');
-$conn = new mysqli(
-    $env['DB_HOST'],
-    $env['DB_USER'],
-    $env['DB_PASS'],
-    $env['DB_NAME'],
-    $env['DB_PORT']
-);
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
-?>
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
+// Category mapping: short code => full display name
+$categoryNames = [
+    'research'     => 'African Development Research Award',
+    'ai'           => 'AI Champion Award',
+    'women'        => 'Mamokgethi Phakeng Prize',
+    'entrepreneur' => 'Young Entrepreneur Award',
+    'agriculture'  => 'Youth in Agriculture Award'
+];
+
+// Function to send email using PHPMailer
+function sendEmail($to, $subject, $body, $env) {
+    $mail = new PHPMailer(true);
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = $env['SMTP_HOST'];
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $env['SMTP_USER'];
+        $mail->Password   = $env['SMTP_PASS'];
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = $env['SMTP_PORT'];
+
+        // Recipients
+        $mail->setFrom($env['SMTP_FROM'], $env['SMTP_FROM_NAME']);
+        $mail->addAddress($to);
+
+        // Content
+        $mail->isHTML(false);
+        $mail->Subject = $subject;
+        $mail->Body    = $body;
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        // Log error if needed
+        error_log("Mailer Error: " . $mail->ErrorInfo);
+        return false;
+    }
+}
+
+// Load environment variables
+$env = parse_ini_file(__DIR__ . '/.env');
+
+// The $conn object is now available from setup_db.php
+
+// Process form submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['form_type'])) {
+        $formType = $_POST['form_type'];
+
+        if ($formType === 'award_application') {
+            // Award application form (from modal)
+            $firstName = trim($_POST['firstName'] ?? '');
+            $lastName  = trim($_POST['lastName'] ?? '');
+            $email     = trim($_POST['email'] ?? '');
+            $phone     = trim($_POST['phone'] ?? '');
+            $qualification = trim($_POST['qualification'] ?? '');
+            $institution   = trim($_POST['institution'] ?? '');
+            $linkedin      = trim($_POST['linkedin'] ?? '');
+            $achievements  = trim($_POST['achievements'] ?? '');
+            $categoryCode  = trim($_POST['category'] ?? '');
+
+            if ($firstName && $lastName && $email && $phone && $qualification && $institution && $categoryCode && $achievements) {
+                if (!empty($linkedin) && strpos($linkedin, 'linkedin.com') === false) {
+                    $linkedin = 'https://linkedin.com/in/' . ltrim($linkedin, '/');
+                }
+
+                $stmt = $conn->prepare("INSERT INTO nominees (first_name, last_name, email, phone) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("ssss", $firstName, $lastName, $email, $phone);
+                if ($stmt->execute()) {
+                    $nomineeId = $stmt->insert_id;
+                    $stmt2 = $conn->prepare("INSERT INTO categories (category_type, qualification, institution, weblinkurl, achievement_description, nominee_id) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt2->bind_param("sssssi", $categoryCode, $qualification, $institution, $linkedin, $achievements, $nomineeId);
+                    if ($stmt2->execute()) {
+                        $_SESSION['success'] = "Your award application has been submitted successfully!";
+                        $fullCategory = $categoryNames[$categoryCode] ?? $categoryCode;
+                        $subject = "YOU'VE BEEN NOMINATED for the MEF Awards!";
+                        $body = "Dear $firstName $lastName,\n\n";
+                        $body .= "We are excited to inform you that you have been nominated for the **MEF Awards** in the **$fullCategory** category! 🌟\n";
+                        $body .= "Someone who recognizes your excellence and contribution has shared your story. This nomination reflects the positive impact you have made.\n";
+                        $body .= "Our panel will now review the submission, and we will be in touch soon regarding the outcome.\n\n";
+                        $body .= "Nomination Details:\n";
+                        $body .= "Category: $fullCategory\n";
+                        $body .= "Qualification: $qualification\n";
+                        $body .= "Institution: $institution\n";
+                        $body .= "LinkedIn: $linkedin\n";
+                        $body .= "Achievements: $achievements\n\n";
+                        $body .= "Regards,\nMEF Awards Team";
+                        sendEmail($email, $subject, $body, $env);
+                    } else {
+                        $_SESSION['error'] = "Failed to save category details.";
+                    }
+                    $stmt2->close();
+                } else {
+                    $_SESSION['error'] = "Failed to save nominee details.";
+                }
+                $stmt->close();
+            } else {
+                $_SESSION['error'] = "Please fill in all required fields.";
+            }
+
+        } elseif ($formType === 'standalone_nomination') {
+            // Standalone nomination form (same fields as award_application + category dropdown)
+            $firstName = trim($_POST['firstName'] ?? '');
+            $lastName  = trim($_POST['lastName'] ?? '');
+            $email     = trim($_POST['email'] ?? '');
+            $phone     = trim($_POST['phone'] ?? '');
+            $qualification = trim($_POST['qualification'] ?? '');
+            $institution   = trim($_POST['institution'] ?? '');
+            $linkedin      = trim($_POST['linkedin'] ?? '');
+            $achievements  = trim($_POST['achievements'] ?? '');
+            $categoryCode  = trim($_POST['category'] ?? '');
+
+            if ($firstName && $lastName && $email && $phone && $qualification && $institution && $categoryCode && $achievements) {
+                if (!empty($linkedin) && strpos($linkedin, 'linkedin.com') === false) {
+                    $linkedin = 'https://linkedin.com/in/' . ltrim($linkedin, '/');
+                }
+
+                $stmt = $conn->prepare("INSERT INTO nominees (first_name, last_name, email, phone) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("ssss", $firstName, $lastName, $email, $phone);
+                if ($stmt->execute()) {
+                    $nomineeId = $stmt->insert_id;
+                    $stmt2 = $conn->prepare("INSERT INTO categories (category_type, qualification, institution, weblinkurl, achievement_description, nominee_id) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt2->bind_param("sssssi", $categoryCode, $qualification, $institution, $linkedin, $achievements, $nomineeId);
+                    if ($stmt2->execute()) {
+                        $_SESSION['success'] = "Your nomination has been submitted successfully!";
+                        $fullCategory = $categoryNames[$categoryCode] ?? $categoryCode;
+                        $subject = "YOU'VE BEEN NOMINATED for the MEF Awards!";
+                        $body = "Dear $nomineeFirstName $nomineeLastName,\n\n";
+                        $body .= "We are excited to inform you that you have been nominated for the MEF Awards! 🌟\n";
+                        $body .= "Your story has been shared by someone who recognizes your excellence and contribution. This nomination reflects the positive impact you have made.\n";
+                        $body .= "Our panel will now review the submission, and we will be in touch soon regarding the outcome.\n\n";
+                        $body .= "Nomination Details:\n";
+                        $body .= "Category: $category\n";
+                        $body .= "Story Title: $storyTitle\n";
+                        $body .= "Achievements: $keyAchievements\n\n";
+                        $body .= "Regards,\nMEF Awards Team";
+                        sendEmail($email, $subject, $body, $env);
+                    } else {
+                        $_SESSION['error'] = "Failed to save category details.";
+                    }
+                    $stmt2->close();
+                } else {
+                    $_SESSION['error'] = "Failed to save nominee details.";
+                }
+                $stmt->close();
+            } else {
+                $_SESSION['error'] = "Please fill in all required fields.";
+            }
+
+        } elseif ($formType === 'contact') {
+            // Contact form
+            $name = trim($_POST['name'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $subject = trim($_POST['subject'] ?? '');
+            $message = trim($_POST['message'] ?? '');
+
+            if ($name && $email && $subject && $message) {
+                $adminEmail = $env['SMTP_FROM'];
+                $mailSubject = "Contact Form Message from $name";
+                $mailBody = "You have received a new message from the MEF contact form.\n\n";
+                $mailBody .= "Name: $name\n";
+                $mailBody .= "Email: $email\n";
+                $mailBody .= "Subject: $subject\n";
+                $mailBody .= "Message:\n$message\n";
+
+                if (sendEmail($adminEmail, $mailSubject, $mailBody, $env)) {
+                    $_SESSION['success'] = "Your message has been sent successfully!";
+                } else {
+                    $_SESSION['error'] = "Failed to send your message. Please try again later.";
+                }
+            } else {
+                $_SESSION['error'] = "Please fill in all required fields.";
+            }
+        }
+
+        // Redirect to avoid resubmission
+        header('Location: index.php');
+        exit;
+    }
+}
+
+// Retrieve flash messages
+$successMessage = $_SESSION['success'] ?? null;
+$errorMessage = $_SESSION['error'] ?? null;
+unset($_SESSION['success'], $_SESSION['error']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,7 +265,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
         a { color: inherit; text-decoration: none; }
 
-        /* FIXED NAVBAR - with hide/show on scroll */
         .fixed-nav {
             position: fixed;
             top: 0; left: 0;
@@ -196,7 +379,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             cursor: pointer;
         }
 
-        /* HOME */
         #home {
             min-height: 100vh;
             position: relative;
@@ -304,7 +486,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             box-shadow: 0 20px 40px rgba(255,215,0,0.35);
         }
 
-        /* SECTIONS */
         .section { padding: 7rem 3rem; }
         .section-container { max-width: 1240px; margin: 0 auto; }
 
@@ -329,7 +510,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             border-radius: 3px;
         }
 
-        /* ALERT MESSAGES */
         .alert {
             padding: 1rem 1.5rem;
             border-radius: var(--radius-md);
@@ -343,7 +523,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             color: var(--accent-teal-light);
         }
 
-        /* ABOUT */
         #about {
             background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary-navy) 100%);
         }
@@ -400,7 +579,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             font-style: italic;
         }
 
-        /* SERVICES */
         #services {
             background: linear-gradient(135deg, var(--primary-light), var(--primary-navy));
             position: relative;
@@ -459,12 +637,13 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
         .founder-image-frame {
             position: relative;
             width: 100%;
-            height: 500px;
+            max-height: 500px;
             border-radius: 20px;
             overflow: hidden;
             border: 5px solid var(--accent-gold);
             box-shadow: 0 0 30px rgba(255,215,0,0.3);
             transition: var(--transition);
+            background-color: var(--primary-navy);
         }
 
         .founder-image-frame:hover {
@@ -475,9 +654,11 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
         .founder-image-frame img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
+            max-height: 500px;
+            object-fit: contain;
             transition: var(--transition);
+            display: block;
         }
 
         .founder-image-frame:hover img {
@@ -492,6 +673,7 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             border: 1px solid rgba(255,215,0,0.15);
             box-shadow: var(--shadow-xl);
             transition: var(--transition);
+            overflow-wrap: break-word;
         }
 
         .founder-content:hover {
@@ -678,7 +860,87 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             border-color: var(--accent-gold);
         }
 
-        /* MODAL STYLES */
+        .nomination-card {
+            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(45,212,191,0.15));
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            border: 2px solid var(--accent-gold);
+            box-shadow: var(--shadow-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            grid-column: span 2;
+        }
+
+        .nomination-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--accent-teal);
+            box-shadow: 0 30px 50px rgba(255,215,0,0.3);
+        }
+
+        .nomination-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(255,215,0,0.2), transparent 70%);
+            pointer-events: none;
+        }
+
+        .nomination-icon {
+            font-size: 3.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .nomination-card h3 {
+            font-size: 2.2rem;
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+        }
+
+        .nomination-card p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .nomination-card .nomination-btn {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
+            color: var(--primary-dark);
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .nomination-card .nomination-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255,215,0,0.3);
+        }
+
+        .nomination-card .nomination-btn i {
+            transition: var(--transition);
+        }
+
+        .nomination-card .nomination-btn:hover i {
+            transform: translateX(5px);
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -812,190 +1074,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             transform: translateY(-3px);
         }
 
-        /* NOMINATION FORM SECTION */
-        .nomination-form-section {
-            margin-top: 3rem;
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(12px);
-            border-radius: var(--radius-xl);
-            padding: 3rem;
-            border: 1px solid rgba(255,215,0,0.14);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .nomination-form-section h3 {
-            color: var(--accent-gold);
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .nomination-form-section p {
-            color: var(--text-muted);
-            text-align: center;
-            margin-bottom: 2.5rem;
-            font-size: 1.1rem;
-        }
-
-        .nomination-form {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,215,0,0.3);
-            border-radius: var(--radius-md);
-            color: var(--text-light);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent-gold);
-            background: rgba(255,255,255,0.15);
-        }
-
-        .form-group select {
-            color: var(--accent-gold);
-        }
-
-        .form-group select option {
-            background: var(--primary-dark);
-            color: var(--accent-gold);
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-            margin-top: 0.5rem;
-        }
-
-        .radio-group label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: normal;
-            color: var(--text-muted);
-            cursor: pointer;
-        }
-
-        .radio-group input[type="radio"] {
-            width: auto;
-            margin: 0;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 1rem 0;
-        }
-
-        .checkbox-group input {
-            width: auto;
-        }
-
-        .checkbox-group label {
-            margin-bottom: 0;
-            font-weight: normal;
-        }
-
-        .linkedin-input {
-            display: flex;
-            align-items: center;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,215,0,0.3);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-        }
-
-        .linkedin-input span {
-            padding: 0.8rem 1rem;
-            background: rgba(255,215,0,0.1);
-            color: var(--accent-gold);
-            border-right: 1px solid rgba(255,215,0,0.3);
-            font-size: 0.9rem;
-        }
-
-        .linkedin-input input {
-            border: none;
-            border-radius: 0;
-            background: transparent;
-            flex: 1;
-        }
-
-        .linkedin-input input:focus {
-            border: none;
-            box-shadow: none;
-        }
-
-        .btn-gold {
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
-            color: var(--primary-dark);
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: var(--radius-full);
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            width: 100%;
-            margin-top: 1rem;
-        }
-
-        .btn-gold:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255,215,0,0.3);
-        }
-
-        .nomination-success {
-            background: rgba(45,212,191,0.2);
-            border: 1px solid var(--accent-teal);
-            color: var(--accent-teal-light);
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            text-align: center;
-            margin-top: 2rem;
-        }
-
-        .nomination-success i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .nomination-success h4 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--accent-teal-light);
-        }
-
-        /* APPLICATION FORM STYLES */
         .application-form {
             margin-top: 2rem;
             border-top: 1px solid rgba(255,215,0,0.3);
@@ -1100,7 +1178,93 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             margin-bottom: 2rem;
         }
 
-        /* CONTACT */
+        .linkedin-input {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .linkedin-input span {
+            padding: 0.8rem 1rem;
+            background: rgba(255,215,0,0.1);
+            color: var(--accent-gold);
+            border-right: 1px solid rgba(255,215,0,0.3);
+            font-size: 0.9rem;
+        }
+
+        .linkedin-input input {
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            flex: 1;
+        }
+
+        .linkedin-input input:focus {
+            border: none;
+            box-shadow: none;
+        }
+
+        #testimonials {
+            background: linear-gradient(135deg, var(--primary-navy), var(--primary-dark));
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(12px);
+            padding: 2.4rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(251,113,133,0.25);
+            transition: var(--transition);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-coral);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .testimonial-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stars { color: var(--accent-gold); font-size: 1.4rem; }
+
+        .date { color: var(--text-muted); font-size: 0.9rem; }
+
+        .testimonial-message {
+            font-style: italic;
+            margin: 1.5rem 0;
+            line-height: 1.8;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-coral);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
         #contact {
             background: linear-gradient(135deg, var(--primary-light), var(--primary-navy));
         }
@@ -1211,7 +1375,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             box-shadow: var(--shadow-md);
         }
 
-        /* FOOTER */
         footer {
             background: var(--primary-dark);
             padding: 4rem 2rem 2rem;
@@ -1374,12 +1537,11 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             color: var(--accent-gold);
         }
 
-        /* RESPONSIVE */
         @media (max-width: 968px) {
             .contact-grid { grid-template-columns: 1fr; }
             .home-content h1 { font-size: 3.6rem; }
             .founder-showcase { grid-template-columns: 1fr; }
-            .founder-image-frame { height: 400px; }
+            .founder-image-frame { height: auto; }
             .footer-main { grid-template-columns: 1fr; gap: 2rem; }
             .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
             .form-row {
@@ -1413,9 +1575,194 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                 flex-direction: column;
             }
         }
+
+        /* ===== Nomination Form Styling ===== */
+        .nomination-form-section {
+            background: var(--primary-navy);
+            padding: 3rem 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            margin: 3rem 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: padding 0.3s ease;
+        }
+
+        .nomination-form-section.collapsed {
+            padding-bottom: 0; /* Remove bottom padding when form is hidden */
+        }
+
+        .nomination-form-section h3 {
+            font-size: 2rem;
+            color: var(--accent-gold);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .nomination-form-section p {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-gold {
+            display: block;
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            font-weight: 600;
+            padding: 0.8rem 2rem;
+            border-radius: var(--radius-full);
+            margin: 0 auto 2rem auto;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-gold:hover {
+            background: var(--accent-gold-light);
+            transform: translateY(-2px);
+        }
+
+        .nomination-form-section.collapsed .btn-gold {
+            margin-bottom: 0; /* Remove bottom margin when form hidden */
+        }
+
+        .nomination-form {
+            background: var(--primary-dark);
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+        }
+
+        .nomination-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .nomination-form label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .nomination-form input[type="text"],
+        .nomination-form input[type="email"],
+        .nomination-form input[type="tel"],
+        .nomination-form select,
+        .nomination-form textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid #333;
+            background: var(--primary-navy);
+            color: var(--text-light);
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .nomination-form input:focus,
+        .nomination-form select:focus,
+        .nomination-form textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background: var(--primary-light);
+        }
+
+        .nomination-form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .nomination-form .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .nomination-form .checkbox-group input[type="checkbox"] {
+            accent-color: var(--accent-gold);
+        }
+
+        .nomination-form button[type="submit"] {
+            display: block;
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            padding: 0.8rem 2rem;
+            border-radius: var(--radius-full);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 1rem auto 0 auto;
+            transition: var(--transition);
+        }
+
+        .nomination-form button[type="submit"]:hover {
+            background: var(--accent-gold-light);
+            transform: translateY(-2px);
+        }
+
+        .linkedin-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .linkedin-input span {
+            background: var(--primary-navy);
+            padding: 0.8rem 1rem;
+            border: 1px solid #333;
+            border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+            color: var(--text-light);
+        }
+
+        .linkedin-input input {
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            border-left: none;
+        }
+
+        @media (max-width: 768px) {
+            .nomination-form-section {
+                padding: 2rem 1rem;
+            }
+            .btn-gold, .nomination-form button[type="submit"] {
+                width: 100%;
+            }
+            .nomination-form .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <!-- Display flash messages (auto-hide after 5 seconds) -->
+    <?php if ($successMessage): ?>
+        <div class="alert alert-success" id="successMessage" style="position: fixed; top: 100px; right: 20px; z-index: 9999; background: #0a192f; border: 2px solid #2dd4bf; color: #2dd4bf; padding: 1rem 2rem; border-radius: 8px;">
+            <i class="fas fa-check-circle"></i> <?= htmlspecialchars($successMessage) ?>
+        </div>
+        <script>
+            setTimeout(function() {
+                var msg = document.getElementById('successMessage');
+                if (msg) msg.style.display = 'none';
+            }, 5000);
+        </script>
+    <?php endif; ?>
+    <?php if ($errorMessage): ?>
+        <div class="alert alert-error" id="errorMessage" style="position: fixed; top: 100px; right: 20px; z-index: 9999; background: #0a192f; border: 2px solid #fb7185; color: #fb7185; padding: 1rem 2rem; border-radius: 8px;">
+            <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($errorMessage) ?>
+        </div>
+        <script>
+            setTimeout(function() {
+                var msg = document.getElementById('errorMessage');
+                if (msg) msg.style.display = 'none';
+            }, 5000);
+        </script>
+    <?php endif; ?>
 
     <!-- MODAL OVERLAY for Award Applications -->
     <div class="modal-overlay" id="categoryModal">
@@ -1423,26 +1770,22 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             <span class="modal-close" id="modalClose">&times;</span>
             <h3 class="modal-title" id="modalTitle">Category Title</h3>
             
-            <!-- Requirements Section (shown first) -->
             <div id="requirementsSection">
                 <div class="modal-section">
                     <h4>Requirements:</h4>
-                    <ul id="requirementsList">
-                        <!-- Requirements will be populated by JavaScript -->
-                    </ul>
+                    <ul id="requirementsList"></ul>
                 </div>
-                
                 <div class="modal-buttons">
                     <button class="modal-btn modal-btn-primary" id="showApplicationBtn">Apply Now</button>
                     <button class="modal-btn modal-btn-secondary" id="modalCancelBtn">Cancel</button>
                 </div>
             </div>
             
-            <!-- Application Form Section (shown after clicking Apply) - UPDATED with LinkedIn field -->
             <div id="applicationSection" style="display: none;">
                 <div class="application-form">
                     <h4>Apply for <span id="applicationTitle"></span></h4>
-                    <form id="awardApplicationForm" onsubmit="submitApplication(event)">
+                    <form method="POST" action="index.php">
+                        <input type="hidden" name="form_type" value="award_application">
                         <input type="hidden" id="applicationCategory" name="category">
                         
                         <div class="form-row">
@@ -1466,7 +1809,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                             <input type="tel" id="phone" name="phone" required>
                         </div>
                         
-                        <!-- Category field - automatically populated -->
                         <div class="form-group">
                             <label>Applying for Category *</label>
                             <input type="text" id="appliedCategory" value="" readonly style="color: var(--accent-gold); font-weight: 600;">
@@ -1490,14 +1832,13 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                             <input type="text" id="institution" name="institution" required>
                         </div>
                         
-                        <!-- Removed Graduation Year field, added LinkedIn field -->
                         <div class="form-group">
                             <label for="linkedin">LinkedIn Profile *</label>
                             <div class="linkedin-input">
                                 <span>linkedin.com/in/</span>
                                 <input type="text" id="linkedin" name="linkedin" placeholder="username" required>
                             </div>
-                            <small style="color: var(--text-muted);">Enter your LinkedIn username or full profile URL</small>
+                            <small style="color: var(--text-muted);">Enter your LinkedIn username</small>
                         </div>
                         
                         <div class="form-group">
@@ -1510,11 +1851,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                             <label for="terms">I confirm that all information provided is true and complete *</label>
                         </div>
                         
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="notifications" name="notifications">
-                            <label for="notifications">I would like to receive updates about MEF events and opportunities</label>
-                        </div>
-                        
                         <div class="modal-buttons">
                             <button type="submit" class="modal-btn modal-btn-primary">Submit Application</button>
                             <button type="button" class="modal-btn modal-btn-secondary" id="backToRequirementsBtn">Back</button>
@@ -1523,7 +1859,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                 </div>
             </div>
             
-            <!-- Success Section -->
             <div id="successSection" style="display: none;">
                 <div class="application-success">
                     <i class="fas fa-check-circle"></i>
@@ -1533,6 +1868,11 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- MODAL OVERLAY for Story Nomination (this modal is no longer used but kept for reference) -->
+    <div class="modal-overlay" id="nominationModal" style="display: none;">
+        <!-- This modal is deprecated; the standalone form is below -->
     </div>
 
     <!-- NAVBAR with clickable logo -->
@@ -1561,11 +1901,10 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
     <main class="content">
 
-        <!-- HOME with graduates.jpeg background -->
+        <!-- HOME -->
         <section id="home">
             <img src="graduates.jpg" alt="MEF Background - Graduates" class="home-bg">
             <div class="home-overlay"></div>
-            
             <div class="home-content">
                 <h1>Make Education Fashionable</h1>
                 <p>Transforming education through inspiration, leadership, and real stories of triumph. Join the movement started by Prof. Mamokgethi Phakeng to celebrate learning and impact.</p>
@@ -1580,17 +1919,13 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
         <section id="about" class="section">
             <div class="section-container">
                 <h2 class="section-title">About MEF</h2>
-                
                 <div class="about-content">
                     <div class="about-text">
                         <p><strong>MEF (Make Education Fashionable)</strong> is a powerful social media campaign founded by <strong>Prof. Mamokgethi Phakeng</strong> (@fabacademic), one of South Africa's most distinguished academics and businesswomen.</p>
-
                         <p>Launched in <strong>2015</strong>, the campaign inspires people by sharing authentic stories of individuals who have earned post-school qualifications and used them to overcome challenges and transform their lives.</p>
-
                         <div class="highlight-box">
                             <p>“The main purpose of the campaign is to inspire through stories of victory — stories of those who succeeded despite challenges and whose qualifications changed their lives.”</p>
                         </div>
-
                         <h3>Campaign Impact</h3>
                         <ul>
                             <li>Participants have secured job opportunities</li>
@@ -1598,7 +1933,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                             <li>It creates visibility and recognition for graduates</li>
                             <li>Brings positivity to social media spaces often filled with negativity</li>
                         </ul>
-
                         <h3>How to Participate</h3>
                         <ul>
                             <li>Post your graduation picture</li>
@@ -1610,7 +1944,7 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
             </div>
         </section>
 
-        <!-- SERVICES (6 boxes + ticket link) -->
+        <!-- SERVICES (6 boxes + ticket link + standalone nomination form) -->
         <section id="services" class="section">
             <div class="section-container">
                 <h2 class="section-title">Our Services & Awards</h2>
@@ -1620,7 +1954,7 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                     <p>MEF provides platforms for recognition, inspiration, and connection through our awards and nomination services.</p>
                 </div>
 
-                <!-- Founder Showcase -->
+                <!-- Founder Showcase (image fixed) -->
                 <div class="founder-showcase">
                     <div class="founder-image-frame">
                         <img src="founder.jpeg" alt="Prof. Mamokgethi Phakeng - Founder of MEF">
@@ -1652,7 +1986,7 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                     <p>Click on any category to view requirements and apply</p>
                 </div>
 
-                <!-- 6 BOXES (all clickable) -->
+                <!-- 7 BOXES (6 award categories + 1 nomination card) -->
                 <div class="categories-grid">
                     <!-- 1. African Development Research Award -->
                     <div class="category-card" data-category="research">
@@ -1698,84 +2032,45 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                     </div>
                 </div>
 
-                <!-- NEW: Enhanced Nomination Form Section -->
+               <!-- Standalone Nomination Form (identical to award application form) -->
                 <div class="nomination-form-section" id="nominationForm">
-                    <h3>Share Your Story</h3>
-                    <p>Nominate yourself or someone inspiring for the MEF Awards. Every story of victory deserves to be celebrated.</p>
+                    <h3>Nominate Yourself or Someone Else</h3>
+                    <p>Every story of victory deserves to be celebrated. Fill out the form below to submit a nomination.</p>
                     
-                    <div class="nomination-form" id="nominationFormContainer">
-                        <form id="storyNominationForm" onsubmit="submitNomination(event)">
-                            <!-- Nomination Type -->
+                    <!-- Button to toggle form -->
+                    <button class="btn-gold" onclick="toggleNominationForm()" id="toggleFormBtn">
+                        Nominate
+                    </button>
+                    
+                    <!-- Form (hidden by default) -->
+                    <div class="nomination-form" id="nominationFormContainer" style="display: none;">
+                        <form method="POST" action="index.php">
+                            <input type="hidden" name="form_type" value="standalone_nomination">
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName2">First Name *</label>
+                                    <input type="text" id="firstName2" name="firstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName2">Last Name *</label>
+                                    <input type="text" id="lastName2" name="lastName" required>
+                                </div>
+                            </div>
+                            
                             <div class="form-group">
-                                <label>I am nominating: *</label>
-                                <div class="radio-group">
-                                    <label>
-                                        <input type="radio" name="nominationType" value="self" checked> Myself
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="nominationType" value="other"> Someone else
-                                    </label>
-                                </div>
+                                <label for="email2">Email Address *</label>
+                                <input type="email" id="email2" name="email" required>
                             </div>
-
-                            <!-- Nominee Information -->
-                            <div id="nomineeInfo">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="nomineeFirstName">First Name *</label>
-                                        <input type="text" id="nomineeFirstName" name="nomineeFirstName" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="nomineeLastName">Last Name *</label>
-                                        <input type="text" id="nomineeLastName" name="nomineeLastName" required>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nomineeEmail">Email Address *</label>
-                                    <input type="email" id="nomineeEmail" name="nomineeEmail" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nomineePhone">Phone Number *</label>
-                                    <input type="tel" id="nomineePhone" name="nomineePhone" required>
-                                </div>
-                            </div>
-
-                            <!-- Nominator Information (shown only when nominating someone else) -->
-                            <div id="nominatorInfo" style="display: none;">
-                                <h4 style="color: var(--accent-teal); margin: 1.5rem 0 1rem;">Your Information</h4>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="nominatorFirstName">Your First Name *</label>
-                                        <input type="text" id="nominatorFirstName" name="nominatorFirstName">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="nominatorLastName">Your Last Name *</label>
-                                        <input type="text" id="nominatorLastName" name="nominatorLastName">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nominatorEmail">Your Email Address *</label>
-                                    <input type="email" id="nominatorEmail" name="nominatorEmail">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nominatorPhone">Your Phone Number *</label>
-                                    <input type="tel" id="nominatorPhone" name="nominatorPhone">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="relationship">Relationship to Nominee *</label>
-                                    <input type="text" id="relationship" name="relationship" placeholder="e.g., Colleague, Mentor, Family member">
-                                </div>
-                            </div>
-
-                            <!-- Award Category Selection -->
+                            
                             <div class="form-group">
-                                <label for="nominationCategory">Award Category *</label>
-                                <select id="nominationCategory" name="nominationCategory" required>
+                                <label for="phone2">Phone Number *</label>
+                                <input type="tel" id="phone2" name="phone" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="category2">Award Category *</label>
+                                <select id="category2" name="category" required>
                                     <option value="">Select a category</option>
                                     <option value="research">African Development Research Award</option>
                                     <option value="ai">AI Champion Award</option>
@@ -1784,62 +2079,67 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                                     <option value="agriculture">Youth in Agriculture Award</option>
                                 </select>
                             </div>
-
-                            <!-- Story/Inspiration -->
+                            
                             <div class="form-group">
-                                <label for="storyTitle">Story Title *</label>
-                                <input type="text" id="storyTitle" name="storyTitle" placeholder="Give your story a title" required>
+                                <label for="qualification2">Highest Qualification *</label>
+                                <select id="qualification2" name="qualification" required>
+                                    <option value="">Select your qualification</option>
+                                    <option value="bachelors">Bachelor's Degree</option>
+                                    <option value="masters">Master's Degree</option>
+                                    <option value="phd">PhD/Doctorate</option>
+                                    <option value="diploma">Diploma</option>
+                                    <option value="certificate">Certificate</option>
+                                    <option value="other">Other</option>
+                                </select>
                             </div>
                             
                             <div class="form-group">
-                                <label for="inspirationStory">Share Your/Their Story of Victory *</label>
-                                <textarea id="inspirationStory" name="inspirationStory" rows="6" placeholder="Tell us about the journey, challenges overcome, and the impact of education..." required></textarea>
+                                <label for="institution2">Institution *</label>
+                                <input type="text" id="institution2" name="institution" required>
                             </div>
-
-                            <!-- LinkedIn Profile (optional but recommended) -->
+                            
                             <div class="form-group">
-                                <label for="nomineeLinkedIn">LinkedIn Profile (Optional but recommended)</label>
+                                <label for="linkedin2">LinkedIn Profile *</label>
                                 <div class="linkedin-input">
                                     <span>linkedin.com/in/</span>
-                                    <input type="text" id="nomineeLinkedin" name="nomineeLinkedin" placeholder="username">
+                                    <input type="text" id="linkedin2" name="linkedin" placeholder="username" required>
                                 </div>
-                                <small style="color: var(--text-muted);">Share the LinkedIn profile to help us verify the story</small>
+                                <small style="color: var(--text-muted);">Enter your LinkedIn username</small>
                             </div>
-
-                            <!-- Key Achievements -->
+                            
                             <div class="form-group">
-                                <label for="keyAchievements">Key Achievements (Optional)</label>
-                                <textarea id="keyAchievements" name="keyAchievements" rows="3" placeholder="List any relevant achievements, awards, or recognition..."></textarea>
-                            </div>
-
-                            <!-- Social Media Links -->
-                            <div class="form-group">
-                                <label for="socialLinks">Social Media Links (Optional)</label>
-                                <input type="text" id="socialLinks" name="socialLinks" placeholder="Twitter, Instagram, etc.">
-                            </div>
-
-                            <!-- Consent -->
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="nominationTerms" name="nominationTerms" required>
-                                <label for="nominationTerms">I confirm that the information provided is true and accurate, and I have permission to share this story *</label>
+                                <label for="achievements2">Key Achievements *</label>
+                                <textarea id="achievements2" name="achievements" placeholder="Tell us about achievements relevant to this award" required></textarea>
                             </div>
                             
                             <div class="checkbox-group">
-                                <input type="checkbox" id="nominationUpdates" name="nominationUpdates">
-                                <label for="nominationUpdates">I'd like to receive updates about the nomination status and MEF events</label>
+                                <input type="checkbox" id="terms2" name="terms" required>
+                                <label for="terms2">I confirm that all information provided is true and complete *</label>
                             </div>
-
+                            
                             <button type="submit" class="btn-gold">Submit Nomination</button>
                         </form>
                     </div>
-
-                    <!-- Success Message (hidden by default) -->
-                    <div id="nominationSuccess" class="nomination-success" style="display: none;">
-                        <i class="fas fa-check-circle"></i>
-                        <h4>Nomination Submitted Successfully!</h4>
-                        <p>Thank you for sharing this story of victory. We will review the nomination and contact you soon.</p>
-                    </div>
                 </div>
+
+                <script>
+                function toggleNominationForm() {
+                    const form = document.getElementById("nominationFormContainer");
+                    const button = document.getElementById("toggleFormBtn");
+                    const section = document.getElementById("nominationForm");
+                    
+                    if (form.style.display === "none") {
+                        form.style.display = "block";
+                        button.textContent = "Hide Form";
+                        section.classList.remove("collapsed");
+                        form.scrollIntoView({ behavior: "smooth" });
+                    } else {
+                        form.style.display = "none";
+                        button.textContent = "Nominate";
+                        section.classList.add("collapsed");
+                    }
+                }
+                </script>
             </div>
         </section>
 
@@ -1847,74 +2147,34 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
         <section id="testimonials" class="section">
             <div class="section-container">
                 <h2 class="section-title">Testimonies</h2>
-                
                 <div class="testimonials-grid">
                     <div class="testimonial-card">
-                        <div class="testimonial-header">
-                            <div class="stars">★★★★★</div>
-                            <div class="date">Dec 2025</div>
-                        </div>
+                        <div class="testimonial-header"><div class="stars">★★★★★</div><div class="date">Dec 2025</div></div>
                         <p class="testimonial-message">“MEF gave my story a platform — I went from feeling invisible to inspiring thousands. Thank you for making education fashionable again!”</p>
-                        <div class="testimonial-author">
-                            <div class="author-avatar">N</div>
-                            <div>
-                                <div style="font-weight:600;">Nomfundo</div>
-                                <div style="color:var(--text-muted);font-size:0.9rem;">BCom Graduate • Johannesburg</div>
-                            </div>
-                        </div>
+                        <div class="testimonial-author"><div class="author-avatar">N</div><div><div style="font-weight:600;">Nomfundo</div><div style="color:var(--text-muted);font-size:0.9rem;">BCom Graduate • Johannesburg</div></div></div>
                     </div>
-
                     <div class="testimonial-card">
-                        <div class="testimonial-header">
-                            <div class="stars">★★★★★</div>
-                            <div class="date">Nov 2025</div>
-                        </div>
+                        <div class="testimonial-header"><div class="stars">★★★★★</div><div class="date">Nov 2025</div></div>
                         <p class="testimonial-message">“After sharing my journey in agriculture, I connected with investors. MEF truly changes lives.”</p>
-                        <div class="testimonial-author">
-                            <div class="author-avatar">T</div>
-                            <div>
-                                <div style="font-weight:600;">Thabo</div>
-                                <div style="color:var(--text-muted);font-size:0.9rem;">BSc Agric • Limpopo</div>
-                            </div>
-                        </div>
+                        <div class="testimonial-author"><div class="author-avatar">T</div><div><div style="font-weight:600;">Thabo</div><div style="color:var(--text-muted);font-size:0.9rem;">BSc Agric • Limpopo</div></div></div>
                     </div>
-
                     <div class="testimonial-card">
-                        <div class="testimonial-header">
-                            <div class="stars">★★★★★</div>
-                            <div class="date">Oct 2025</div>
-                        </div>
+                        <div class="testimonial-header"><div class="stars">★★★★★</div><div class="date">Oct 2025</div></div>
                         <p class="testimonial-message">“Winning the Young Entrepreneur Award opened doors I never imagined. MEF is truly life-changing.”</p>
-                        <div class="testimonial-author">
-                            <div class="author-avatar">K</div>
-                            <div>
-                                <div style="font-weight:600;">Kabelo</div>
-                                <div style="color:var(--text-muted);font-size:0.9rem;">Tech Founder • Cape Town</div>
-                            </div>
-                        </div>
+                        <div class="testimonial-author"><div class="author-avatar">K</div><div><div style="font-weight:600;">Kabelo</div><div style="color:var(--text-muted);font-size:0.9rem;">Tech Founder • Cape Town</div></div></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- CONTACT - Updated to show only success message, no error message -->
+        <!-- CONTACT -->
         <section id="contact" class="section">
             <div class="section-container">
                 <h2 class="section-title">Get in Touch</h2>
-                
                 <div class="contact-grid">
                     <div class="contact-info">
                         <h3>Connect With Us</h3>
-                        
-                        <div class="info-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <div style="font-weight:600;color:var(--accent-purple);">Email</div>
-                                <div>pngnkosi@gmail.com</div>
-                                <div>kgethi@perspicuty.africa</div>
-                            </div>
-                        </div>
-
+                        <div class="info-item"><i class="fas fa-envelope"></i><div><div style="font-weight:600;color:var(--accent-purple);">Email</div><div>pngnkosi@gmail.com</div><div>kgethi@perspicuty.africa</div></div></div>
                         <div class="social-links">
                             <a href="https://www.tiktok.com/@fabacademic" target="_blank" class="social-link"><i class="fab fa-tiktok"></i></a>
                             <a href="https://twitter.com/fabacademic" target="_blank" class="social-link"><i class="fab fa-twitter"></i></a>
@@ -1924,141 +2184,42 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                             <a href="https://www.facebook.com/kgethi.phakeng" target="_blank" class="social-link"><i class="fab fa-facebook"></i></a>
                         </div>
                     </div>
-                    
                     <div class="contact-form">
-                        <!-- Only success message (error message removed) -->
-                        <div id="contactSuccess" class="alert alert-success" style="display: none;">
-                            <i class="fas fa-check-circle"></i> Your message has been sent successfully! We'll get back to you soon.
-                        </div>
-
-                        <form id="contactForm" onsubmit="submitContactForm(event)">
-                            <div class="form-group">
-                                <input type="text" id="name" name="name" placeholder="Your Name" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="email" id="email" name="email" placeholder="Your Email" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" id="subject" name="subject" placeholder="Subject" required>
-                            </div>
-                            <div class="form-group">
-                                <textarea id="message" name="message" placeholder="Your Message" required></textarea>
-                            </div>
+                        <form method="POST" action="index.php">
+                            <input type="hidden" name="form_type" value="contact">
+                            <div class="form-group"><input type="text" id="name" name="name" placeholder="Your Name" required></div>
+                            <div class="form-group"><input type="email" id="email" name="email" placeholder="Your Email" required></div>
+                            <div class="form-group"><input type="text" id="subject" name="subject" placeholder="Subject" required></div>
+                            <div class="form-group"><textarea id="message" name="message" placeholder="Your Message" required></textarea></div>
                             <button type="submit" class="submit-btn">Send Message</button>
                         </form>
                     </div>
                 </div>
             </div>
         </section>
-
     </main>
 
     <!-- FOOTER -->
     <footer>
         <div class="footer-container">
             <div class="footer-main">
-                <div class="footer-about">
-                    <h4>About MEF</h4>
-                    <p>Make Education Fashionable is a movement founded by Prof. Mamokgethi Phakeng to celebrate educational achievements and inspire the next generation of African leaders.</p>
-                    <div class="brand-small">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>MEF · Since 2015</span>
-                    </div>
-                </div>
-                <div class="footer-quick">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
-                        <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
-                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Services & Awards</a></li>
-                        <li><a href="#testimonials"><i class="fas fa-chevron-right"></i> Testimonies</a></li>
-                        <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-social">
-                    <h4>Connect With Us</h4>
-                    <div class="footer-social-grid">
-                        <a href="https://www.tiktok.com/@fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-tiktok"></i><span>TikTok</span></a>
-                        <a href="https://twitter.com/fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-twitter"></i><span>Twitter / X</span></a>
-                        <a href="https://instagram.com/fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-instagram"></i><span>Instagram</span></a>
-                        <a href="https://linkedin.com/in/mamokgethiphakeng" target="_blank" class="footer-social-item"><i class="fab fa-linkedin"></i><span>LinkedIn</span></a>
-                        <a href="https://www.youtube.com/@Fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-youtube"></i><span>YouTube</span></a>
-                        <a href="https://www.facebook.com/kgethi.phakeng" target="_blank" class="footer-social-item"><i class="fab fa-facebook"></i><span>Facebook</span></a>
-                    </div>
-                </div>
+                <div class="footer-about"><h4>About MEF</h4><p>Make Education Fashionable is a movement founded by Prof. Mamokgethi Phakeng to celebrate educational achievements and inspire the next generation of African leaders.</p><div class="brand-small"><i class="fas fa-graduation-cap"></i><span>MEF · Since 2015</span></div></div>
+                <div class="footer-quick"><h4>Quick Links</h4><ul><li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li><li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li><li><a href="#services"><i class="fas fa-chevron-right"></i> Services & Awards</a></li><li><a href="#testimonials"><i class="fas fa-chevron-right"></i> Testimonies</a></li><li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li></ul></div>
+                <div class="footer-social"><h4>Connect With Us</h4><div class="footer-social-grid"><a href="https://www.tiktok.com/@fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-tiktok"></i><span>TikTok</span></a><a href="https://twitter.com/fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-twitter"></i><span>Twitter / X</span></a><a href="https://instagram.com/fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-instagram"></i><span>Instagram</span></a><a href="https://linkedin.com/in/mamokgethiphakeng" target="_blank" class="footer-social-item"><i class="fab fa-linkedin"></i><span>LinkedIn</span></a><a href="https://www.youtube.com/@Fabacademic" target="_blank" class="footer-social-item"><i class="fab fa-youtube"></i><span>YouTube</span></a><a href="https://www.facebook.com/kgethi.phakeng" target="_blank" class="footer-social-item"><i class="fab fa-facebook"></i><span>Facebook</span></a></div></div>
             </div>
-            <div class="footer-bottom">
-                <div>© 2025 MEF – Make Education Fashionable. All rights reserved.</div>
-                <div class="footer-bottom-links">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Use</a>
-                    <a href="#">Cookie Policy</a>
-                </div>
-            </div>
+            <div class="footer-bottom"><div>© 2025 MEF – Make Education Fashionable. All rights reserved.</div><div class="footer-bottom-links"><a href="#">Privacy Policy</a><a href="#">Terms of Use</a><a href="#">Cookie Policy</a></div></div>
         </div>
     </footer>
 
     <script>
-        // Category data for requirements
         const categoryData = {
-            research: {
-                title: 'African Development Research Award',
-                requirements: [
-                    'PhD or equivalent research experience',
-                    'Minimum 5 years of research in African development',
-                    'Published at least 3 peer-reviewed papers',
-                    'Demonstrated impact on African communities',
-                    'South African citizen or permanent resident',
-                    'Under 45 years of age'
-                ]
-            },
-            ai: {
-                title: 'AI Champion Award',
-                requirements: [
-                    'Minimum 3 years experience in AI/ML',
-                    'Proven track record of AI innovation',
-                    'Active involvement in AI ethics and advocacy',
-                    'Portfolio of AI projects or implementations',
-                    'South African citizen or permanent resident',
-                    'Open to all ages'
-                ]
-            },
-            women: {
-                title: 'Mamokgethi Phakeng Prize',
-                requirements: [
-                    'Identify as a woman',
-                    'Minimum 5 years leadership experience',
-                    'Demonstrated impact in breaking barriers',
-                    'Mentorship of young women',
-                    'South African citizen or permanent resident',
-                    'Open to all ages'
-                ]
-            },
-            entrepreneur: {
-                title: 'Young Entrepreneur Award',
-                requirements: [
-                    'Age 18-35 years',
-                    'Own and run a registered business',
-                    'Business operational for minimum 2 years',
-                    'Minimum 3 employees',
-                    'Demonstrated revenue growth',
-                    'South African citizen or permanent resident'
-                ]
-            },
-            agriculture: {
-                title: 'Youth in Agriculture Award',
-                requirements: [
-                    'Age 18-35 years',
-                    'Degree/Diploma in Agriculture or related field',
-                    'Minimum 2 years experience in agriculture',
-                    'Demonstrated innovation in farming',
-                    'South African citizen or permanent resident',
-                    'Sustainable farming practices'
-                ]
-            }
+            research: { title: 'African Development Research Award', requirements: ['PhD or equivalent research experience', 'Minimum 5 years of research in African development', 'Published at least 3 peer-reviewed papers', 'Demonstrated impact on African communities', 'South African citizen or permanent resident', 'Under 45 years of age'] },
+            ai: { title: 'AI Champion Award', requirements: ['Minimum 3 years experience in AI/ML', 'Proven track record of AI innovation', 'Active involvement in AI ethics and advocacy', 'Portfolio of AI projects or implementations', 'South African citizen or permanent resident', 'Open to all ages'] },
+            women: { title: 'Mamokgethi Phakeng Prize', requirements: ['Identify as a woman', 'Minimum 5 years leadership experience', 'Demonstrated impact in breaking barriers', 'Mentorship of young women', 'South African citizen or permanent resident', 'Open to all ages'] },
+            entrepreneur: { title: 'Young Entrepreneur Award', requirements: ['Age 18-35 years', 'Own and run a registered business', 'Business operational for minimum 2 years', 'Minimum 3 employees', 'Demonstrated revenue growth', 'South African citizen or permanent resident'] },
+            agriculture: { title: 'Youth in Agriculture Award', requirements: ['Age 18-35 years', 'Degree/Diploma in Agriculture or related field', 'Minimum 2 years experience in agriculture', 'Demonstrated innovation in farming', 'South African citizen or permanent resident', 'Sustainable farming practices'] }
         };
 
-        // Modal elements
         const modal = document.getElementById('categoryModal');
         const modalTitle = document.getElementById('modalTitle');
         const requirementsList = document.getElementById('requirementsList');
@@ -2073,152 +2234,67 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
         const showApplicationBtn = document.getElementById('showApplicationBtn');
         const backToRequirementsBtn = document.getElementById('backToRequirementsBtn');
 
-        // Get all category cards (except the 6th one which has its own onclick)
         const categoryCards = document.querySelectorAll('.category-card:not([onclick])');
-        
-        // Add click event to each card
         categoryCards.forEach(card => {
             card.addEventListener('click', function(e) {
                 const category = this.dataset.category;
                 const data = categoryData[category];
-                
                 if (data) {
                     modalTitle.textContent = data.title;
                     applicationTitle.textContent = data.title;
                     appliedCategory.value = data.title;
                     applicationCategory.value = category;
-                    
-                    // Build requirements list
                     let requirementsHtml = '';
-                    data.requirements.forEach(req => {
-                        requirementsHtml += `<li>${req}</li>`;
-                    });
+                    data.requirements.forEach(req => requirementsHtml += `<li>${req}</li>`);
                     requirementsList.innerHTML = requirementsHtml;
-                    
-                    // Show requirements section, hide others
                     requirementsSection.style.display = 'block';
                     applicationSection.style.display = 'none';
                     successSection.style.display = 'none';
-                    
-                    // Show modal
                     modal.classList.add('active');
                     document.body.style.overflow = 'hidden';
                 }
             });
         });
 
-        // Show application form
         showApplicationBtn.addEventListener('click', function() {
             requirementsSection.style.display = 'none';
             applicationSection.style.display = 'block';
             successSection.style.display = 'none';
         });
 
-        // Back to requirements
         backToRequirementsBtn.addEventListener('click', function() {
             requirementsSection.style.display = 'block';
             applicationSection.style.display = 'none';
             successSection.style.display = 'none';
         });
 
-        // Close modal function
         function closeModal() {
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
         }
 
-        // Close modal with X button
         modalClose.addEventListener('click', closeModal);
-        
-        // Close modal with Cancel button
         modalCancel.addEventListener('click', closeModal);
-        
-        // Close modal when clicking outside
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-
-        // Application submission
-        function submitApplication(event) {
-            event.preventDefault();
-            
-            // Here you would typically send the form data to a server
-            // For now, we'll just show success message
-            
-            // Hide form, show success
-            requirementsSection.style.display = 'none';
-            applicationSection.style.display = 'none';
-            successSection.style.display = 'block';
-            
-            console.log('Application submitted for:', applicationCategory.value);
-        }
-
-        // Nomination form handling
-        const nominationTypeRadios = document.querySelectorAll('input[name="nominationType"]');
-        const nominatorInfo = document.getElementById('nominatorInfo');
-        const nomineeInfo = document.getElementById('nomineeInfo');
-        
-        nominationTypeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.value === 'other') {
-                    nominatorInfo.style.display = 'block';
-                    // Make nominator fields required
-                    document.getElementById('nominatorFirstName').required = true;
-                    document.getElementById('nominatorLastName').required = true;
-                    document.getElementById('nominatorEmail').required = true;
-                    document.getElementById('nominatorPhone').required = true;
-                    document.getElementById('relationship').required = true;
-                } else {
-                    nominatorInfo.style.display = 'none';
-                    // Remove required from nominator fields
-                    document.getElementById('nominatorFirstName').required = false;
-                    document.getElementById('nominatorLastName').required = false;
-                    document.getElementById('nominatorEmail').required = false;
-                    document.getElementById('nominatorPhone').required = false;
-                    document.getElementById('relationship').required = false;
-                }
-            });
-        });
-
-        function submitNomination(event) {
-            event.preventDefault();
-            
-            // Hide form, show success
-            document.getElementById('nominationFormContainer').style.display = 'none';
-            document.getElementById('nominationSuccess').style.display = 'block';
-            
-            // Scroll to success message
-            document.getElementById('nominationSuccess').scrollIntoView({ behavior: 'smooth' });
-        }
+        modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 
         // Mobile menu toggle
         document.querySelector('.menu-toggle').addEventListener('click', () => {
             document.querySelector('.nav-links').classList.toggle('active');
         });
 
-        // Smooth scroll + active link (including clickable logo)
+        // Smooth scroll + active link
         document.querySelectorAll('.nav-links a, .logo-link').forEach(link => {
             link.addEventListener('click', e => {
                 const href = link.getAttribute('href');
                 if (href && href.startsWith('#')) {
                     e.preventDefault();
-                    
                     if (!link.classList.contains('logo-link')) {
                         document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
                         link.classList.add('active');
                     }
-                    
                     document.querySelector('.nav-links').classList.remove('active');
-
                     const target = document.querySelector(href);
-                    if (target) {
-                        window.scrollTo({
-                            top: target.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                    }
+                    if (target) window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
                 }
             });
         });
@@ -2226,32 +2302,13 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
         // Navbar hide/show on scroll
         let lastScrollTop = 0;
         const navbar = document.querySelector('.fixed-nav');
-        
         window.addEventListener('scroll', () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            // Add/remove scrolled class for padding change
-            if (scrollTop > 100) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-            
-            // Hide navbar when scrolling down, show when scrolling up
-            if (scrollTop > lastScrollTop && scrollTop > 200) {
-                // Scrolling down
-                navbar.classList.add('hidden');
-            } else {
-                // Scrolling up
-                navbar.classList.remove('hidden');
-            }
-            
+            if (scrollTop > 100) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled');
+            if (scrollTop > lastScrollTop && scrollTop > 200) navbar.classList.add('hidden'); else navbar.classList.remove('hidden');
             lastScrollTop = scrollTop;
-
-            // Update active link on scroll
             const sections = document.querySelectorAll('section[id]');
             const scrollPos = window.scrollY + 100;
-
             sections.forEach(sec => {
                 const top = sec.offsetTop;
                 const height = sec.offsetHeight;
@@ -2264,36 +2321,6 @@ if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
                 }
             });
         });
-
-        // CONTACT FORM HANDLING - Only shows success message, no error
-        function submitContactForm(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const subject = document.getElementById('subject').value.trim();
-            const message = document.getElementById('message').value.trim();
-            const successDiv = document.getElementById('contactSuccess');
-            
-            // Simple validation - if all fields filled, show success
-            if (name && email && subject && message) {
-                // Show success message
-                successDiv.style.display = 'block';
-                
-                // Clear the form
-                document.getElementById('contactForm').reset();
-                
-                // Hide success message after 5 seconds
-                setTimeout(() => {
-                    successDiv.style.display = 'none';
-                }, 5000);
-            } else {
-                // Instead of error message, just do nothing or could show a subtle hint
-                // For now, we'll just not show any message
-                console.log('Please fill all fields');
-            }
-        }
     </script>
-
 </body>
 </html>
