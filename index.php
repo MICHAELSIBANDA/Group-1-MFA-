@@ -202,28 +202,12 @@ unset($_SESSION['success'], $_SESSION['error']);
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>MEF · Make Education Fashionable</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <meta name="description" content="Make Education Fashionable - A movement founded by Prof. Mamokgethi Phakeng to celebrate educational achievements and inspire the next generation of African leaders.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Favicon links for all browsers (Chrome, Safari, Android, iOS) -->
-
-<!-- Standard favicon -->
-<link rel="icon" type="image/x-icon" href="favicon_io/favicon.ico">
-
-<!-- PNG favicons -->
-<link rel="icon" type="image/png" sizes="192x192" href="favicon_io/android-chrome-192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="favicon_io/android-chrome-512x512.png">
-
-<!-- Apple (iPhone, iPad) -->
-<link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png">
-
-<!-- Web Manifest (optional but recommended) -->
-<link rel="manifest" href="favicon_io/site.webmanifest">
-
-<meta name="theme-color" content="#ffffff">
-    <!-- External CSS (no inline styles) -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -452,7 +436,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         </div>
     </div>
 
-    <!-- NAVBAR with clickable logo -->
+    <!-- NAVBAR with clickable logo and hamburger menu -->
     <nav class="fixed-nav">
         <div class="nav-left">
             <a href="#home" class="logo-link">
@@ -464,9 +448,11 @@ unset($_SESSION['success'], $_SESSION['error']);
             </div>
         </div>
         
-        <div class="menu-toggle"><i class="fas fa-bars"></i></div>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
 
-        <div class="nav-links">
+        <div class="nav-links" id="navLinks">
             <a href="#home" class="active">Home</a>
             <a href="#about">About</a>
             <a href="#services">Services</a>
@@ -735,14 +721,14 @@ unset($_SESSION['success'], $_SESSION['error']);
         };
 
         // Mobile menu toggle
-        document.querySelector('.menu-toggle').addEventListener('click', () => {
-            document.querySelector('.nav-links').classList.toggle('active');
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navLinks').classList.toggle('active');
         });
 
         // Close mobile menu when clicking a link
         document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.querySelector('.nav-links').classList.remove('active');
+            link.addEventListener('click', function() {
+                document.getElementById('navLinks').classList.remove('active');
             });
         });
 
@@ -759,7 +745,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     
                     const target = document.querySelector(href);
                     if (target) {
-                        const offset = 80; // Adjust for fixed navbar
+                        const offset = 80;
                         const targetPosition = target.offsetTop - offset;
                         
                         window.scrollTo({
@@ -771,9 +757,10 @@ unset($_SESSION['success'], $_SESSION['error']);
             });
         });
 
-        // Navbar hide/show on scroll
+        // Navbar hide/show on scroll - FIXED VERSION
         let lastScrollTop = 0;
         const navbar = document.querySelector('.fixed-nav');
+        
         window.addEventListener('scroll', () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
@@ -784,13 +771,18 @@ unset($_SESSION['success'], $_SESSION['error']);
                 navbar.classList.remove('scrolled');
             }
             
-            // Hide navbar when scrolling down, show when scrolling up (mobile only)
-            if (window.innerWidth <= 768) {
-                if (scrollTop > lastScrollTop && scrollTop > 100) {
-                    navbar.classList.add('hidden');
-                } else {
-                    navbar.classList.remove('hidden');
-                }
+            // Hide navbar when scrolling down, show when scrolling up
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                // Scrolling DOWN - hide navbar
+                navbar.classList.add('hidden');
+            } else {
+                // Scrolling UP - show navbar
+                navbar.classList.remove('hidden');
+            }
+            
+            // If at the very top, always show navbar
+            if (scrollTop === 0) {
+                navbar.classList.remove('hidden');
             }
             
             lastScrollTop = scrollTop;
@@ -840,8 +832,6 @@ unset($_SESSION['success'], $_SESSION['error']);
         const nominationModalClose = document.getElementById('nominationModalClose');
         const nominationModalCancel = document.getElementById('nominationModalCancel');
         const openNominationModalBtn = document.getElementById('openNominationModalBtn');
-        const nominationCard = document.getElementById('nominationCard');
-        const nominationCardBtn = document.getElementById('nominationCardBtn');
 
         const categoryCards = document.querySelectorAll('.category-card:not([onclick])');
         categoryCards.forEach(card => {
@@ -904,17 +894,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             openNominationModalBtn.addEventListener('click', openNominationModal);
         }
         
-        if (nominationCard) {
-            nominationCard.addEventListener('click', openNominationModal);
-        }
-        
-        if (nominationCardBtn) {
-            nominationCardBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                openNominationModal();
-            });
-        }
-        
         if (nominationModalClose) {
             nominationModalClose.addEventListener('click', closeNominationModal);
         }
@@ -929,8 +908,8 @@ unset($_SESSION['success'], $_SESSION['error']);
 
         // Close mobile menu when clicking outside
         document.addEventListener('click', function(e) {
-            const navLinks = document.querySelector('.nav-links');
-            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinks = document.getElementById('navLinks');
+            const menuToggle = document.getElementById('menuToggle');
             
             if (window.innerWidth <= 768 && 
                 navLinks.classList.contains('active') && 
