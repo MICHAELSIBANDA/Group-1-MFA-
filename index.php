@@ -208,12 +208,9 @@ unset($_SESSION['success'], $_SESSION['error']);
     <meta name="description" content="Make Education Fashionable - A movement founded by Prof. Mamokgethi Phakeng to celebrate educational achievements and inspire the next generation of African leaders.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-<<<<<<< HEAD
-=======
     <!-- Favicon links for all browsers (Chrome, Safari, Android, iOS) -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 
->>>>>>> 847e5c49c75fe805aac4561b11a65ec4b504d727
     <style>
         :root {
             --primary-dark: #0a192f;
