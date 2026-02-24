@@ -599,7 +599,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 </div>
 
                 <!-- Standalone Nomination Button (opens modal) -->
-                <div class="nomination-form-section" id="nominationForm">
+                <div class="category-card nomination-form-section" id="nominationForm">
                     <h3>Nominate Yourself or Someone Else</h3>
                     <p>Every story of victory deserves to be celebrated. Click the button below to submit a nomination.</p>
                     

@@ -1172,6 +1172,35 @@
             align-items: center;
             gap: 0.6rem;
         }
+        .nomination-form-section {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 1.5rem;
+            border: 2px solid var(--accent-gold); /* GOLD BORDER */
+            box-shadow: var(--shadow-xl);
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        /* Hover effect like other cards */
+        .nomination-form-section:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--accent-teal);
+            box-shadow: 0 30px 50px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Optional subtle gold glow overlay */
+        .nomination-form-section::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(255, 215, 0, 0.15), transparent 70%);
+            pointer-events: none;
+        }
 
         .nomination-card .nomination-btn:hover {
             transform: translateY(-3px);
