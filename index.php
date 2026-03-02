@@ -10,13 +10,110 @@ require_once __DIR__ . '/setup_db.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Category mapping: short code => full display name
-$categoryNames = [
-    'research'     => 'African Development Research Award',
-    'ai'           => 'AI Champion Award',
-    'women'        => 'Mamokgethi Phakeng Prize',
-    'entrepreneur' => 'Young Entrepreneur Award',
-    'agriculture'  => 'Youth in Agriculture Award'
+// Category mapping: short code => full display name and details
+$categoryDetails = [
+    'research' => [
+        'name' => 'African Development Research Award',
+        'description' => 'Celebrates research that addresses Africa\'s most pressing challenges. Research should solve real problems and improve people\'s lives.',
+        'eligibility' => [
+            'Master\'s, Doctoral, or Postdoctoral graduate from any African country',
+            'Research directly addresses a significant challenge faced by Africa',
+            'Demonstrable relevance to improving lives or solving problems in Africa',
+            'Research can be in any field (engineering, health sciences, economics, social sciences, environmental studies)',
+            'Open to researchers across the African continent'
+        ],
+        'criteria' => [
+            'Academic excellence (high grades or notable research results)',
+            'Evidence of research impact or potential for practical application',
+            'Work with communities, publishing policy briefs, or innovating prototypes',
+            'Preference for nominees who have not yet received widespread recognition'
+        ],
+        'prize' => 'R10,000 cash prize + fully covered travel and accommodation to Gauteng for the convocation',
+        'max_winners' => 5,
+        'open_to' => 'All African countries'
+    ],
+    'ai' => [
+        'name' => 'AI Champion Award',
+        'description' => 'Recognizes the growing importance of artificial intelligence in shaping the future of education, work, and society. Africans should be creators and leaders in technology.',
+        'eligibility' => [
+            'Open to all ages and educational backgrounds (from self-taught practitioners to researchers)',
+            'South African citizen or permanent resident preferred',
+            'Demonstrated excellence in artificial intelligence or digital innovation'
+        ],
+        'criteria' => [
+            'Portfolio of AI projects, implementations, or research',
+            'Active involvement in promoting AI literacy and adoption across Africa',
+            'Evidence of using AI to address social or developmental challenges',
+            'Experience in teaching or mentoring others in AI (preferred)',
+            'Alignment with vision of Africans as creators, not just consumers, of technology'
+        ],
+        'prize' => 'R10,000 cash prize + potential in-kind support (mentorship, cloud computing credits, or tech resources)',
+        'max_winners' => 5,
+        'open_to' => 'South Africa (preferred)'
+    ],
+    'women' => [
+        'name' => 'Mamokgethi Phakeng Prize',
+        'description' => 'Honours excellence among female scholars in the mathematical sciences, named after Prof Phakeng\'s historic achievement as the first black African South African woman to earn a PhD in Mathematics Education (2002).',
+        'eligibility' => [
+            'Identify as a black African woman',
+            'South African citizen or permanent resident',
+            'Currently pursuing or recently completed a Master\'s or PhD in Mathematical Sciences',
+            'Fields include: Applied Mathematics, Pure Mathematics, Mathematics Education, Statistics, or any math-related discipline'
+        ],
+        'criteria' => [
+            'Demonstrated academic excellence (high grades or notable research results)',
+            'Proven determination to succeed in a field where women have historically been underrepresented',
+            'Active in mentoring other students or involved in outreach to inspire girls in STEM (preferred)',
+            'Embody the spirit of perseverance and serve as a role model for other young women',
+            'Published impactful research or solving real-world problems through thesis'
+        ],
+        'prize' => 'R10,000 cash prize + mentorship opportunity and public recognition at the convocation',
+        'max_winners' => 5,
+        'open_to' => 'South Africa'
+    ],
+    'entrepreneur' => [
+        'name' => 'Young Entrepreneur Award',
+        'description' => 'Celebrates graduates who have taken the initiative to start something of their own, showing innovation, resilience, and the potential to contribute to job creation.',
+        'eligibility' => [
+            'Age 18-35 years',
+            'Completed tertiary education (at least a diploma or degree)',
+            'Founded or co-founded a registered business operating in South Africa',
+            'Business operational for minimum 1 year',
+            'South African citizen or permanent resident (business must be in SA)'
+        ],
+        'criteria' => [
+            'Demonstrated innovation, resilience, and growth potential',
+            'Evidence of job creation or community impact',
+            'Solving a real problem or filling a market gap',
+            'Achieved notable milestones (growth in revenue, user base, or community impact)',
+            'Overcome personal hardship or run the company with limited resources (preferred)',
+            'Compelling personal story that can inspire other young entrepreneurs'
+        ],
+        'prize' => 'R10,000 cash prize (seed funding) + significant publicity for their business',
+        'max_winners' => 5,
+        'open_to' => 'South Africa'
+    ],
+    'agriculture' => [
+        'name' => 'Youth in Agriculture Award',
+        'description' => 'Honours young graduates who are proving that education and agriculture together can generate powerful results. Confronts the stereotype that "educated youth avoid farming."',
+        'eligibility' => [
+            'Age 18-35 years',
+            'Completed tertiary education (any field)',
+            'Making an impact in agriculture or the agricultural value chain',
+            'Open to youth across the African continent'
+        ],
+        'criteria' => [
+            'Areas include: hands-on farming, agricultural research, agri-entrepreneurship, agro-processing, or agricultural education',
+            'Demonstrated progress, innovation, or impact in agriculture',
+            'Proven that education and agriculture together can generate powerful results',
+            'Overcame scepticism about choosing agriculture after higher education (preferred)',
+            'Leadership or innovation in agriculture',
+            'Returned to rural area to run community farming project (preferred)'
+        ],
+        'prize' => 'R10,000 cash prize to reinvest in agricultural projects or business',
+        'max_winners' => 5,
+        'open_to' => 'All African countries'
+    ]
 ];
 
 // Function to send email using PHPMailer
@@ -85,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt2->bind_param("sssssi", $categoryCode, $qualification, $institution, $linkedin, $achievements, $nomineeId);
                     if ($stmt2->execute()) {
                         $_SESSION['success'] = "Your award application has been submitted successfully!";
-                        $fullCategory = $categoryNames[$categoryCode] ?? $categoryCode;
+                        $fullCategory = $categoryDetails[$categoryCode]['name'] ?? $categoryCode;
                         $subject = "YOU'VE BEEN NOMINATED for the MEF Awards!";
                         $body = "Dear $firstName $lastName,\n\n";
                         $body .= "We are excited to inform you that you have been nominated for the **MEF Awards** in the **$fullCategory** category! 🌟\n";
@@ -136,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt2->bind_param("sssssi", $categoryCode, $qualification, $institution, $linkedin, $achievements, $nomineeId);
                     if ($stmt2->execute()) {
                         $_SESSION['success'] = "Your nomination has been submitted successfully!";
-                        $fullCategory = $categoryNames[$categoryCode] ?? $categoryCode;
+                        $fullCategory = $categoryDetails[$categoryCode]['name'] ?? $categoryCode;
                         $subject = "YOU'VE BEEN NOMINATED for the MEF Awards!";
                         $body = "Dear $firstName $lastName,\n\n";
                         $body .= "We are excited to inform you that you have been nominated for the MEF Awards! 🌟\n";
@@ -244,8 +341,21 @@ unset($_SESSION['success'], $_SESSION['error']);
             
             <div id="requirementsSection">
                 <div class="modal-section">
-                    <h4>Requirements:</h4>
-                    <ul id="requirementsList"></ul>
+                    <h4>About This Award</h4>
+                    <p id="awardDescription" style="color: var(--text-muted); margin-bottom: 1.5rem;"></p>
+                    
+                    <h4>Eligibility Requirements:</h4>
+                    <ul id="eligibilityList"></ul>
+                    
+                    <h4 style="margin-top: 1.5rem;">Selection Criteria:</h4>
+                    <ul id="criteriaList"></ul>
+                    
+                    <div class="modal-section" style="background: rgba(255, 215, 0, 0.1); padding: 1rem; border-radius: var(--radius-md); margin-top: 1.5rem;">
+                        <p style="color: var(--accent-gold); font-weight: 600; margin-bottom: 0.5rem;">🏆 Prize Details</p>
+                        <p id="prizeDetails" style="color: var(--text-light);"></p>
+                        <p id="openToDetails" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;"></p>
+                        <p style="color: var(--accent-teal); font-size: 0.9rem; margin-top: 0.5rem;">✨ Up to 5 winners may be selected in this category</p>
+                    </div>
                 </div>
                 <div class="modal-buttons">
                     <button class="modal-btn modal-btn-primary" id="showApplicationBtn">Apply Now</button>
@@ -680,244 +790,292 @@ unset($_SESSION['success'], $_SESSION['error']);
     </footer>
 
     <script>
-        // LOOPING TYPING ANIMATION FOR HOME HEADING
-        const headingSentence = "Make Education Fashionable";
-        let headingIndex = 0;
-        let isDeleting = false;
-        const headingElement = document.getElementById("typingHeading");
-        const typingSpeed = 100;
-        const deletingSpeed = 50;
-        const pauseTime = 2000;
+    // LOOPING TYPING ANIMATION FOR HOME HEADING
+    const headingSentence = "Make Education Fashionable";
+    let headingIndex = 0;
+    let isDeleting = false;
+    const headingElement = document.getElementById("typingHeading");
+    const typingSpeed = 100;
+    const deletingSpeed = 50;
+    const pauseTime = 2000;
+    
+    function typeHeadingEffect() {
+        if (!headingElement) return;
         
-        function typeHeadingEffect() {
-            if (!headingElement) return;
+        if (!isDeleting && headingIndex <= headingSentence.length) {
+            headingElement.innerHTML = headingSentence.substring(0, headingIndex) + '<span class="typing-cursor"></span>';
+            headingIndex++;
             
-            if (!isDeleting && headingIndex <= headingSentence.length) {
-                headingElement.innerHTML = headingSentence.substring(0, headingIndex) + '<span class="typing-cursor"></span>';
-                headingIndex++;
-                
-                if (headingIndex > headingSentence.length) {
-                    isDeleting = true;
-                    setTimeout(typeHeadingEffect, pauseTime);
-                    return;
-                }
-            } else if (isDeleting && headingIndex >= 0) {
-                headingElement.innerHTML = headingSentence.substring(0, headingIndex) + '<span class="typing-cursor"></span>';
-                headingIndex--;
-                
-                if (headingIndex < 0) {
-                    isDeleting = false;
-                    headingIndex = 0;
-                }
+            if (headingIndex > headingSentence.length) {
+                isDeleting = true;
+                setTimeout(typeHeadingEffect, pauseTime);
+                return;
             }
+        } else if (isDeleting && headingIndex >= 0) {
+            headingElement.innerHTML = headingSentence.substring(0, headingIndex) + '<span class="typing-cursor"></span>';
+            headingIndex--;
             
-            const nextDelay = isDeleting ? deletingSpeed : typingSpeed;
-            setTimeout(typeHeadingEffect, nextDelay);
+            if (headingIndex < 0) {
+                isDeleting = false;
+                headingIndex = 0;
+            }
         }
-
-        // Start typing animation when page loads
-        window.onload = function() {
-            typeHeadingEffect();
-        };
-
-        // Mobile menu toggle
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('navLinks').classList.toggle('active');
-        });
-
-        // Close mobile menu when clicking a link
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', function() {
-                document.getElementById('navLinks').classList.remove('active');
-            });
-        });
-
-        // Smooth scroll + active link
-        document.querySelectorAll('.nav-links a, .logo-link').forEach(link => {
-            link.addEventListener('click', e => {
-                const href = link.getAttribute('href');
-                if (href && href.startsWith('#')) {
-                    e.preventDefault();
-                    if (!link.classList.contains('logo-link')) {
-                        document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-                        link.classList.add('active');
-                    }
-                    
-                    const target = document.querySelector(href);
-                    if (target) {
-                        const offset = 80;
-                        const targetPosition = target.offsetTop - offset;
-                        
-                        window.scrollTo({
-                            top: targetPosition,
-                            behavior: 'smooth'
-                        });
-                    }
-                }
-            });
-        });
-
-        // Navbar hide/show on scroll - FIXED VERSION
-        let lastScrollTop = 0;
-        const navbar = document.querySelector('.fixed-nav');
         
-        window.addEventListener('scroll', () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            // Add/remove scrolled class for padding change
-            if (scrollTop > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-            
-            // Hide navbar when scrolling down, show when scrolling up
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                // Scrolling DOWN - hide navbar
-                navbar.classList.add('hidden');
-            } else {
-                // Scrolling UP - show navbar
-                navbar.classList.remove('hidden');
-            }
-            
-            // If at the very top, always show navbar
-            if (scrollTop === 0) {
-                navbar.classList.remove('hidden');
-            }
-            
-            lastScrollTop = scrollTop;
+        const nextDelay = isDeleting ? deletingSpeed : typingSpeed;
+        setTimeout(typeHeadingEffect, nextDelay);
+    }
 
-            // Update active link on scroll
-            const sections = document.querySelectorAll('section[id]');
-            const scrollPos = window.scrollY + 100;
+    // Start typing animation when page loads
+    window.onload = function() {
+        typeHeadingEffect();
+        
+        // Initialize category cards after page loads
+        setTimeout(initCategoryCards, 100);
+    };
 
-            sections.forEach(sec => {
-                const top = sec.offsetTop;
-                const height = sec.offsetHeight;
-                if (scrollPos >= top && scrollPos < top + height) {
-                    const id = sec.getAttribute('id');
-                    document.querySelectorAll('.nav-links a').forEach(a => {
-                        a.classList.remove('active');
-                        if (a.getAttribute('href') === `#${id}`) a.classList.add('active');
+    // Mobile menu toggle
+    document.getElementById('menuToggle').addEventListener('click', function() {
+        document.getElementById('navLinks').classList.toggle('active');
+    });
+
+    // Close mobile menu when clicking a link
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', function() {
+            document.getElementById('navLinks').classList.remove('active');
+        });
+    });
+
+    // Smooth scroll + active link
+    document.querySelectorAll('.nav-links a, .logo-link').forEach(link => {
+        link.addEventListener('click', e => {
+            const href = link.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                e.preventDefault();
+                if (!link.classList.contains('logo-link')) {
+                    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                }
+                
+                const target = document.querySelector(href);
+                if (target) {
+                    const offset = 80;
+                    const targetPosition = target.offsetTop - offset;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
                     });
                 }
-            });
-        });
-
-        const categoryData = {
-            research: { title: 'African Development Research Award', requirements: ['PhD or equivalent research experience', 'Minimum 5 years of research in African development', 'Published at least 3 peer-reviewed papers', 'Demonstrated impact on African communities', 'South African citizen or permanent resident', 'Under 45 years of age'] },
-            ai: { title: 'AI Champion Award', requirements: ['Minimum 3 years experience in AI/ML', 'Proven track record of AI innovation', 'Active involvement in AI ethics and advocacy', 'Portfolio of AI projects or implementations', 'South African citizen or permanent resident', 'Open to all ages'] },
-            women: { title: 'Mamokgethi Phakeng Prize', requirements: ['Identify as a woman', 'Minimum 5 years leadership experience', 'Demonstrated impact in breaking barriers', 'Mentorship of young women', 'South African citizen or permanent resident', 'Open to all ages'] },
-            entrepreneur: { title: 'Young Entrepreneur Award', requirements: ['Age 18-35 years', 'Own and run a registered business', 'Business operational for minimum 2 years', 'Minimum 3 employees', 'Demonstrated revenue growth', 'South African citizen or permanent resident'] },
-            agriculture: { title: 'Youth in Agriculture Award', requirements: ['Age 18-35 years', 'Degree/Diploma in Agriculture or related field', 'Minimum 2 years experience in agriculture', 'Demonstrated innovation in farming', 'South African citizen or permanent resident', 'Sustainable farming practices'] }
-        };
-
-        // Award Modal elements
-        const modal = document.getElementById('categoryModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const requirementsList = document.getElementById('requirementsList');
-        const requirementsSection = document.getElementById('requirementsSection');
-        const applicationSection = document.getElementById('applicationSection');
-        const successSection = document.getElementById('successSection');
-        const applicationTitle = document.getElementById('applicationTitle');
-        const applicationCategory = document.getElementById('applicationCategory');
-        const appliedCategory = document.getElementById('appliedCategory');
-        const modalClose = document.getElementById('modalClose');
-        const modalCancel = document.getElementById('modalCancelBtn');
-        const showApplicationBtn = document.getElementById('showApplicationBtn');
-        const backToRequirementsBtn = document.getElementById('backToRequirementsBtn');
-
-        // Nomination modal elements
-        const nominationModal = document.getElementById('nominationModal');
-        const nominationModalClose = document.getElementById('nominationModalClose');
-        const nominationModalCancel = document.getElementById('nominationModalCancel');
-        const openNominationModalBtn = document.getElementById('openNominationModalBtn');
-
-        const categoryCards = document.querySelectorAll('.category-card:not([onclick])');
-        categoryCards.forEach(card => {
-            card.addEventListener('click', function(e) {
-                const category = this.dataset.category;
-                const data = categoryData[category];
-                if (data) {
-                    modalTitle.textContent = data.title;
-                    applicationTitle.textContent = data.title;
-                    appliedCategory.value = data.title;
-                    applicationCategory.value = category;
-                    let requirementsHtml = '';
-                    data.requirements.forEach(req => requirementsHtml += `<li>${req}</li>`);
-                    requirementsList.innerHTML = requirementsHtml;
-                    requirementsSection.style.display = 'block';
-                    applicationSection.style.display = 'none';
-                    successSection.style.display = 'none';
-                    modal.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                }
-            });
-        });
-
-        // Show award application form
-        showApplicationBtn.addEventListener('click', function() {
-            requirementsSection.style.display = 'none';
-            applicationSection.style.display = 'block';
-            successSection.style.display = 'none';
-        });
-
-        // Back to award requirements
-        backToRequirementsBtn.addEventListener('click', function() {
-            requirementsSection.style.display = 'block';
-            applicationSection.style.display = 'none';
-            successSection.style.display = 'none';
-        });
-
-        // Close award modal
-        function closeModal() {
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        modalClose.addEventListener('click', closeModal);
-        modalCancel.addEventListener('click', closeModal);
-        modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
-
-        // Nomination modal functions
-        function openNominationModal() {
-            nominationModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeNominationModal() {
-            nominationModal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        if (openNominationModalBtn) {
-            openNominationModalBtn.addEventListener('click', openNominationModal);
-        }
-        
-        if (nominationModalClose) {
-            nominationModalClose.addEventListener('click', closeNominationModal);
-        }
-        
-        if (nominationModalCancel) {
-            nominationModalCancel.addEventListener('click', closeNominationModal);
-        }
-        
-        if (nominationModal) {
-            nominationModal.addEventListener('click', function(e) { if (e.target === nominationModal) closeNominationModal(); });
-        }
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(e) {
-            const navLinks = document.getElementById('navLinks');
-            const menuToggle = document.getElementById('menuToggle');
-            
-            if (window.innerWidth <= 768 && 
-                navLinks.classList.contains('active') && 
-                !navLinks.contains(e.target) && 
-                !menuToggle.contains(e.target)) {
-                navLinks.classList.remove('active');
             }
         });
-    </script>
+    });
+
+    // Navbar hide/show on scroll
+    let lastScrollTop = 0;
+    const navbar = document.querySelector('.fixed-nav');
+    
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+        
+        if (scrollTop > lastScrollTop && scrollTop > 100) {
+            navbar.classList.add('hidden');
+        } else {
+            navbar.classList.remove('hidden');
+        }
+        
+        if (scrollTop === 0) {
+            navbar.classList.remove('hidden');
+        }
+        
+        lastScrollTop = scrollTop;
+
+        const sections = document.querySelectorAll('section[id]');
+        const scrollPos = window.scrollY + 100;
+
+        sections.forEach(sec => {
+            const top = sec.offsetTop;
+            const height = sec.offsetHeight;
+            if (scrollPos >= top && scrollPos < top + height) {
+                const id = sec.getAttribute('id');
+                document.querySelectorAll('.nav-links a').forEach(a => {
+                    a.classList.remove('active');
+                    if (a.getAttribute('href') === `#${id}`) a.classList.add('active');
+                });
+            }
+        });
+    });
+
+    // Category data from PHP
+    const categoryDetails = <?php echo json_encode($categoryDetails); ?>;
+
+    // Function to initialize category cards
+    function initCategoryCards() {
+        console.log('Initializing category cards...');
+        
+        // Get all category cards that have data-category attribute (the 5 award cards)
+        const categoryCards = document.querySelectorAll('.category-card[data-category]');
+        
+        console.log('Found category cards:', categoryCards.length);
+        
+        categoryCards.forEach((card, index) => {
+            // Remove any existing listeners
+            card.removeEventListener('click', handleCategoryClick);
+            // Add new listener
+            card.addEventListener('click', handleCategoryClick);
+            console.log(`Added click listener to card ${index + 1}:`, card.dataset.category);
+        });
+    }
+
+    // Category click handler
+    function handleCategoryClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const card = this;
+        const category = card.dataset.category;
+        
+        console.log('Card clicked:', category);
+        
+        if (!category) {
+            console.log('No category found');
+            return;
+        }
+        
+        const data = categoryDetails[category];
+        
+        if (!data) {
+            console.log('No data found for category:', category);
+            return;
+        }
+        
+        console.log('Opening modal for:', data.name);
+        
+        // Update modal content
+        document.getElementById('modalTitle').textContent = data.name;
+        document.getElementById('applicationTitle').textContent = data.name;
+        document.getElementById('appliedCategory').value = data.name;
+        document.getElementById('applicationCategory').value = category;
+        document.getElementById('awardDescription').textContent = data.description;
+        
+        // Build eligibility list
+        let eligibilityHtml = '';
+        data.eligibility.forEach(req => {
+            eligibilityHtml += `<li>${req}</li>`;
+        });
+        document.getElementById('eligibilityList').innerHTML = eligibilityHtml;
+        
+        // Build criteria list
+        let criteriaHtml = '';
+        data.criteria.forEach(crit => {
+            criteriaHtml += `<li>${crit}</li>`;
+        });
+        document.getElementById('criteriaList').innerHTML = criteriaHtml;
+        
+        // Set prize and open to details
+        document.getElementById('prizeDetails').textContent = data.prize;
+        document.getElementById('openToDetails').textContent = `🌍 Open to: ${data.open_to}`;
+        
+        // Show requirements section
+        document.getElementById('requirementsSection').style.display = 'block';
+        document.getElementById('applicationSection').style.display = 'none';
+        document.getElementById('successSection').style.display = 'none';
+        
+        // Show modal
+        document.getElementById('categoryModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Award Modal elements
+    const modal = document.getElementById('categoryModal');
+    const modalClose = document.getElementById('modalClose');
+    const modalCancel = document.getElementById('modalCancelBtn');
+    const showApplicationBtn = document.getElementById('showApplicationBtn');
+    const backToRequirementsBtn = document.getElementById('backToRequirementsBtn');
+
+    // Show award application form
+    showApplicationBtn.addEventListener('click', function() {
+        document.getElementById('requirementsSection').style.display = 'none';
+        document.getElementById('applicationSection').style.display = 'block';
+        document.getElementById('successSection').style.display = 'none';
+    });
+
+    // Back to award requirements
+    backToRequirementsBtn.addEventListener('click', function() {
+        document.getElementById('requirementsSection').style.display = 'block';
+        document.getElementById('applicationSection').style.display = 'none';
+        document.getElementById('successSection').style.display = 'none';
+    });
+
+    // Close award modal
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    modalClose.addEventListener('click', closeModal);
+    modalCancel.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) { 
+        if (e.target === modal) closeModal(); 
+    });
+
+    // Nomination modal elements
+    const nominationModal = document.getElementById('nominationModal');
+    const nominationModalClose = document.getElementById('nominationModalClose');
+    const nominationModalCancel = document.getElementById('nominationModalCancel');
+    const openNominationModalBtn = document.getElementById('openNominationModalBtn');
+
+    // Nomination modal functions
+    function openNominationModal() {
+        nominationModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeNominationModal() {
+        nominationModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    if (openNominationModalBtn) {
+        openNominationModalBtn.addEventListener('click', openNominationModal);
+    }
+    
+    if (nominationModalClose) {
+        nominationModalClose.addEventListener('click', closeNominationModal);
+    }
+    
+    if (nominationModalCancel) {
+        nominationModalCancel.addEventListener('click', closeNominationModal);
+    }
+    
+    if (nominationModal) {
+        nominationModal.addEventListener('click', function(e) { 
+            if (e.target === nominationModal) closeNominationModal(); 
+        });
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(e) {
+        const navLinks = document.getElementById('navLinks');
+        const menuToggle = document.getElementById('menuToggle');
+        
+        if (window.innerWidth <= 768 && 
+            navLinks.classList.contains('active') && 
+            !navLinks.contains(e.target) && 
+            !menuToggle.contains(e.target)) {
+            navLinks.classList.remove('active');
+        }
+    });
+
+    // Initialize on DOM content loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        initCategoryCards();
+    });
+</script>
 </body>
 </html>
